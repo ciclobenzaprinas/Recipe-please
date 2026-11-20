@@ -1,31 +1,22 @@
-RECIPE, PLEASE · Edición 1.9.64
+RECETA, POR FAVOR · Exportación móvil 1.9.44
 
-Cómo probarlo
-1. Descomprime el ZIP y deja todo junto: index.html, styles.css, game.js y la carpeta assets.
-2. Abre index.html con doble clic en Chrome, Edge o Firefox. No necesita internet.
-   Para Safari o iPhone usa un servidor local: python3 -m http.server 8000 (desde esta carpeta) y abre http://localhost:8000
-El guardado depende de cómo abras el juego (archivo local o dirección web): una partida guardada en un modo no aparece en el otro.
+Para usar el paquete web, extrae el ZIP y publica juntos index.html,
+styles.css, game.js y la carpeta assets en un alojamiento estático HTTPS.
+Abre la dirección de index.html desde Safari, Chrome u otro navegador.
 
-Atajos para probar lo nuevo (consola del navegador, F12)
-- Día 2 (SIS y Sicolás):   game=newState();game.day=2;game.scene='briefing';ui.modal=null;prepareDay();save();render();
-- Día 5 (La once):         game=newState();game.day=5;game.scene='briefing';ui.modal=null;prepareDay();game.sisIntroSeen=true;save();render();
-  y atender hasta el penúltimo paciente de la fila.
+El paquete carga las imágenes individualmente cuando el juego las necesita.
+Si prefieres jugar sin conexión, usa el archivo HTML autónomo de la versión
+móvil. Ábrelo con un navegador que admita archivos HTML locales.
+Una vista previa de mensajería o almacenamiento puede desactivar JavaScript.
 
-Novedades 1.9.64 (resumen desde 1.9.54)
-- Móvil: barra superior compacta con botón "OPCIONES", botones de acción fijos al fondo de la pantalla, textos de estado a 11 px y modo horizontal con cabecera mínima.
-- 50 pacientes chilenos nuevos con busto y carnet (646 pacientes normales en total), sin personajes retenidos.
-- Carnets especiales: Constanza (pelo azul, válida), chico de camisa (rubio, válido), chica de chasquilla (pelo rojo sin aros, válida), señora del bastón (pelo negro, huella no coincide), chico del banano (pelo largo sin barba, huella no coincide).
-- Especiales nuevos: gorro de aluminio (sin carnet, quetiapina 50 mg, receta simple), tarotista (día 10, Carta Tarot de $10.000), abuelo del Bagoncito (ánimo < 60, +20 a ambos, vale $5.000), chico del gorro de gato (sale solo como menor de 17).
+El guardado depende del navegador y de la dirección desde la que se juega.
 
-Novedades 1.9.54 (anteriores)
-- Diez pacientes chilenos nuevos, con sprite de busto (como los personajes especiales), mezclados al azar con los actuales. Se ven en el mostrador y en su carnet.
-- Solomeo Paredes Altas (el anciano de boina) y nueve más: Joaquín Mella Saavedra, Francisca Millaqueo Vargas, Hortensia Barrientos Lagos, Rodrigo Zúñiga Cárcamo, Catalina Antilef Pizarro, Marcela Huenchumilla Reyes, Eliseo Cárdenas Maldonado, Segundo Aravena Navarrete, Gladys Carrasco Venegas.
-- Fecha de nacimiento acorde a la edad visual y carnet más antiguo cuanto mayor se ve la persona (siempre vigente; los casos de carnet vencido siguen igual).
-- No se usan en casos de cambio de apariencia (aún no tienen variantes con gafas, gorro, etc.).
+Cambios de esta edición
 
-Novedades 1.9.53 (anteriores)
-- Registro SIS desde el día 2, con el caso de Sicolás Muros (ketazolam 30 mg, receta retenida) y aviso «¡Nuevo botón!».
-- «La once de los vecinos» (día 5): evento narrativo, sin efecto en dinero, ánimo ni inventario.
-- Manual corregido: SIS, hospitalización de Carlitos y bono del libro ahora coinciden con las reglas reales.
-- Retirado «Marcar observación» (no tenía efecto). Retirada la frase larga de la decisión de fiscalización.
-- Retratos: se limpiaron franjas de borde en 138 imágenes de pacientes.
+• La fiscalización identifica cada falta por separado. La primera
+  observación se mantiene y las multas tienen un tope de $24.000 por visita.
+• El Libro vuelve a la pantalla desde la que se abrió, incluso al recargar.
+• Dispensar una receta electrónica sin validarla registra una falta.
+• Los cuadros de diálogo se ajustan a pantallas angostas y mantienen el foco.
+• Carlitos ingresa tras tres crisis y recibe el alta al cabo de tres días
+  de hospitalización. El error de RUT del prescriptor pasa del día 4 al 6.
