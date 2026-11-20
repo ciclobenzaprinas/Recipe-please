@@ -446,14 +446,14 @@ body{background:radial-gradient(ellipse at 50% 0%,#30443a 0%,#15211b 54%,#0c130f
 .id-photo-pixel.cast600-portrait{object-position:center center!important;filter:saturate(.83) contrast(1.07)}
 
 /* 1.9.14 — fiscalizador nuevo, arriba y centrado; sin globo de texto */
-.stage.inspection{min-height:340px;background-image:url('assets/inspection.webp');background-position:center center;background-size:cover;}
-.stage.inspection::before{content:'';position:absolute;top:0;right:0;bottom:0;left:0;background:url('assets/inspection_hero.png') center top / auto 100% no-repeat;pointer-events:none;z-index:0;}
+.stage.inspection{min-height:340px;background-image:url('assets/inspection_scene.webp');background-position:center center;background-size:cover;}
+.stage.inspection::before{content:none;display:none;}
 .stage.inspection .stage-label{top:18px;left:18px;max-width:290px;}
 .stage.inspection .speech{display:none!important;}
 .stage.inspection + .content .btn[data-action='inspect-acknowledge'],.stage.inspection + .content .btn[data-action='inspect-rectify']{min-width:280px;}
 .proof-list{padding:10px 12px;margin:8px 0;background:rgba(109,134,104,.15);border-left:4px solid #6c8269;}
 .proof-list p{margin:5px 0;}
-@media(max-width:750px){.stage.inspection{min-height:260px;background-size:cover;background-position:center center;}.stage.inspection::before{background-position:center top;background-size:auto 96%;}.stage.inspection .stage-label{font-size:11px;max-width:185px;}}
+@media(max-width:750px){.stage.inspection{min-height:260px;background-size:cover;background-position:center center;}.stage.inspection .stage-label{font-size:11px;max-width:185px;}}
 
 /* 1.9.15 — Club nocturno (tarjeta Tía Turbina, huevo simple) y No-Meh Wei */
 .stage-character.club,.stage-character.nomeh{width:260px!important;height:246px!important;left:48%!important;bottom:-7px!important;overflow:visible;filter:drop-shadow(4px 6px 0 #15221b)!important}
@@ -1380,3 +1380,6 @@ html.modal-open{overflow:hidden}
  .stage-character{width:96px!important;height:118px!important}
  .actionbar{position:sticky;bottom:0;z-index:30;padding:6px 8px;background:#0f1b16;border-top:1px solid #6f6a4a}
 }
+
+@media(max-width:750px){.stage.inspection .stage-label{top:auto;bottom:8px;left:8px;max-width:170px;padding:6px 8px}.stage.inspection .stage-label b{font-size:10px}.stage.inspection .stage-label small{font-size:9px}}
+/* 1.9.65 · Escena SEREMI: fondo completo de farmacia con el fiscalizador al centro */
