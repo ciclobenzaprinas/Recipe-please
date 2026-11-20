@@ -1388,9 +1388,11 @@ html.modal-open{overflow:hidden}
 .idt-f{position:absolute;display:flex;align-items:center;box-sizing:border-box;padding:0 1.2%;overflow:hidden;white-space:nowrap;font-weight:700;line-height:1;letter-spacing:0;color:#1b2433}
 .idt-f.c{justify-content:center}
 .idt-photo{position:absolute;display:block;overflow:hidden;background:linear-gradient(180deg,#e3e8ec,#c9d1d8);border-radius:5%}
-.idt-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;image-rendering:pixelated}
+.idt-photo img,.idt-photo .patient-portrait,.idt-photo .cast600-portrait,.idt-photo .id-photo-pixel.cast600-portrait{display:block;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;image-rendering:pixelated}
 .idt-sign{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .idt-sign svg{width:92%;height:92%;max-height:100%}
 .inspect-area .idtpl{width:min(100%,640px)}
 @media(max-width:740px){.idtpl{width:100%}}
 /* 1.9.67 */
+/* 1.9.79 · La máscara del retrato sigue el mismo encuadre «cover» de la foto en el carnet */
+.idt-photo .patient-portrait[data-portrait]{-webkit-mask-size:cover;mask-size:cover;-webkit-mask-position:center center;mask-position:center center}
