@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.88. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.89. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -840,7 +840,136 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
+// ===== Diálogos personalizados (1.9.89) =====
+// Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
+// (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
+const CAST_MOODS={615:'angry',651:'angry',659:'angry',668:'angry',673:'angry',684:'angry',
+ 658:'sad',665:'sad',677:'sad',686:'sad',698:'sad',
+ 633:'happy',635:'happy',638:'happy',640:'happy',645:'happy',646:'happy',649:'happy',652:'happy',657:'happy',671:'happy',676:'happy',683:'happy',689:'happy',697:'happy'};
+function patientMood(p){const id=Number.isInteger(p?.idCatalogId)?p.idCatalogId:p?.catalogId;return CAST_MOODS[p?.catalogId]||CAST_MOODS[id]||'neutral'}
+function dlgSeed(p,salt=0){const s=(Number(p?.portraitSeed)||0)>>>0;return ((((s^(s>>>5))+salt*40503)>>>0)*2246822519>>>0)>>>8}
+function dlgPick(list,p,salt=0){return list[dlgSeed(p,salt)%list.length]}
+// Pista en ~50 % de los casos con problema, siempre igual para el mismo paciente.
+function dlgHasHint(p){return dlgSeed(p,99)%100<50}
+const DLG_HINTS={
+ typo:['El doctor la escribió corriendo y no la alcancé a revisar.','Me dictaron mis datos por teléfono, no sé si anotaron bien el RUT.','Ojalá no tenga errores, la secretaria la pasó en limpio apurada.'],
+ different:['Esta receta la sacó mi hermano a mi nombre... creo que puso otro RUT.','Los datos son de otra persona de la familia, pero el remedio es para mí.','Me la prestó una prima, es el mismo remedio, ¿no?'],
+ expired:['La receta es de hace unas semanas, pero el remedio se me acabó recién.','No había podido venir antes. Ojalá todavía valga.','Es la receta del mes pasado, ¿verdad que dura harto?'],
+ double:['Ya retiré con esta misma receta, pero quería ver si acá me daban otra caja.','Me dijeron que el código QR sirve más de una vez, ¿cierto?','Esta receta ya la usé esta semana, pero me sirve igual, ¿no?'],
+ wrongtype:['El doctor me dio la receta blanca de siempre, también para este remedio.','Me dijeron que con receta simple se podía, ¿o no?','No tengo el cheque, pero la simple debería servir.'],
+ electronicBad:['El código QR no lee, no sé por qué... me lo mandaron por WhatsApp.','Me pasaron la receta como captura de pantalla, ¿sirve igual?'],
+ idExpired:['El carnet se me venció hace poco, pero soy yo, mire la foto.','No he podido renovar el carnet, pero está todo en orden.'],
+ idFuture:['El carnet es nuevo, me lo dieron recién... creo que la fecha salió rara.','Lo retiré hace nada del registro; la fecha, no sé.'],
+ idSexMismatch:['El carnet tiene un dato malo, hace años que no lo corrijo.','Ese es mi carnet, aunque tiene un error.'],
+ missingid:['Se me quedó el carnet en la casa. ¿Me atiende igual?','No traje la cédula, ¿se puede igual?'],
+ prescriberTypo:['El timbre del doctor salió medio borroso, no se lee bien el RUT.','El doctor anotó su RUT rapidito, creo que se equivocó.'],
+ prescriberMismatch:['Me atendió un doctor de reemplazo ese día, no sé con qué timbre firmó.','Ese día me vio otro profesional; el timbre es de otro doctor.'],
+ impostor:['Ese es mi carnet, aunque ando con otra facha.','La foto es medio vieja, pero soy yo, créame.']
+};
+function dlgProblemKey(p){
+ if(p.kind==='missingid')return 'missingid';
+ if(['typo','different','expired','double','wrongtype','idExpired','idFuture','idSexMismatch','prescriberTypo','prescriberMismatch'].includes(p.kind))return p.kind;
+ if(p.rxType==='ELECTRÓNICA'&&(p.qrValidation==='invalid'||p.kind==='electronicRepeat'))return 'electronicBad';
+ if(p.variantImpostor===true&&!p.noDocument)return 'impostor';
+ return null;
+}
+const DLG_OPEN={
+ angry:['¡Apúrate, weón!','Ya po, weón, no tengo todo el día.','Oye, weón, ¿vai a atender o no?','Puta la weá lenta, apúrate.'],
+ angryForeign:['¡Oiga, apúrese!','Llevo una hora esperando, ¡atienda ya!','Esto es una falta de respeto, atiéndame.'],
+ sad:['Buenas... perdone la hora.','Hola... disculpe la molestia.','Buenas tardes, vengo medio cansado.'],
+ happyOld:['¡Buenas tardes, hijito! Qué lindo día.','¡Hola, joven! Qué gusto verlo.'],
+ happy:['¡Buenas, buenas!','¡Hola, químico! ¡Qué gusto!','¡Buenas tardes! Qué día más lindo.'],
+ old:['Buenas tardes, hijito.','Hola, joven. Con calma, por favor.','Buenas, mijito.'],
+ young:['Hola po, ¿qué tal?','Buenas, llevo rato en la fila.','Hola, ando apurado, ¿me ayuda?'],
+ neutral:['Buenas tardes.','Hola, químico.','Buenas.'],
+ VE:['Buenas, mi amigo.','Epa, buenas tardes.'],HT:['Bonjou, buenas tardes.'],AR:['Buenas, che.','Hola, buen día.'],PE:['Buenas, jefe.','Hola, joven.'],
+ IT:['Buongiorno.'],BO:['Buenas tardes, joven.'],DE:['Guten Tag.'],CN:['Hola, buenas tardes.']
+};
+const DLG_ASK={
+ 'Control legal':['Vengo por mi {d}, el del control.','Me toca retirar el {d} del mes.','Traigo la receta del {d}, vengo con el tratamiento al día.'],
+ 'Salud mental':['Vengo por mi {d}, el que me dio el psiquiatra.','Necesito retirar el {d}, me hace bien.'],
+ 'Cardiovasculares':['Es para la presión, el {d}.','Vengo por mi {d}, el del corazón.'],
+ 'Endocrinos y metabólicos':['Vengo por mi {d}, el del control mensual.','Necesito el {d}, no puedo quedarme sin tratamiento.'],
+ 'Antiinfecciosos':['Me recetaron {d} por una infección.','Vengo por {d}, me dijeron que era urgente.'],
+ 'Gastrointestinales y respiratorios':['Vengo por mi {d}, el de la crisis de la semana pasada.','Necesito el {d}, me ha tenido mal.'],
+ 'Antiinflamatorios y relajantes':['Es por el dolor de espalda, necesito el {d}.','Me mandaron {d} por una contractura.'],
+ _:['Vengo por mi {d}. ¿Me revisa la receta?','Traigo la receta del {d}.']
+};
+const DLG_ASK_ANGRY=['Dame mi {d} de una vez, weón, llevo una hora aquí.','Ya po, mi {d}. La receta está bien, atiende no más, weón.','Yo vine por el {d}, no a conversar, weón.'];
+function dlgDrug(p){const d=DRUGS[p.drug];return d?`${d.name} ${d.mg}`:'remedio'}
+function dlgAge(p){return ageFromBirth(fictionalIdDates(p).birth)||30}
+function dlgIsCL(p){return !p.nationalityCode||p.nationalityCode==='CL'}
+function dlgOpener(p){
+ const mood=patientMood(p),age=dlgAge(p);
+ if(mood==='angry')return dlgPick(dlgIsCL(p)?DLG_OPEN.angry:DLG_OPEN.angryForeign,p,1);
+ if(mood==='sad')return dlgPick(DLG_OPEN.sad,p,1);
+ if(!dlgIsCL(p)&&DLG_OPEN[p.nationalityCode]&&dlgSeed(p,2)%2===0)return dlgPick(DLG_OPEN[p.nationalityCode],p,1);
+ if(mood==='happy')return dlgPick(age>=65?DLG_OPEN.happyOld:DLG_OPEN.happy,p,1);
+ return dlgPick(age>=65?DLG_OPEN.old:age<=28?DLG_OPEN.young:DLG_OPEN.neutral,p,1);
+}
+function dlgBody(p){
+ const d=dlgDrug(p);
+ const pool=patientMood(p)==='angry'&&dlgIsCL(p)?DLG_ASK_ANGRY:(DLG_ASK[DRUGS[p.drug]?.group]||DLG_ASK._);
+ return dlgPick(pool,p,3).replace('{d}',d);
+}
+// Tipos que ya tienen líneas propias: solo se les antepone el humor si el paciente se ve enojado.
+const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
+const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
 function patientDialogue(p){
+ if(DLG_KEEP_PLAIN.includes(p.kind))return baseDialogue(p);
+ if(DLG_OWN_LINES.includes(p.kind)){
+  const base=baseDialogue(p);
+  return patientMood(p)==='angry'&&dlgIsCL(p)?`${dlgPick(DLG_OPEN.angry,p,1)} ${base}`:base;
+ }
+ const opener=dlgOpener(p);
+ const key=dlgProblemKey(p);
+ if(key&&dlgHasHint(p))return `${opener} ${dlgPick(DLG_HINTS[key],p,5)}`;
+ if(p.noDocument)return `${opener} ${dlgBody(p)} ¿Me puede revisar la receta?`;
+ return `${opener} ${dlgBody(p)}`;
+}
+// Frase que dice el paciente una vez tomada la decisión.
+const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock'};
+function outcomeDialogue(p,decision,reportCategory,returnReason,correct){
+ const mood=patientMood(p),cl=dlgIsCL(p),say=DLG_REASON_SAY[returnReason]||'algo anda mal con mis papeles';
+ const guilty=correct&&decision!=='dispense';
+ const salt=(decision.length*13)+(returnReason?returnReason.length:0);
+ const pk=list=>dlgPick(list,p,40+salt);
+ const angry=mood==='angry';
+ if(decision==='dispense'){
+  if(angry)return pk(cl?['Por fin, weón. Chao.','Ya po, ¿ves que no era tan difícil? Chao.','Al fin, weón. Que te vaya mal... digo, buenas tardes.']:['Por fin. Gracias, aunque tardó una eternidad.']);
+  if(!correct)return pk(['Gracias, químico. Que le vaya muy bien.','Listo, qué amable. Hasta luego.']);
+  if(mood==='sad')return pk(['Gracias, de verdad... me hacía falta.','Gracias, químico. Que tenga buena tarde.']);
+  if(mood==='happy')return pk(['¡Mil gracias! Que tenga un día precioso.','¡Gracias, químico! ¡Hasta la próxima!']);
+  return pk(['Gracias, químico. Hasta luego.','Perfecto, muchas gracias.','Gracias, que le vaya bien.']);
+ }
+ if(decision==='return'){
+  if(angry)return pk(cl?[`¡Weón, ${say} y por eso me mandas pa la casa! Yo te alimento, culiao.`,'¡¿Me la devuelves?! Puta la weá, apúrate y arréglalo, weón.','Ándate a la cresta, weón. Ya vuelvo, pero esto no queda así, culiao.',`Weón, ${say}... ¡no es pa tanto, apúrate!`]:['¡Esto es inaceptable! Volveré, pero me quejaré.','¿Me la devuelve? ¡Qué falta de respeto!']);
+  if(mood==='sad')return pk([`Tiene razón, ${say}... perdone la molestia, vuelvo mañana.`,`Ay, ${say}. Qué pena, ya vuelvo con todo en orden.`]);
+  if(mood==='happy')return pk([`¡Ah, es cierto, ${say}! Qué despistado soy. Vuelvo enseguida.`,`Jajá, ${say}. ¡Gracias por avisarme, químico!`]);
+  if(!correct)return pk(['Pero si mi receta estaba bien... bueno, voy a reclamar.','No entiendo qué pasó, pero vuelvo a revisar.']);
+  return pk([`Ya, entiendo, ${say}. Vuelvo cuando lo tenga listo.`,`Tiene razón, ${say}. Gracias por avisar.`]);
+ }
+ if(decision==='seremi'){
+  if(angry)return pk(cl?[correct?'¡¿Me vas a acusar a la SEREMI, weón?! ¡Qué te pasa, culiao!':'¡Weón, mi receta es verdadera! ¡Te vas a arrepentir, culiao!','Ándate a la cresta, weón. Que vengan no más, yo no tengo nada que esconder.','¡Yo te alimento, culiao! ¿Ahora me mandas a la SEREMI?']:['¡Esto es un abuso! ¡Llamaré a mi abogado!']);
+  if(!correct)return pk(['Esto es un error, la receta es verdadera. Voy a reclamar.','¿La SEREMI? Pero si yo no hice nada malo...']);
+  if(mood==='sad')return pk(['Por favor, no... lo hice por necesidad, químico.','Perdóneme... no sabía qué más hacer.']);
+  if(mood==='happy')return pk(['Jejeje... bueno, valía la pena intentarlo.','Ay, me pillaron. Qué le vamos a hacer.']);
+  return pk(['Ya, me pilló. Fue una tontera.','Está bien... no pensé que lo iba a notar.']);
+ }
+ if(decision==='police'){
+  if(angry)return pk(cl?['¡¿Carabineros, weón?! ¡Yo te alimento, culiao, esto no queda así!','Chuta, weón, ¿llamaste a los pacos? ¡Ándate a la cresta!','¡Suéltame, weón! ¡No hice nada, culiao!']:['¡No me toque! ¡Esto es una injusticia!']);
+  if(!correct)return pk(['¡Se equivoca! Yo no hice nada, mire mis papeles.','Esto es un malentendido, llamen a mi doctor.']);
+  if(mood==='sad')return pk(['Por favor, no llame a Carabineros... tengo familia.','No quería llegar a esto, perdóneme.']);
+  return pk(['Está bien, está bien... voy con ellos, no hagamos escándalo.','Ya, me pillaron. No me resisto.']);
+ }
+ // retain, keep-paper u otros
+ if(angry)return pk(cl?['¡Oye, weón, devuélveme la receta! ¡Ladrón, culiao!','¿Te quedas con mi receta? ¡Apúrate y devuélvemela, weón!']:['¡Devuélvame mis papeles de inmediato!']);
+ if(mood==='sad')return pk(['Está bien... me quedo sin nada entonces.','Ya... qué le vamos a hacer.']);
+ if(!correct)return pk(['Pero si es mía, ¿por qué se queda con ella?','No entiendo, pero bueno.']);
+ return pk(['Está bien, como usted diga.','Ya, entonces me voy no más.']);
+}
+
+function baseDialogue(p){
  if(p.kind==='tuguelExpired')return '¡Qué pasa, papito! ¿Me da el medicamento? Traigo el carnet acá.';
  if(p.kind==='minorGuardian')return p.quote;
  if(p.kind==='chemy')return 'Muuu... digo, buenas tardes. Vengo por mi fenbendazol al 25 %, aquí está la receta.';
@@ -936,6 +1065,20 @@ function authorityStory(kind,p){
  const n=escapeText(String(p?.firstNames||p?.name||'El paciente').trim().split(/\s+/)[0]);
  let h=0;for(const c of String((p?.folio||'')+(p?.name||'')))h=(h*31+c.charCodeAt(0))>>>0;
  const pick=list=>list[h%list.length];
+ if(patientMood(p)==='angry'&&dlgIsCL(p)){
+  if(kind==='seremi-rx')return pick([
+   `Una fiscalizadora de la SEREMI levanta el acta y cursa la multa. ${n} revienta: «¡Weón, qué abuso! ¡Yo te alimento, culiao!». Firma de mala gana y se va dando un portazo.`,
+   `La autoridad sanitaria cursa la multa. ${n} la lee, se pone rojo y suelta: «¡La weá injusta! ¡Ándate a la cresta, químico!». Igual firma el acta.`
+  ]);
+  if(kind==='police-bribe')return pick([
+   `Carabineros llega y detiene a ${n} por ofrecer plata a cambio de un medicamento. Mientras lo suben al furgón grita: «¡Suéltenme, weones! ¡Esto no queda así, culiao!».`,
+   `Dos carabineros entran a la farmacia y se llevan a ${n}, que va protestando: «¡Apúrense, weones, si no hice nada!».`
+  ]);
+  return pick([
+   `Carabineros llega a la farmacia y se lleva a ${n}, que grita desde la puerta: «¡Yo te alimento, culiao! ¡Ándate a la cresta!».`,
+   `Dos carabineros detienen a ${n}, que se resiste y vocifera: «¡Suéltame, weón! ¡Esto es un abuso, culiao!».`
+  ]);
+ }
  if(kind==='seremi-rx')return pick([
   `Una fiscalizadora de la SEREMI levanta el acta y cursa la multa. ${n} la lee en silencio, se frota la frente y murmura: «No lo vuelvo a hacer, químico. Se lo juro».`,
   `La autoridad sanitaria cursa la multa y deja una copia del acta sobre el mesón. ${n} firma con la mano temblorosa: «Fue una tontera mía... No va a volver a pasar».`,
@@ -1465,6 +1608,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
    }else game.specialEvents.tuguelReturnPending=false;
  }
  p.done=true;game.patientResult={decision,expected,correct,p};
+ if(!game.tutorial&&!isPaperEvent(p)&&p.kind!=='bribe')p.outcomeQuote=outcomeDialogue(p,decision,reportCategory,returnReason,correct);
  if(decision==='dispense'){
   ui.modal=null;
   if(noStock){
@@ -2052,6 +2196,7 @@ function stage(which,label,sub='',speech=''){
  if(arriving)ui.arrivalKey=key;
  const person=p?`<div class="stage-character ${p.guardianVisit?'duo ':''}${p.kind==='specialCarlos'?'carlos':p.kind==='chinese'?'nomeh':p.kind==='clubNocturno'?'club':p.kind==='tuguelExpired'||p.kind==='tuguelFake'?'tuguel':'regular'} ${arriving?'patient-arriving':''}">${p.guardianVisit?guardianDuoPortrait(p):subjectPortrait(p)}</div>`:'';
  if(which==='home'||which==='book')return `<div class="stage ${which} scenic-only" role="img" aria-label="${which==='home'?'Familia reunida en el hogar':'Estanterías de medicamentos de la farmacia'}"></div>`;
+ if(p&&p.done&&p.outcomeQuote&&speech===p.quote)speech=p.outcomeQuote;
  return `<div class="stage ${which}">${person}<div class="stage-label"><b>${escapeText(label)}</b><small>${escapeText(sub)}</small></div>${speech?`<div class="speech">${escapeText(speech)}</div>`:''}</div>`;
 }
 function sisAvailable(){
@@ -2094,7 +2239,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.88 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.89 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2136,7 +2281,7 @@ function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" da
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.88','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.89','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código QR de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
