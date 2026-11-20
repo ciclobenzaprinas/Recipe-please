@@ -1383,3 +1383,14 @@ html.modal-open{overflow:hidden}
 
 @media(max-width:750px){.stage.inspection .stage-label{top:auto;bottom:8px;left:8px;max-width:170px;padding:6px 8px}.stage.inspection .stage-label b{font-size:10px}.stage.inspection .stage-label small{font-size:9px}}
 /* 1.9.65 · Escena SEREMI: fondo completo de farmacia con el fiscalizador al centro */
+/* 1.9.67 · Carnets con plantilla por país (CL, VE, HT, AR, PE, IT, DE, BO) */
+.idtpl{position:relative;display:block;width:min(100%,540px);margin:6px auto;container-type:inline-size;background-size:100% 100%;background-repeat:no-repeat;color:#1b2433;font-family:"Lucida Console",Monaco,"Courier New",monospace;image-rendering:auto;filter:drop-shadow(2px 3px 0 rgba(10,18,16,.55));user-select:none}
+.idt-f{position:absolute;display:flex;align-items:center;box-sizing:border-box;padding:0 1.2%;overflow:hidden;white-space:nowrap;font-weight:700;line-height:1;letter-spacing:0;color:#1b2433}
+.idt-f.c{justify-content:center}
+.idt-photo{position:absolute;display:block;overflow:hidden;background:linear-gradient(180deg,#e3e8ec,#c9d1d8);border-radius:5%}
+.idt-photo img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;image-rendering:pixelated}
+.idt-sign{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.idt-sign svg{width:92%;height:92%;max-height:100%}
+.inspect-area .idtpl{width:min(100%,640px)}
+@media(max-width:740px){.idtpl{width:100%}}
+/* 1.9.67 */
