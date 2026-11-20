@@ -1396,3 +1396,11 @@ html.modal-open{overflow:hidden}
 /* 1.9.67 */
 /* 1.9.79 · La máscara del retrato sigue el mismo encuadre «cover» de la foto en el carnet */
 .idt-photo .patient-portrait[data-portrait]{-webkit-mask-size:cover;mask-size:cover;-webkit-mask-position:center center;mask-position:center center}
+/* 1.9.83 · El menor vuelve con su papá: dos personajes esperando en el mesón */
+.stage-character.duo{width:400px!important;left:42%!important;gap:0;align-items:flex-end}
+.stage-character.duo .duo-person{display:flex;align-items:flex-end;justify-content:center;height:100%;flex:1 1 0;min-width:0}
+.stage-character.duo .duo-father{height:100%;margin-right:-28px;z-index:1}
+.stage-character.duo .duo-son{height:84%;z-index:2}
+.stage-character.duo .duo-person .patient-portrait{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center bottom!important}
+@media (max-width:850px){.stage-character.duo{width:300px!important;left:40%!important}.stage-character.duo .duo-father{margin-right:-20px}}
+@media (max-width:560px){.stage-character.duo{width:250px!important;left:34%!important}.stage-character.duo .duo-father{margin-right:-14px}}
