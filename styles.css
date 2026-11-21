@@ -1404,3 +1404,34 @@ html.modal-open{overflow:hidden}
 .stage-character.duo .duo-person .patient-portrait{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center bottom!important}
 @media (max-width:850px){.stage-character.duo{width:300px!important;left:40%!important}.stage-character.duo .duo-father{margin-right:-20px}}
 @media (max-width:560px){.stage-character.duo{width:250px!important;left:34%!important}.stage-character.duo .duo-father{margin-right:-14px}}
+
+/* Manual práctico 1.9.96 */
+.mbtn{display:inline-block;pointer-events:none;margin:3px 5px 3px 0;padding:7px 11px;min-height:0;font-size:11px;vertical-align:middle;white-space:normal}
+.mbtns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.msteps{padding-left:24px}.msteps>li{margin:12px 0;line-height:1.5}
+.mspeech{display:block;background:#f3e2b5;border:3px solid #2d3025;box-shadow:3px 3px #0e1510;padding:8px 12px;margin:8px 0;font-weight:800;font-size:12px;max-width:420px;color:#242720}
+.mcase{display:flex;gap:12px;align-items:flex-start;border:3px solid #a59370;border-left-width:8px;background:#efe3c3;padding:10px 12px;margin:12px 0}
+.mcase.ok{border-left-color:#5c8a60}.mcase.warn{border-left-color:#c79845}.mcase.bad{border-left-color:#a0463d}.mcase.info{border-left-color:#4f7a85}
+.mcase-img{display:flex;gap:6px;flex:0 0 auto;align-items:flex-end}
+.msprite{width:110px;height:auto;image-rendering:auto}.msprite.sm{width:70px}.msprite.wide{width:200px;max-width:100%}
+.mcase-body{flex:1 1 auto;min-width:0}.mcase-body h4{margin:0 0 6px;font-size:15px;color:#262820}
+.mcase-body p{margin:5px 0}
+.mdocs{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}.mfig{flex:1 1 260px;margin:0;min-width:0}
+.mfig figcaption{font-size:11px;margin-top:4px;color:#4b4d3f}
+.manual-doc{pointer-events:none;zoom:.62;transform-origin:top left}.manual-doc .draggable{cursor:default}
+.hl-rut .rx-rut,.manual-doc .rx-rut{outline:3px solid #d97a3a;background:#ffe3b0;padding:0 3px}
+.mnote{border-left:6px solid #4f7a85;background:#e3ead8;padding:9px 12px;margin:12px 0}.mnote.warn{border-left-color:#c79845;background:#f2e2bd}.mnote.info{border-left-color:#4f7a85}
+.mcheck{padding-left:20px}.mcheck li{margin:6px 0}
+.mtable td,.mtable th{vertical-align:middle}
+.mflags,.mgifts,.mtrio{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.mflags figure{margin:0;width:140px;text-align:center}.mflags img{width:100%;height:auto;border:2px solid #7c7358}
+.mgifts figure{margin:0;width:72px;text-align:center;font-size:10px}.mgifts img{width:56px;height:56px;object-fit:contain}
+.mtrio figure{margin:0;text-align:center;font-size:11px}.mtrio .msprite{width:110px}
+.mresults{gap:10px}.mresults .fingerprint-mini{pointer-events:none}
+.mnotify{display:grid;gap:6px;margin:8px 0}.mnotify div{border:3px solid #6a5a4a;background:#a78a73;padding:8px 10px;color:#1e1812}.mnotify small{display:block;font-size:11px;opacity:.85}
+.mreasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}.mreasons ul{margin:4px 0;padding-left:18px;font-size:12px}
+@media(max-width:650px){.mcase{flex-direction:column}.msprite{width:90px}.manual-doc{zoom:.5}}
+.modal .paper .mbtn{color:#f8ead1!important;text-shadow:1px 2px #1f2722}.modal .paper .mbtn.cream{color:#17221b!important;text-shadow:none}
+.modal .paper .mnotify div,.modal .paper .mnotify b{color:#1e1812}
+.modal .paper .mresults .fingerprint-mini{color:#f4ecd0!important;padding:10px 14px;font-weight:900}
+.msigs{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0}.msigs figure{margin:0;background:#fff8e6;border:2px solid #a59370;padding:8px;text-align:center;font-size:11px}.msigs img{width:210px;max-width:100%}
