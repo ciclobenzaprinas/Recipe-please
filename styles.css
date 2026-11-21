@@ -853,3 +853,13 @@ html.modal-open{overflow:hidden}
 .modal .paper .mnotify div,.modal .paper .mnotify b{color:#1e1812}
 .modal .paper .mresults .fingerprint-mini{color:#f4ecd0!important;padding:10px 14px;font-weight:900}
 .msigs{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0}.msigs figure{margin:0;background:#fff8e6;border:2px solid #a59370;padding:8px;text-align:center;font-size:11px}.msigs img{width:210px;max-width:100%}
+
+/* 1.9.107 · Recetas con plantilla ilustrada (electrónica, cheque, cheque electrónica) */
+.paper.doc.rx-tpl{position:relative;width:100%;max-width:560px;padding:0;border:0;overflow:hidden;container-type:inline-size;background-color:transparent;background-image:var(--tpl-img)!important;background-size:100% 100%;background-repeat:no-repeat;box-shadow:5px 6px 0 #201a16}
+.paper.doc.rx-tpl::before{opacity:.1}
+.rx-tpl .paper-fold{display:none}
+.rx-tpl .tf{position:absolute;display:block;white-space:nowrap;overflow:hidden;line-height:1.15;font-family:"Courier New",ui-monospace,monospace;font-weight:700;color:var(--tpl-ink)!important;letter-spacing:0;pointer-events:none}
+.rx-tpl .tf-box{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.rx-tpl .tf-box svg,.rx-tpl .tf-box .signature-png{height:100%;width:auto;max-width:100%}
+.rx-tpl .tf-box .ink-sign{color:var(--tpl-ink)!important;font-size:3.6cqw}
+.manual-doc .rx-tpl{max-width:none}
