@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.96. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.97. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -840,7 +840,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.96) =====
+// ===== Diálogos personalizados (1.9.97) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1554,8 +1554,18 @@ function validReturnReasons(p,docStatus,age,fieldReasons){
  }
  return reasons;
 }
+// Cantidad de dígitos distintos entre el RUT de la receta y el de la cédula (1–2: error de escritura; 3 o más: intento de engaño).
+function rutDigitDiffs(p){
+ if(isPaperEvent(p)||p.noDocument||p.kind==='bribe'||p.guardianVisit||p.kind==='minorGuardian')return 0;
+ const clean=v=>String(v??'').replace(/\(EXTRANJERO\)/gi,'').replace(/[^0-9kK]/g,'').toUpperCase();
+ const rx=clean(prescriptionPatientId(p)),real=clean(usesForeignPrescriptionId(p)?p.documentNumber:p.rut);
+ if(!rx||!real)return 0;
+ let d=Math.abs(rx.length-real.length);for(let i=0;i<Math.min(rx.length,real.length);i++)if(rx[i]!==real[i])d++;
+ return p.kind==='different'&&d>0?Math.max(d,3):d;
+}
+function rutMismatchIsFraud(p){return rutDigitDiffs(p)>=3}
 function isReportablePrescription(p){
- return !isPaperEvent(p)&&p.rxType!=='NINGUNA'&&p.kind!=='bribe'&&!unauthorizedPrescriberCase(p)&&(p.callRejected===true||electronicValidationFailed(p)||isStolenPrescription(p)||!validPrescriptionSignature(p)||prescriberIdentityIsFalse(lookupPrescriber(p).status)||['wrongtype','wrongtypeRepeat'].includes(p.kind));
+ return !isPaperEvent(p)&&p.rxType!=='NINGUNA'&&p.kind!=='bribe'&&!unauthorizedPrescriberCase(p)&&(p.callRejected===true||electronicValidationFailed(p)||isStolenPrescription(p)||!validPrescriptionSignature(p)||prescriberIdentityIsFalse(lookupPrescriber(p).status)||['wrongtype','wrongtypeRepeat'].includes(p.kind)||rutMismatchIsFraud(p));
 }
 function finalizePatient(decision,reportCategory=null,returnReason=null){const p=game.patients[game.patientIndex];if(!p||p.done||p.kind==='donVictor')return;
  if(!practiceDecisionAllowed(decision,reportCategory,returnReason))return;
@@ -2260,7 +2270,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.96 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.97 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2302,7 +2312,7 @@ function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" da
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.96','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.97','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código QR de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -2613,7 +2623,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.96) =====
+// ===== Manual práctico (1.9.97) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','PERSONAJES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -2627,7 +2637,7 @@ function mtip(html,kind='tip'){return `<div class="mnote ${kind}">${html}</div>`
 function manualSamples(){
  if(ui.manualSamples)return ui.manualSamples;
  const u=game.usedCatalogIds?[...game.usedCatalogIds]:game.usedCatalogIds,r=game.priorRxUses?[...game.priorRxUses]:game.priorRxUses,out={};
- for(const [k,n] of [['correct',3],['typo',5],['expired',7],['wrongtype',9],['check',11],['idExpired',13],['electronic',15],['lookHair',17]]){
+ for(const [k,n] of [['correct',3],['typo',5],['expired',7],['wrongtype',9],['check',11],['idExpired',13],['electronic',15],['lookHair',17],['different',19]]){
   try{const p=makePatient(k,n);p.gaveId=true;p.done=false;out[k]=p}catch(e){out[k]=null}
  }
  game.usedCatalogIds=u;game.priorRxUses=r;ui.manualSamples=out;return out;
@@ -2660,7 +2670,10 @@ function manualTabInner(tab){
   ${ok?mcase({title:'Cómo se ve un caso correcto',see:`El nombre <b>${escapeText(rxPatientName(ok))}</b> es el mismo en la receta y en la cédula, el RUT <b>${mSafe(()=>prescriptionPatientId(ok))}</b> coincide con el RUN de la cédula, la cédula está vigente y el prescriptor está bien identificado.`,doIt:'despachar. Si dudas, revisa una vez más el RUT: es el error más común.',btns:mb('✓ DISPENSAR','green'),tone:'ok'}):''}
   <h3>Caso resuelto 2 · RUT con un dígito errado</h3>
   <div class="mdocs">${mfig(mRx(ty),'Receta','hl-rut')}${mfig(mId(ty),'Cédula','')}</div>
-  ${ty?mcase({title:'Cuando los números no calzan',see:`La receta dice RUT <b>${mSafe(()=>prescriptionPatientId(ty))}</b> y la cédula dice <b>${escapeText(ty.rut)}</b>. Un solo dígito distinto basta para devolver.`,doIt:'tocar «Devolver» y elegir el motivo <i>RUT, DNI o datos de identificación no coinciden</i>, luego «Confirmar». No es delito: es un error de escritura.',btns:[mb('↶ DEVOLVER','amber'),mb('Confirmar','green')],tone:'warn'}):''}
+  ${ty?mcase({title:'Cuando los números no calzan',see:`La receta dice RUT <b>${mSafe(()=>prescriptionPatientId(ty))}</b> y la cédula dice <b>${escapeText(ty.rut)}</b>. Con uno o dos dígitos distintos basta para devolver.`,doIt:'tocar «Devolver» y elegir el motivo <i>RUT, DNI o datos de identificación no coinciden</i>, luego «Confirmar». No es delito: es un error de escritura.',btns:[mb('↶ DEVOLVER','amber'),mb('Confirmar','green')],tone:'warn'}):''}
+  <h3>Caso resuelto 3 · Casi ningún número calza</h3>
+  <div class="mdocs">${mfig(mRx(S.different),'Receta','hl-rut')}${mfig(mId(S.different),'Cédula','')}</div>
+  ${S.different?mcase({title:'Cuando es más que un error de tipeo',see:`La receta dice RUT <b>${mSafe(()=>prescriptionPatientId(S.different))}</b> y la cédula dice <b>${escapeText(S.different.rut)}</b>: son <b>${mSafe(()=>rutDigitDiffs(S.different))} dígitos distintos</b>.`,doIt:'con <b>1 o 2 dígitos</b> distintos es un error de escritura: devolver. Con <b>3 o más</b> (o un RUT completamente distinto) es como si te quisieran engañar: puedes devolver, o bien notificar como receta falsa en «Notificar o retener» → Avisar a SEREMI.',btns:[mb('↶ DEVOLVER','amber'),mb('⚠ NOTIFICAR O RETENER','red')],tone:'bad'}):''}
   <h3>Mapa de botones del mesón y la inspección</h3>
   <table class="data-table mtable"><thead><tr><th>Botón</th><th>Qué hace</th></tr></thead><tbody>
    <tr><td>${mb('Ampliar y comparar','cream')}</td><td>Abre la inspección: receta y cédula lado a lado, con zoom.</td></tr>
@@ -2686,7 +2699,7 @@ function manualTabInner(tab){
   <h3>Qué revisar siempre</h3>
   <ul class="mcheck"><li><b>Paciente:</b> el nombre debe ser el mismo que en la cédula (incluye los dos apellidos).</li><li><b>RUT:</b> comparar dígito por dígito con la cédula.</li><li><b>Fecha de emisión:</b> que no sea futura ni demasiado antigua (usa ${mb('▦ CALENDARIO','cream')}).</li><li><b>Prescriptor:</b> nombre, RUT y título. Un tecnólogo médico o un podólogo <b>no son médicos</b>.</li><li><b>Tipo documental:</b> ¿es el que exige el medicamento?</li></ul>
   <h3>Errores típicos, uno por uno</h3>
-  ${mcase({img:mimg('assets/cast600/cast_001_stage.webp','Paciente'),title:'1 · RUT con un dígito errado',see:'La receta y la cédula muestran RUT distintos.',doIt:'devolver con el motivo «RUT, DNI o datos de identificación no coinciden». Si la discrepancia es muy amplia o sospechosa, compara la huella.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
+  ${mcase({img:mimg('assets/cast600/cast_001_stage.webp','Paciente'),title:'1 · RUT con dígitos distintos',see:'La receta y la cédula muestran RUT que no son iguales.',doIt:'con 1 o 2 dígitos distintos, devolver con el motivo «RUT, DNI o datos de identificación no coinciden». Con 3 o más dígitos distintos (o un RUT completamente distinto) es un intento de engaño: devolver o avisar a SEREMI como receta falsa.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
   ${xp?`<div class="mdocs">${mfig(mRx(xp),`Fecha de emisión: <b>${escapeText(xp.rxDate)}</b> · hoy: <b>${escapeText(today)}</b>`,'')}</div>`:''}
   ${mcase({img:mimg('assets/cast600/cast_002_stage.webp','Paciente'),title:'2 · Receta vencida',see:'La fecha de emisión es muy antigua respecto de hoy.',doIt:'devolver con el motivo «Receta vencida». También hay un motivo para fechas futuras o inválidas.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
   ${ex?`<div class="mdocs">${mfig(mRx(ex),`El medicamento es <b>${escapeText(mSafe(()=>drugName(ex.drug)))}</b> y la receta es blanca`,'')}</div>`:''}
@@ -2724,7 +2737,8 @@ function manualTabInner(tab){
  DECISIONES:()=>`<h3>Qué botón apretar según lo que encuentres</h3>
   <table class="data-table mtable"><thead><tr><th>Situación</th><th>Decisión</th></tr></thead><tbody>
    <tr><td>Todo coincide y es válido</td><td>${mb('✓ DISPENSAR','green')}</td></tr>
-   <tr><td>Error de escritura (RUT, fecha, glosa), cédula vencida, falta cédula, receta vencida, tipo equivocado, menor de edad, sin stock</td><td>${mb('↶ DEVOLVER','amber')} y elige el motivo</td></tr>
+   <tr><td>Error de escritura (RUT con 1 o 2 dígitos distintos, fecha, glosa), cédula vencida, falta cédula, receta vencida, tipo equivocado, menor de edad, sin stock</td><td>${mb('↶ DEVOLVER','amber')} y elige el motivo</td></tr>
+   <tr><td>RUT de la receta con 3 o más dígitos distintos al de la cédula (o completamente distinto)</td><td>${mb('↶ DEVOLVER','amber')} <b>o</b> ${mb('⚠ NOTIFICAR O RETENER','red')} → <b>Avisar a SEREMI</b> (intento de engaño)</td></tr>
    <tr><td>Receta falsa, prescriptor que no existe en el SIS</td><td>${mb('⚠ NOTIFICAR O RETENER','red')} → <b>Avisar a SEREMI</b></td></tr>
    <tr><td>Carnet falsificado o huella que no coincide</td><td>${mb('⚠ NOTIFICAR O RETENER','red')} → <b>Avisar a policía · Carnet presuntamente falsificado</b></td></tr>
    <tr><td>Te ofrecen plata por el medicamento</td><td>${mb('RECHAZAR LA OFERTA','green')} o ${mb('⚠ NOTIFICAR','amber')} → <b>Policía por intento de soborno</b> (nunca ${mb('ACEPTAR $50.000','red')})</td></tr>
