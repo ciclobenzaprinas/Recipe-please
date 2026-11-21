@@ -863,3 +863,7 @@ html.modal-open{overflow:hidden}
 .rx-tpl .tf-box svg,.rx-tpl .tf-box .signature-png{height:100%;width:auto;max-width:100%}
 .rx-tpl .tf-box .ink-sign{color:var(--tpl-ink)!important;font-size:3.6cqw}
 .manual-doc .rx-tpl{max-width:none}
+/* 1.9.108 · Recetas simples con 20 diseños */
+.rx-tpl .rx-folio{color:#fff!important;text-shadow:0 1px 0 rgba(0,0,0,.45);letter-spacing:.02em}
+.rx-tpl-simple .tf-box .ink-sign{font-size:4cqw}
+.paper.doc.rx-tpl{box-shadow:none;filter:drop-shadow(5px 6px 0 #201a16)}
