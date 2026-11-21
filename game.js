@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.102. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.103. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -21,7 +21,11 @@ const DRUGS={"quetiapina50":{"name":"Quetiapina","mg":"50 mg","pack":"comprimido
 // Número de Registro (ficticio) de cada presentación de receta cheque, con el formato F-NNNNN/AA.
 const CHEQUE_REGISTRY={methylphenidate:'F-37591/23',metilfenidato20:'F-37592/23',metilfenidato36:'F-41208/21',metilfenidato54:'F-41209/21',fentermina1875:'F-29814/19',fentermina375:'F-29815/19',lisdexanfetamina20:'F-52346/24',lisdexanfetamina30:'F-52347/24',lisdexanfetamina50:'F-52348/24',lisdexanfetamina70:'F-52349/24'};
 for(const [id,reg] of Object.entries(CHEQUE_REGISTRY))if(DRUGS[id])DRUGS[id].reg=reg;
-const drugRegLine=id=>DRUGS[id]?.reg?`Nº de Registro: ${DRUGS[id].reg}`:'';
+const rxRegistryShown=p=>p?.rxReg||DRUGS[p?.drug]?.reg||'';
+const drugRegLine=p=>rxRegistryShown(p)?`Nº de Registro: ${rxRegistryShown(p)}`:'';
+// Número de registro errado en la receta: se compara con el del catálogo del manual.
+function registryMismatch(p){const r=DRUGS[p?.drug]?.reg;return Boolean(r&&p.rxReg&&p.rxReg!==r)}
+function wrongRegistry(id){const r=DRUGS[id].reg,others=Object.values(CHEQUE_REGISTRY).filter(x=>x!==r);if(Math.random()<0.5)return others[Math.floor(Math.random()*others.length)];const m=/^F-(\d{5})\/(\d{2})$/.exec(r);const i=Math.floor(Math.random()*5);const d=String(m[1]);const nd=String((Number(d[i])+1+Math.floor(Math.random()*8))%10);return 'F-'+d.slice(0,i)+nd+d.slice(i+1)+'/'+m[2]}
 // Condición documental por presentación para los casos de esta ficción.
 // RETENIDA_COMUN se archiva tras dispensar, pero NO crea folios de libros especiales.
 const RETAINED_COMMON_NAMES=new Set(['Amoxicilina','Amoxicilina + ácido clavulánico','Cefadroxilo','Azitromicina','Claritromicina','Ciprofloxacino','Doxiciclina','Nitrofurantoína','Metronidazol']);
@@ -779,6 +783,8 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
   if(game.day>=2&&Math.random()<0.3)rxType='ELECTRÓNICA';
   rxDate=rxExpiredDate(rxValidityMonths({drug:drugId}),game.day>=2?extra:60);
  }
+ let rxRegWrong=null;
+ if(kind==='check'&&game.day>=2&&Math.random()<0.3&&DRUGS[drugId]?.reg)rxRegWrong=wrongRegistry(drugId);
  // La receta electrónica también puede ser de cheque o de un medicamento controlado.
  if(kind==='electronic'&&game.day>=3&&Math.random()<0.35){drugId=['methylphenidate','clonazepam05','clotiazepam10'][Math.floor(Math.random()*3)];}
  const doctors=['Dra. Francisca Lagos','Dr. Héctor Silva','Dra. Verónica Cruz','Dr. Nicolás Paredes','Dra. Elisa Molina'];
@@ -792,6 +798,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  const patientName=['clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy'].includes(kind)?config[0]:kind==='chinese'?'No-Meh Wei':variedPatientName(face,config[0],kind);
  const info=replacement||doctorInfo(prescriber);
  const p={kind,name:patientName,drug:drugId,rxType,issue:config[3],quote:config[4],face,rut:rutFmt(r),rxRut:typeof rr==='number'?rutFmt(rr):rr,rxDate,folio,gaveId,prescriber,prescriberRegistered:kind!=='fakeDoctor',prescriberRut:info.rut,qty:1,doctorVerified:false,done:false,portraitSeed,idPortraitSeed,idUndercover:Math.random()<0.02,signature:info.signature};
+ if(rxRegWrong){p.rxReg=rxRegWrong;p.issue='Número de Registro del medicamento errado.'}
  if(replacement)p.tmIssuerDay=game.day;
  if(kind==='fakeDoctor')p.prescriberRut=rutFmt(39900004);
  if(kind==='prescriberMismatch'){
@@ -867,7 +874,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.102) =====
+// ===== Diálogos personalizados (1.9.103) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -883,6 +890,7 @@ function dlgHasHint(p){return dlgSeed(p,99)%100<50}
 const DLG_HINTS={
  typo:['El doctor la escribió corriendo y no la alcancé a revisar.','Me dictaron mis datos por teléfono, no sé si anotaron bien el RUT.','Ojalá no tenga errores, la secretaria la pasó en limpio apurada.'],
  different:['Esta receta la sacó mi hermano a mi nombre... creo que puso otro RUT.','Los datos son de otra persona de la familia, pero el remedio es para mí.','Me la prestó una prima, es el mismo remedio, ¿no?'],
+ registry:['La receta la llenó la secretaria a la rápida, no sé si anotó bien el número.','El doctor la escribió de memoria; ojalá esté todo bien con el registro.'],
  expired:['La receta es de hace unas semanas, pero el remedio se me acabó recién.','No había podido venir antes. Ojalá todavía valga.','Es la receta del mes pasado, ¿verdad que dura harto?'],
  double:['Ya retiré con esta misma receta, pero quería ver si acá me daban otra caja.','Me dijeron que el código QR sirve más de una vez, ¿cierto?','Esta receta ya la usé esta semana, pero me sirve igual, ¿no?'],
  wrongtype:['El doctor me dio la receta blanca de siempre, también para este remedio.','Me dijeron que con receta simple se podía, ¿o no?','No tengo el cheque, pero la simple debería servir.'],
@@ -899,6 +907,7 @@ function dlgProblemKey(p){
  if(p.kind==='missingid')return 'missingid';
  if(['typo','different','expired','double','wrongtype','idExpired','idFuture','idSexMismatch','prescriberTypo','prescriberMismatch'].includes(p.kind))return p.kind;
  if(!isPaperEvent(p)&&p.kind!=='bribe'&&rxIsExpired(p))return 'expired';
+ if(registryMismatch(p))return 'registry';
  if(p.rxType==='ELECTRÓNICA'&&(p.qrValidation==='invalid'||p.kind==='electronicRepeat'))return 'electronicBad';
  if(p.variantImpostor===true&&!p.noDocument)return 'impostor';
  return null;
@@ -958,7 +967,7 @@ function patientDialogue(p){
  return `${opener} ${dlgBody(p)}`;
 }
 // Frase que dice el paciente una vez tomada la decisión.
-const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock'};
+const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-registry':'el número de registro de la receta está malo','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock'};
 // Receta electrónica ya usada: al devolverla o destruirla el paciente se enoja siempre.
 function electronicAngerDialogue(p,choice){
  const cl=dlgIsCL(p);
@@ -1145,7 +1154,7 @@ function authorityStory(kind,p){
 }
 function queueCorrectedPrescription(p,reason,fieldReasons){
  if(!fieldReasons.includes(reason)||!lookupPrescriber(p).registered)return;
- game.correctedPrescriptionQueue.push({due:game.day+1,patient:{...p}});
+ game.correctedPrescriptionQueue.push({due:game.day+1,patient:{...p},...(reason==='rx-registry'?{quote:'Hola, volví. El doctor corrigió el número de registro y aquí está la receta corregida. ¿Ahora sí?'}:{})});
 }
 function addCorrectedPrescriptionVisits(){
  const queued=game.correctedPrescriptionQueue;
@@ -1157,7 +1166,7 @@ function addCorrectedPrescriptionVisits(){
    prescriber,prescriberRut:DOCTOR_REGISTRY[prescriber].rut,signature:DOCTOR_REGISTRY[prescriber].signature,
    prescriberRegistered:true,claimedTitle:undefined,rxDate:dateOf(game.day),
    rxRut:foreign?patient.documentNumber:patient.rut,rxForeignLabel:foreign,
-   rxType:DRUGS[patient.drug]?.kind==='CHEQUE'?'CHEQUE':patient.rxType,
+   rxType:DRUGS[patient.drug]?.kind==='CHEQUE'?'CHEQUE':patient.rxType,rxReg:undefined,
    done:false,noDocument:false,gaveId:true,idUndercover:false,callStatus:null,callResponder:null,callRejected:false,
    callAttempts:0,doctorVerified:false,identityScan:null,qrValidation:null,qrReported:false,
    issue:'El paciente regresó con la receta corregida.',
@@ -1519,6 +1528,7 @@ const RETURN_REASONS={
  'rx-expired':'Receta vencida',
  'rx-date':'Fecha de emisión futura o inválida en la receta',
  'rx-cheque':'El medicamento exige receta cheque y se presenta receta blanca u otro formato',
+ 'rx-registry':'El Número de Registro del medicamento no coincide con el del registro',
  'underage':'Paciente menor de 18 años para un medicamento con control de stock',
  'stock':'Stock insuficiente para dispensar'
 };
@@ -1526,7 +1536,7 @@ const RETURN_REASON_GROUPS=[
  ['Identificación',['id-expired','id-missing','id-date']],
  ['Datos del paciente',['patient-rut','foreign-label']],
  ['Prescriptor',['doctor-rut','doctor-missing']],
- ['Fecha y tipo de receta',['rx-expired','rx-date','rx-cheque']],
+ ['Fecha y tipo de receta',['rx-expired','rx-date','rx-cheque','rx-registry']],
  ['Edad y stock',['underage','stock']]
 ];
 function returnReasonLabel(reason){
@@ -1547,6 +1557,7 @@ function prescriptionFieldReturnReasons(p,day=game.day){
  if(!issued||issued>parseCalendarDate(dateOf(day)))reasons.push('rx-date');
  if(p.kind==='expired'||rxIsExpired(p,day))reasons.push('rx-expired');
  if(DRUGS[p.drug]?.kind==='CHEQUE'&&!['CHEQUE','ELECTRÓNICA'].includes(p.rxType))reasons.push('rx-cheque');
+ if(registryMismatch(p))reasons.push('rx-registry');
  return reasons;
 }
 function electronicPrescriptionIntegrityIssue(p,day=game.day){
@@ -1629,7 +1640,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
  let correct=(isPaperEvent(p)&&(decision==='keep-paper'||decision==='return')) || decision===expected || (isForgedIdentityCase(p)&&decision==='police') || (p.kind==='fakeid'&&decision==='return') || (['wrongtype','wrongtypeRepeat'].includes(p.kind)&&decision==='return') || (decision==='return' && DRUGS[p.drug]?.stockControl && game.stock[p.drug]<(p.qty||1));
  if(p.noDocument){correct=decision==='return';expected='return';}
  if(p.qrValidation==='invalid'||foreignIdIssue){correct=decision==='return';expected='return';}
- if(!isPaperEvent(p)&&p.kind!=='bribe'&&fieldReasons.includes('rx-expired')&&!reportCategory){correct=decision==='return';expected='return';}
+ if(!isPaperEvent(p)&&p.kind!=='bribe'&&(fieldReasons.includes('rx-expired')||fieldReasons.includes('rx-registry'))&&!reportCategory){correct=decision==='return';expected='return';}
  if(reportCategory)correct=(reportCategory==='police-bribe'&&p.kind==='bribe')||(reportCategory==='police-id'&&isForgedIdentityCase(p))||(reportCategory==='seremi-rx'&&isReportablePrescription(p));
  if((docStatus.status!=='valid'||mismatchedSex) && decision==='dispense')correct=false;
  if((docStatus.status!=='valid'||mismatchedSex) && decision==='return')correct=true;
@@ -1799,6 +1810,7 @@ const REVIEW_RISKS={
  'doctor-missing':'Sin los datos del prescriptor, es difícil confirmar la autoría de la receta y aclarar dudas sobre el tratamiento.',
  'patient-rut':'Despachar con un RUT o DNI errado puede entregar el medicamento a la persona equivocada, dejar al paciente sin su tratamiento y dificultar el seguimiento del despacho.',
  'foreign-label':'Si falta la glosa (EXTRANJERO), el DNI puede interpretarse como un RUT chileno y el despacho puede quedar asociado a un registro equivocado.',
+ 'rx-registry':'Un Número de Registro errado impide asegurar qué producto exacto se está entregando. El paciente debe volver con la receta corregida por el médico.',
  'rx-expired':'Una receta vencida puede corresponder a un tratamiento que ya cambió. Dispensarla puede reactivar una indicación desactualizada.',
  'rx-date':'Una fecha de emisión inválida o futura impide establecer cuándo se indicó el tratamiento y comprobar que la receta está vigente.',
  'rx-cheque':'El formato de receta cheque permite seguir el folio y su despacho. Aceptar otro formato pierde ese control y deja la entrega sin el respaldo exigido en el juego.',
@@ -2299,7 +2311,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.102 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.103 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2341,7 +2353,7 @@ function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" da
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.102','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.103','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código QR de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -2361,11 +2373,11 @@ function prescriptionHtml(p,compact=false){
         <div class="cheque-sect"><div class="cheque-sect-title">DATOS DEL PACIENTE</div><div><b>Nombre</b> ${escapeText(rxPatientName(p))}</div><div><b>RUT</b> <span class="rx-rut">${prescriptionPatientId(p)}</span></div><div><b>Dirección</b> Av. del Parque 123</div></div>
         <div class="cheque-sect"><div class="cheque-sect-title">PRESCRIPTOR</div><div><b>Profesional</b> ${escapeText(prescriberNameOnPrescription(p))}</div><div><b>RUT prescriptor</b> ${escapeText(p.prescriberRut||'Pendiente')}</div><div><b>Fecha emisión</b> ${escapeText(p.rxDate)}</div><div><b>Consulta</b> ${escapeText(p.clinic||'Centro Médico Los Alerces')}</div><div><b>Título declarado</b> ${escapeText(p.claimedTitle||doctorInfo(p.prescriber).title)}</div></div>
       </div>
-      <div class="cheque-sect cheque-rx"><div class="cheque-sect-title">PRESCRIPCIÓN</div><div class="rx-drug">${escapeText(drugName(p.drug))}</div><div class="center">Forma: ${escapeText(d.form)} · ${escapeText(d.pack)}</div><div class="center"><b>${escapeText(drugRegLine(p.drug))}</b></div><div class="center"><b>Cantidad solicitada:</b> ${p.qty} ${p.qty===1?'caja':'cajas'}</div></div>
+      <div class="cheque-sect cheque-rx"><div class="cheque-sect-title">PRESCRIPCIÓN</div><div class="rx-drug">${escapeText(drugName(p.drug))}</div><div class="center">Forma: ${escapeText(d.form)} · ${escapeText(d.pack)}</div><div class="center"><b>${escapeText(drugRegLine(p))}</b></div><div class="center"><b>Cantidad solicitada:</b> ${p.qty} ${p.qty===1?'caja':'cajas'}</div></div>
       <div class="cheque-foot"><span>Firma del prescriptor:<br><strong class="ink-sign">${prescriptionSignatureArtwork(p)}</strong></span><span class="cheque-stamp">FECHA ${escapeText(p.rxDate)}</span></div>
     </div>`;
   }
-  return `<div class="paper doc draggable ${documentWearClass(p,'rx')}" data-drag="rx" title="Arrastra el documento; doble clic para inspeccionar"><div class="paper-fold"></div><div class="doc-label">${p.rxType==='ELECTRÓNICA'?'RECETA ELECTRÓNICA'+(DRUGS[p.drug]?.kind==='CHEQUE'?' · CHEQUE':DRUGS[p.drug]?.kind==='RETENIDA'?' · CONTROLADO':''):'RECETA MÉDICA'}</div><p class="center mini">REPÚBLICA DE CHILE · PRESCRIPCIÓN</p><p class="right"><span class="pill ${cls}">FOLIO ${escapeText(p.folio)}</span></p><div class="doc-fields"><div><b>Paciente:</b> ${escapeText(rxPatientName(p))}</div><div><b>RUT:</b> <span class="rx-rut">${prescriptionPatientId(p)}</span></div><div><b>Fecha emisión:</b> ${escapeText(p.rxDate)}</div><div><b>Prescriptor:</b> ${escapeText(prescriberNameOnPrescription(p))}${p.claimedTitle?` <span class="rx-title-claim">· ${escapeText(p.claimedTitle)}</span>`:''}</div><div><b>RUT prescriptor:</b> ${escapeText(p.prescriberRut||'Pendiente')}</div>${p.clinic?`<div><b>Clínica de emisión:</b> ${escapeText(p.clinic)}</div>`:''}</div><hr><p class="center"><b>Rp/</b></p><div class="rx-drug">${escapeText(drugName(p.drug))}</div><p class="center">${escapeText(DRUGS[p.drug].pack)}${DRUGS[p.drug].reg?' · '+escapeText(drugRegLine(p.drug)):''} · Cantidad recetada: ${p.qty} ${p.qty===1?'caja':'cajas'}</p><p class="mini">Posología: según indicación del prescriptor.</p><div class="ink-sign">${prescriptionSignatureArtwork(p)}</div><p class="center mini">Firma y timbre del prescriptor</p><div class="chips"><span class="pill ${p.rxType==='CHEQUE'?'bad':'warn'}">${escapeText(p.rxType==='CHEQUE'?'Cheque':p.rxType==='ELECTRÓNICA'?'Electrónica':'Blanca')}</span></div></div>`;
+  return `<div class="paper doc draggable ${documentWearClass(p,'rx')}" data-drag="rx" title="Arrastra el documento; doble clic para inspeccionar"><div class="paper-fold"></div><div class="doc-label">${p.rxType==='ELECTRÓNICA'?'RECETA ELECTRÓNICA'+(DRUGS[p.drug]?.kind==='CHEQUE'?' · CHEQUE':DRUGS[p.drug]?.kind==='RETENIDA'?' · CONTROLADO':''):'RECETA MÉDICA'}</div><p class="center mini">REPÚBLICA DE CHILE · PRESCRIPCIÓN</p><p class="right"><span class="pill ${cls}">FOLIO ${escapeText(p.folio)}</span></p><div class="doc-fields"><div><b>Paciente:</b> ${escapeText(rxPatientName(p))}</div><div><b>RUT:</b> <span class="rx-rut">${prescriptionPatientId(p)}</span></div><div><b>Fecha emisión:</b> ${escapeText(p.rxDate)}</div><div><b>Prescriptor:</b> ${escapeText(prescriberNameOnPrescription(p))}${p.claimedTitle?` <span class="rx-title-claim">· ${escapeText(p.claimedTitle)}</span>`:''}</div><div><b>RUT prescriptor:</b> ${escapeText(p.prescriberRut||'Pendiente')}</div>${p.clinic?`<div><b>Clínica de emisión:</b> ${escapeText(p.clinic)}</div>`:''}</div><hr><p class="center"><b>Rp/</b></p><div class="rx-drug">${escapeText(drugName(p.drug))}</div><p class="center">${escapeText(DRUGS[p.drug].pack)}${rxRegistryShown(p)?' · '+escapeText(drugRegLine(p)):''} · Cantidad recetada: ${p.qty} ${p.qty===1?'caja':'cajas'}</p><p class="mini">Posología: según indicación del prescriptor.</p><div class="ink-sign">${prescriptionSignatureArtwork(p)}</div><p class="center mini">Firma y timbre del prescriptor</p><div class="chips"><span class="pill ${p.rxType==='CHEQUE'?'bad':'warn'}">${escapeText(p.rxType==='CHEQUE'?'Cheque':p.rxType==='ELECTRÓNICA'?'Electrónica':'Blanca')}</span></div></div>`;
 }
 // Rúbricas humanas de los titulares: trazos SVG con iniciales gestuales y floreos variables.
 // Son distintas para cada cédula y se conservan con el identificador del documento.
@@ -2652,7 +2664,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.102) =====
+// ===== Manual práctico (1.9.103) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -2669,6 +2681,7 @@ function manualSamples(){
  for(const [k,n] of [['correct',3],['typo',5],['expired',7],['wrongtype',9],['check',11],['idExpired',13],['electronic',15],['lookHair',17],['different',19]]){
   try{const p=makePatient(k,n);p.gaveId=true;p.done=false;out[k]=p}catch(e){out[k]=null}
  }
+ try{if(out.check)out.regError={...out.check,rxReg:wrongRegistry(out.check.drug)}}catch(e){out.regError=null}
  game.usedCatalogIds=u;game.priorRxUses=r;ui.manualSamples=out;return out;
 }
 function mSafe(fn){try{return fn()}catch(e){return ''}}
@@ -2723,7 +2736,7 @@ function manualTabInner(tab){
   const ex=S.wrongtype,ch=S.check,ee=S.electronic,xp=S.expired;
   return `<h3>Los tres tipos de receta</h3>
   <p>El tipo que corresponde depende del medicamento (míralo en el catálogo). Si la receta presentada no es del tipo exigido, se devuelve.</p>
-  <div class="mdocs">${mfig(mRx(S.correct),'<b>Receta blanca</b> · simple o retenida. Para la mayoría de los medicamentos.','')}${mfig(mRx(ch),'<b>Receta cheque</b> · exigida para ciertos medicamentos controlados (ej. metilfenidato). Valida todos los campos y la firma.','')}${mfig(mRx(ee),'<b>Receta electrónica</b> · se valida con el botón de abajo.','')}</div>
+  <div class="mdocs">${mfig(mRx(S.correct),'<b>Receta blanca</b> · simple o retenida. Para la mayoría de los medicamentos.','')}${mfig(mRx(ch),'<b>Receta cheque</b> · exigida para ciertos medicamentos controlados (ej. metilfenidato). Valida todos los campos, la firma y que su Nº de Registro coincida con el del catálogo del manual.','')}${mfig(mRx(ee),'<b>Receta electrónica</b> · se valida con el botón de abajo.','')}</div>
   ${mbs(mb('VALIDAR CÓDIGO','blue'))}
   <h3>Vigencia: cuándo vence una receta</h3>
   <p>Regla del juego: la vigencia se cuenta en <b>meses de calendario</b> desde la fecha de emisión. Una receta emitida el 20/10 sirve hasta el 20/11 inclusive; desde el 21/11 está vencida.</p>
@@ -2742,9 +2755,11 @@ function manualTabInner(tab){
   ${mcase({img:mimg('assets/cast600/cast_002_stage.webp','Paciente'),title:'2 · Receta vencida',see:'La fecha de emisión quedó fuera de la vigencia: más de 1 mes en controlados, cheque y retenidos sin libro (antibióticos, corticoides, etc.), o más de 6 meses en las demás simples. Si es electrónica, «Validar código» responde «Receta vencida».',doIt:'devolver con el motivo «Receta vencida». También hay un motivo para fechas futuras o inválidas.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
   ${ex?`<div class="mdocs">${mfig(mRx(ex),`El medicamento es <b>${escapeText(mSafe(()=>drugName(ex.drug)))}</b> y la receta es blanca`,'')}</div>`:''}
   ${mcase({img:mimg('assets/cast600/cast_003_stage.webp','Paciente'),title:'3 · Receta blanca para un medicamento de cheque',see:'El medicamento exige receta cheque, pero te traen una receta común.',doIt:'devolver con el motivo «El medicamento exige receta cheque…». En el evento especial, la primera denuncia confirmada solo lleva advertencia y el paciente puede volver con la receta correcta.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
-  ${mcase({img:mimg('assets/cast600/cast_004_stage.webp','Paciente'),title:'4 · Receta electrónica ya despachada',see:`Al validar, aparece ${mb('▣ RECETA DESPACHADA','red')}: el folio ya se usó.`,doIt:'elegir qué hacer con la copia: devolverla (el paciente puede volver con el mismo folio) o destruirla (termina el caso). Si la despachas otra vez, queda como error.',btns:[mb('↶ DEVOLVER RECETA','amber'),mb('✕ DESTRUIR RECETA','red')],tone:'warn'})}
-  ${mcase({img:mimg('assets/cast600/cast_005_stage.webp','Paciente'),title:'5 · Paciente extranjero: RUT sin la glosa',see:'El RUT de la receta es igual al número del DNI, pero falta «(EXTRANJERO)».',doIt:'devolver con el motivo «RUT extranjero sin glosa». Para todo paciente no chileno el RUT de la receta debe ser el número del DNI <b>seguido de «(EXTRANJERO)»</b>; vale para recetas simples, retenidas, cheque y electrónicas.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
-  ${mcase({img:mimg('assets/cast600/cast_006_stage.webp','Paciente'),title:'6 · Receta falsificada',see:'Firma que no coincide, prescriptor que no figura en el SIS o código electrónico inválido.',doIt:'avisar a SEREMI; la receta se retiene. Existe la probabilidad de que el verificador detecte un código inválido aunque no haya otras incongruencias.',btns:[mb('⚠ NOTIFICAR O RETENER','red')],tone:'bad'})}
+  ${S.regError?`<div class="mdocs">${mfig(mRx(S.regError),`La receta dice <b>${escapeText(S.regError.rxReg)}</b>; en el catálogo, ${escapeText(mSafe(()=>drugName(S.regError.drug)))} es <b>${escapeText(DRUGS[S.regError.drug].reg)}</b>`,'')}</div>`:''}
+  ${mcase({img:mimg('assets/cast600/cast_007_stage.webp','Paciente'),title:'4 · Receta cheque con Número de Registro errado',see:'El «Nº de Registro» impreso en la receta cheque no es el que figura para ese medicamento en la pestaña MEDICAMENTOS del manual (grupo «Control legal · Receta cheque»).',doIt:'<b>no despachar</b>. Devolver con el motivo «El Número de Registro del medicamento no coincide…». El paciente <b>siempre vuelve al día siguiente</b> con la receta corregida por el médico.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
+  ${mcase({img:mimg('assets/cast600/cast_004_stage.webp','Paciente'),title:'5 · Receta electrónica ya despachada',see:`Al validar, aparece ${mb('▣ RECETA DESPACHADA','red')}: el folio ya se usó.`,doIt:'elegir qué hacer con la copia: devolverla (el paciente puede volver con el mismo folio) o destruirla (termina el caso). Si la despachas otra vez, queda como error.',btns:[mb('↶ DEVOLVER RECETA','amber'),mb('✕ DESTRUIR RECETA','red')],tone:'warn'})}
+  ${mcase({img:mimg('assets/cast600/cast_005_stage.webp','Paciente'),title:'6 · Paciente extranjero: RUT sin la glosa',see:'El RUT de la receta es igual al número del DNI, pero falta «(EXTRANJERO)».',doIt:'devolver con el motivo «RUT extranjero sin glosa». Para todo paciente no chileno el RUT de la receta debe ser el número del DNI <b>seguido de «(EXTRANJERO)»</b>; vale para recetas simples, retenidas, cheque y electrónicas.',btns:[mb('↶ DEVOLVER','amber')],tone:'warn'})}
+  ${mcase({img:mimg('assets/cast600/cast_006_stage.webp','Paciente'),title:'7 · Receta falsificada',see:'Firma que no coincide, prescriptor que no figura en el SIS o código electrónico inválido.',doIt:'avisar a SEREMI; la receta se retiene. Existe la probabilidad de que el verificador detecte un código inválido aunque no haya otras incongruencias.',btns:[mb('⚠ NOTIFICAR O RETENER','red')],tone:'bad'})}
   ${mtip('<b>Regla del juego:</b> receta controlada y libro especial solo para pacientes de 18 años o más. Una validación fallida acredita receta falsa en esta ficción; no es una norma clínica real.','info')}`;
  },
  CÉDULAS:()=>{
