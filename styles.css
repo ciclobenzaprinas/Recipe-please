@@ -867,3 +867,10 @@ html.modal-open{overflow:hidden}
 .rx-tpl .rx-folio{color:#fff!important;text-shadow:0 1px 0 rgba(0,0,0,.45);letter-spacing:.02em}
 .rx-tpl-simple .tf-box .ink-sign{font-size:4cqw}
 .paper.doc.rx-tpl{box-shadow:none;filter:drop-shadow(5px 6px 0 #201a16)}
+/* 1.9.108 · Código de barras de la receta electrónica con el botón de validar debajo */
+.e-card .ebar-wrap{background:#f4efd9;border:5px solid #eee4c5;padding:6px 8px 4px;margin:8px auto;max-width:300px}
+.e-card .ebar{display:block;width:100%;height:64px}
+.e-card .ebar-num{text-align:center;color:#192923;font-size:12px;letter-spacing:.18em;font-weight:700}
+.e-card .e-validate{margin-top:8px;text-align:center}
+.e-card .e-validate .btn,.e-card .e-validate button{width:100%}
+.e-card .e-validate .notice{text-align:left}
