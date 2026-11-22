@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.114. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.115. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -875,7 +875,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.114) =====
+// ===== Diálogos personalizados (1.9.115) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -889,20 +889,20 @@ function dlgPick(list,p,salt=0){return list[dlgSeed(p,salt)%list.length]}
 // Pista en ~50 % de los casos con problema, siempre igual para el mismo paciente.
 function dlgHasHint(p){return dlgSeed(p,99)%100<50}
 const DLG_HINTS={
- typo:['El doctor la escribió corriendo y no la alcancé a revisar.','Me dictaron mis datos por teléfono, no sé si anotaron bien el RUT.','Ojalá no tenga errores, la secretaria la pasó en limpio apurada.'],
- different:['Esta receta la sacó mi hermano a mi nombre... creo que puso otro RUT.','Los datos son de otra persona de la familia, pero el remedio es para mí.','Me la prestó una prima, es el mismo remedio, ¿no?'],
- registry:['La receta la llenó la secretaria a la rápida, no sé si anotó bien el número.','El doctor la escribió de memoria; ojalá esté todo bien con el registro.'],
- expired:['La receta es de hace unas semanas, pero el remedio se me acabó recién.','No había podido venir antes. Ojalá todavía valga.','Es la receta del mes pasado, ¿verdad que dura harto?'],
- double:['Ya retiré con esta misma receta, pero quería ver si acá me daban otra caja.','Me dijeron que el código de barras sirve más de una vez, ¿cierto?','Esta receta ya la usé esta semana, pero me sirve igual, ¿no?'],
- wrongtype:['El doctor me dio la receta blanca de siempre, también para este remedio.','Me dijeron que con receta simple se podía, ¿o no?','No tengo el cheque, pero la simple debería servir.'],
- electronicBad:['El código de barras no lee, no sé por qué... me lo mandaron por WhatsApp.','Me pasaron la receta como captura de pantalla, ¿sirve igual?'],
- idExpired:['El carnet se me venció hace poco, pero soy yo, mire la foto.','No he podido renovar el carnet, pero está todo en orden.'],
- idFuture:['El carnet es nuevo, me lo dieron recién... creo que la fecha salió rara.','Lo retiré hace nada del registro; la fecha, no sé.'],
- idSexMismatch:['El carnet tiene un dato malo, hace años que no lo corrijo.','Ese es mi carnet, aunque tiene un error.'],
- missingid:['Se me quedó el carnet en la casa. ¿Me atiende igual?','No traje la cédula, ¿se puede igual?'],
- prescriberTypo:['El timbre del doctor salió medio borroso, no se lee bien el RUT.','El doctor anotó su RUT rapidito, creo que se equivocó.'],
- prescriberMismatch:['Me atendió un doctor de reemplazo ese día, no sé con qué timbre firmó.','Ese día me vio otro profesional; el timbre es de otro doctor.'],
- impostor:['Ese es mi carnet, aunque ando con otra facha.','La foto es medio vieja, pero soy yo, créame.']
+ typo:["El doctor la escribió corriendo y no la alcancé a revisar.","Me dictaron mis datos por teléfono, no sé si anotaron bien el RUT.","Ojalá no tenga errores, la secretaria la pasó en limpio apurada.","El médico me la dio entre dos pacientes, ni la leí.","En el consultorio había tanta gente que no alcancé a mirarla.","Le dije mi RUT a la enfermera por el vidrio, quizás lo anotó mal."],
+ different:["Esta receta la sacó mi hermano a mi nombre... creo que puso otro RUT.","Los datos son de otra persona de la familia, pero el remedio es para mí.","Me la prestó una prima, es el mismo remedio, ¿no?","Es de mi pareja, pero el remedio es el mismo que me toca.","El doctor anotó los datos de mi mamá por error, creo.","Esa receta es mía, aunque salió con otros datos."],
+ registry:["La receta la llenó la secretaria a la rápida, no sé si anotó bien el número.","El doctor la escribió de memoria; ojalá esté todo bien con el registro.","El número del registro lo anotaron a mano, ojalá se entienda.","Me la hicieron de apuro, no sé si copiaron bien el registro.","La secretaria pasó el número del cheque de memoria.","El doctor me dijo que el registro estaba al día, no sé si lo escribieron bien."],
+ expired:["La receta es de hace unas semanas, pero el remedio se me acabó recién.","No había podido venir antes. Ojalá todavía valga.","Es la receta del mes pasado, ¿verdad que dura harto?","Fui al doctor hace rato, pero no me alcanzó la plata antes.","La receta tiene unas semanas, pero el doctor dijo que servía.","Se me pasó el día de retirarla, ¿igual se puede?","Estuve mal de salud y no pude venir antes."],
+ double:["Ya retiré con esta misma receta, pero quería ver si acá me daban otra caja.","Me dijeron que el código de barras sirve más de una vez, ¿cierto?","Esta receta ya la usé esta semana, pero me sirve igual, ¿no?","Es la misma receta de ayer, pero perdí la caja.","Se me quedó la caja en la micro, ¿me da otra con esta receta?","Me dijeron que si el código es el mismo, lo puedo volver a usar.","Ya la usé en otra farmacia, pero allá se acabó el stock."],
+ wrongtype:["El doctor me dio la receta blanca de siempre, también para este remedio.","Me dijeron que con receta simple se podía, ¿o no?","No tengo el cheque, pero la simple debería servir.","La secretaria me dijo que con esta receta bastaba.","Siempre me han dado este remedio con receta normal.","El doctor dijo que no hacía falta el cheque.","No me dieron la de cheque, pero es el mismo remedio de siempre."],
+ electronicBad:["El código de barras no lee, no sé por qué... me lo mandaron por WhatsApp.","Me pasaron la receta como captura de pantalla, ¿sirve igual?","Me llegó un código por correo, pero parece que no funciona.","Imprimí la receta, el código quedó medio borroso.","Se lo mostré a mi hija y ella dice que sí lee.","El doctor me dijo que con esto bastaba."],
+ idExpired:["El carnet se me venció hace poco, pero soy yo, mire la foto.","No he podido renovar el carnet, pero está todo en orden.","El carnet venció y no he tenido tiempo de renovarlo.","Tengo hora en el Registro Civil, pero recién la próxima semana.","Sé que está vencido, pero soy el mismo de siempre.","Se me pasó la fecha por poco, ¿no se puede igual?"],
+ idFuture:["El carnet es nuevo, me lo dieron recién... creo que la fecha salió rara.","Lo retiré hace nada del registro; la fecha, no sé.","No sé por qué sale esa fecha, me lo entregaron así.","Me lo dieron esta semana, quizás se equivocaron.","Esa fecha debe ser un error del Registro Civil.","Lo saqué hace poquito, no he mirado bien los datos."],
+ idSexMismatch:["El carnet tiene un dato malo, hace años que no lo corrijo.","Ese es mi carnet, aunque tiene un error.","Ahí salió mal una letra, es un error antiguo.","Nunca me lo han corregido, pero la persona soy yo.","En el Registro Civil cometieron un error con ese dato.","Siempre me preguntan lo mismo por ese carnet."],
+ missingid:["Se me quedó el carnet en la casa. ¿Me atiende igual?","No traje la cédula, ¿se puede igual?","Salí corriendo y no alcancé a tomar la cartera.","Me robaron la billetera, el carnet iba ahí.","Dejé el carnet en el auto, ¿le muestro después?","Lo perdí la semana pasada y no he podido sacar el duplicado.","Está en la lavadora, se me quedó en el pantalón."],
+ prescriberTypo:["El timbre del doctor salió medio borroso, no se lee bien el RUT.","El doctor anotó su RUT rapidito, creo que se equivocó.","La secretaria anotó el RUT del doctor rapidito.","El timbre salió medio corrido, no se lee bien.","No sé si el número es del doctor o de la clínica.","Creo que el doctor anotó mal su propio RUT."],
+ prescriberMismatch:["Me atendió un doctor de reemplazo ese día, no sé con qué timbre firmó.","Ese día me vio otro profesional; el timbre es de otro doctor.","El doctor de siempre no estaba, me atendió su colega.","Ese día había un médico de turno distinto.","La receta la firmó otro doctor, pero el timbre es el mismo.","Me vio un residente y el timbre es del jefe."],
+ impostor:["Ese es mi carnet, aunque ando con otra facha.","La foto es medio vieja, pero soy yo, créame.","Ando con otro look, pero soy el mismo del carnet.","Me veo distinto, pero esa foto es mía.","La foto es de hace unos años, ¡ha pasado el tiempo!","Mucha gente me dice que no me parezco al carnet."]
 };
 function dlgProblemKey(p){
  if(p.kind==='missingid')return 'missingid';
@@ -914,28 +914,34 @@ function dlgProblemKey(p){
  return null;
 }
 const DLG_OPEN={
- angry:['¡Apúrate, weón!','Ya po, weón, no tengo todo el día.','Oye, weón, ¿vai a atender o no?','Puta la weá lenta, apúrate.'],
- angryForeign:['¡Oiga, apúrese!','Llevo una hora esperando, ¡atienda ya!','Esto es una falta de respeto, atiéndame.'],
- sad:['Buenas... perdone la hora.','Hola... disculpe la molestia.','Buenas tardes, vengo medio cansado.'],
- happyOld:['¡Buenas tardes, hijito! Qué lindo día.','¡Hola, joven! Qué gusto verlo.'],
- happy:['¡Buenas, buenas!','¡Hola, químico! ¡Qué gusto!','¡Buenas tardes! Qué día más lindo.'],
- old:['Buenas tardes, hijito.','Hola, joven. Con calma, por favor.','Buenas, mijito.'],
- young:['Hola po, ¿qué tal?','Buenas, llevo rato en la fila.','Hola, ando apurado, ¿me ayuda?'],
- neutral:['Buenas tardes.','Hola, químico.','Buenas.'],
- VE:['Buenas, mi amigo.','Epa, buenas tardes.'],HT:['Bonjou, buenas tardes.'],AR:['Buenas, che.','Hola, buen día.'],PE:['Buenas, jefe.','Hola, joven.'],
- IT:['Buongiorno.'],BO:['Buenas tardes, joven.'],DE:['Guten Tag.'],CN:['Hola, buenas tardes.']
+ angry:["¡Apúrate, weón!","Ya po, weón, no tengo todo el día.","Oye, weón, ¿vai a atender o no?","Puta la weá lenta, apúrate.","¡Ya po, weón, estoy atrasado!","Oye, ¿hay alguien ahí o qué, weón?","No me hagai esperar más, weón.","Llevo media hora parado, weón, atiende."],
+ angryForeign:["¡Oiga, apúrese!","Llevo una hora esperando, ¡atienda ya!","Esto es una falta de respeto, atiéndame.","Disculpe, pero es demasiada la demora.","Me han tenido esperando de más.","Por favor, atiéndame de una vez."],
+ sad:["Buenas... perdone la hora.","Hola... disculpe la molestia.","Buenas tardes, vengo medio cansado.","Buenas... qué día más largo.","Hola... perdone, ando con la cabeza en otra parte.","Buenas tardes... hoy no ando muy bien.","Hola, disculpe que insista, ando complicado."],
+ happyOld:["¡Buenas tardes, hijito! Qué lindo día.","¡Hola, joven! Qué gusto verlo.","¡Buenas, mi niño! Dios lo bendiga.","¡Hola, hijito! Mire qué bonito el día.","¡Buenas tardes! Vine caminando y todo."],
+ happy:["¡Buenas, buenas!","¡Hola, químico! ¡Qué gusto!","¡Buenas tardes! Qué día más lindo.","¡Hola, hola! Vengo de buen ánimo hoy.","¡Buenas! Qué bueno que se atiende rápido.","¡Qué tal, químico! ¿Cómo va ese día?","¡Buenas tardes! Hoy amanecí con todo."],
+ old:["Buenas tardes, hijito.","Hola, joven. Con calma, por favor.","Buenas, mijito.","Buenas tardes, joven. Perdone que venga con tanta calma.","Hola, mi niño. Me cuesta un poquito caminar, disculpe.","Buenas, hijito. Dígame nomás si falta algo.","Buenas tardes. A mi edad uno se demora más, disculpe."],
+ young:["Hola po, ¿qué tal?","Buenas, llevo rato en la fila.","Hola, ando apurado, ¿me ayuda?","Hola, ¿qué onda? Vengo de pasada.","Buenas, vengo saliendo de clases.","Hola, disculpe, tengo que volver al trabajo.","¡Hola! Ojalá sea rápido, tengo un examen."],
+ neutral:["Buenas tardes.","Hola, químico.","Buenas.","Buenas tardes, ¿cómo está?","Hola, buenas.","Buenas, químico, ¿qué tal?","Buen día, ¿cómo le va?","Hola, buenas tardes. Disculpe la molestia.","Buenas tardes, ¿me atiende?"],
+ VE:["Buenas, mi amigo.","Epa, buenas tardes.","Buenas, chamo.","Hola, buenas tardes, mi pana.","Epa, ¿cómo está todo?"],
+ HT:["Bonjou, buenas tardes.","Bonswa, buenas tardes.","Hola, bonjou."],
+ AR:["Buenas, che.","Hola, buen día.","Hola, ¿cómo andás?","Buenas, buen día.","Che, buenas."],
+ PE:["Buenas, jefe.","Hola, joven.","Buenas, caserito.","Hola, buenas tardes, jefe.","Buenas, ¿qué tal?"],
+ IT:["Buongiorno.","Ciao, buenas tardes.","Buonasera."],
+ BO:["Buenas tardes, joven.","Hola, buenas tardes.","Buenas, joven, ¿cómo está?"],
+ DE:["Guten Tag.","Hallo, buenas tardes.","Guten Abend, buenas."],
+ CN:["Hola, buenas tardes.","Hola, buenos días.","Buenas, disculpe la molestia."]
 };
 const DLG_ASK={
- 'Control legal':['Vengo por mi {d}, el del control.','Me toca retirar el {d} del mes.','Traigo la receta del {d}, vengo con el tratamiento al día.'],
- 'Salud mental':['Vengo por mi {d}, el que me dio el psiquiatra.','Necesito retirar el {d}, me hace bien.'],
- 'Cardiovasculares':['Es para la presión, el {d}.','Vengo por mi {d}, el del corazón.'],
- 'Endocrinos y metabólicos':['Vengo por mi {d}, el del control mensual.','Necesito el {d}, no puedo quedarme sin tratamiento.'],
- 'Antiinfecciosos':['Me recetaron {d} por una infección.','Vengo por {d}, me dijeron que era urgente.'],
- 'Gastrointestinales y respiratorios':['Vengo por mi {d}, el de la crisis de la semana pasada.','Necesito el {d}, me ha tenido mal.'],
- 'Antiinflamatorios y relajantes':['Es por el dolor de espalda, necesito el {d}.','Me mandaron {d} por una contractura.'],
- _:['Vengo por mi {d}. ¿Me revisa la receta?','Traigo la receta del {d}.']
+ "Control legal":["Vengo por mi {d}, el del control.","Me toca retirar el {d} del mes.","Traigo la receta del {d}, vengo con el tratamiento al día.","Es el {d} de siempre, el que retiro todos los meses.","Vengo a buscar mi {d}. Tengo control médico la próxima semana.","Necesito el {d}, no puedo quedarme sin el tratamiento.","El doctor me renovó la receta del {d}, aquí la traigo.","Vengo por el {d}. Ojalá esté en stock, el mes pasado me costó encontrarlo.","Retiro el {d}; ya sé que hay que dejar todo anotado en el libro."],
+ "Salud mental":["Vengo por mi {d}, el que me dio el psiquiatra.","Necesito retirar el {d}, me hace bien.","Es mi {d}, el que me ayuda a dormir mejor.","Vengo por el {d}. El tratamiento va bien, gracias a Dios.","Me recetaron {d} hace unos meses, vengo por la renovación.","Necesito mi {d}; cuando me falta, se me complica la semana.","Traigo la receta del {d}, la psicóloga me dijo que no lo dejara.","Vengo por el {d}, mi psiquiatra me controla cada tres meses."],
+ "Cardiovasculares":["Es para la presión, el {d}.","Vengo por mi {d}, el del corazón.","Traigo la receta del {d}; el cardiólogo me lo subió el mes pasado.","Mi {d}, el de todos los días con el desayuno.","Vengo por el {d}, me lo tomo desde hace años.","Necesito el {d}, la presión me ha andado alta.","Me tocó control y me renovaron el {d}.","Es el {d}, el que me dejó el doctor después del susto del corazón."],
+ "Endocrinos y metabólicos":["Vengo por mi {d}, el del control mensual.","Necesito el {d}, no puedo quedarme sin tratamiento.","Traigo la receta del {d}; me hicieron los exámenes y salieron bien.","Es mi {d}, el del azúcar y todo eso.","Vengo por el {d}; la nutricionista dice que me está funcionando.","Me toca el {d} de este mes.","Necesito el {d}, me quedan dos pastillas nomás.","Vengo por mi {d}, el que me regula todo."],
+ "Antiinfecciosos":["Me recetaron {d} por una infección.","Vengo por {d}, me dijeron que era urgente.","Traigo la receta del {d}; el doctor dijo que lo tomara completo.","Es el {d} que me mandaron por la garganta.","Necesito el {d} hoy mismo, llevo días con malestar.","Me dieron {d} en el consultorio, vengo a retirarlo.","Vengo por el {d}; el doctor insistió en que no lo dejara a medias.","Me mandaron {d} después del examen, ojalá me haga efecto pronto."],
+ "Gastrointestinales y respiratorios":["Vengo por mi {d}, el de la crisis de la semana pasada.","Necesito el {d}, me ha tenido mal.","Traigo la receta del {d}; con el frío se me complica.","Es el {d} para el estómago, me da acidez todos los días.","Vengo por el {d}; el broncopulmonar me lo dejó indicado.","Me mandaron {d} para ver si se me pasa la tos.","Necesito el {d}, anoche casi no pude dormir.","Vengo por mi {d}, el de siempre cuando cambia el tiempo."],
+ "Antiinflamatorios y relajantes":["Es por el dolor de espalda, necesito el {d}.","Me mandaron {d} por una contractura.","Traigo la receta del {d}; me tiene complicado el trabajo.","Vengo por el {d}, me duele hasta para agacharme.","Es el {d} que me recetó el traumatólogo.","Necesito el {d}, la rodilla me está matando.","Me dieron {d} después de la kinesiología.","Vengo por mi {d}, para el dolor de cabeza que no se me quita."],
+ _:["Vengo por mi {d}. ¿Me revisa la receta?","Traigo la receta del {d}.","Vengo a retirar el {d}, aquí tengo la receta.","Necesito el {d}, me lo recetaron ayer.","¿Me puede entregar el {d}? Aquí está la receta.","Es el {d} que me mandó el doctor, ojalá esté disponible.","Vengo por el {d}; la receta está recién salida de la consulta.","Me tocaba retirar el {d}, aquí tengo todo.","Busco el {d}, la receta es de esta semana."]
 };
-const DLG_ASK_ANGRY=['Dame mi {d} de una vez, weón, llevo una hora aquí.','Ya po, mi {d}. La receta está bien, atiende no más, weón.','Yo vine por el {d}, no a conversar, weón.'];
+const DLG_ASK_ANGRY=["Dame mi {d} de una vez, weón, llevo una hora aquí.","Ya po, mi {d}. La receta está bien, atiende no más, weón.","Yo vine por el {d}, no a conversar, weón.","Mi {d}, weón, rapidito que no tengo todo el día.","Oye, vengo por el {d}, la receta está bien, deja de mirarla.","Ya poh, el {d}, no me hagai perder más tiempo.","Dame el {d} y listo, weón, llevo una eternidad aquí."];
 function dlgDrug(p){const d=DRUGS[p.drug];return d?`${d.name} ${d.mg}`:'remedio'}
 function dlgAge(p){return ageFromBirth(fictionalIdDates(p).birth)||30}
 function dlgIsCL(p){return !p.nationalityCode||p.nationalityCode==='CL'}
@@ -947,14 +953,23 @@ function dlgOpener(p){
  if(mood==='happy')return dlgPick(age>=65?DLG_OPEN.happyOld:DLG_OPEN.happy,p,1);
  return dlgPick(age>=65?DLG_OPEN.old:age<=28?DLG_OPEN.young:DLG_OPEN.neutral,p,1);
 }
+function dlgArt(p){const n=String(DRUGS[p?.drug]?.name||'').trim().split(/\s+/)[0].toLowerCase();return /a$/.test(n)?'la':'el'}
+function dlgFixArt(txt,p){return dlgArt(p)==='la'?txt.replace(/\bdel \{d\}/g,'de la {d}').replace(/\bel \{d\}/g,'la {d}').replace(/, el (del|de|que)\b/g,', la $1').replace(/\bel (que|del) (retiro|me)/g,'la $1 $2'):txt}
 function dlgBody(p){
  const d=dlgDrug(p);
  const pool=patientMood(p)==='angry'&&dlgIsCL(p)?DLG_ASK_ANGRY:(DLG_ASK[DRUGS[p.drug]?.group]||DLG_ASK._);
- return dlgPick(pool,p,3).replace('{d}',d);
+ return dlgFixArt(dlgPick(pool,p,3),p).replace('{d}',d);
 }
 // Tipos que ya tienen líneas propias: solo se les antepone el humor si el paciente se ve enojado.
 const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
 const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
+const DLG_TAIL={"old":["Ojalá no se acabe el remedio, hijito, me cuesta venir hasta acá.","Mi nieta me acompaña, pero me dejó esperando afuera.","Hoy hace harto frío para andar en la calle.","Desde que enviudé me toca a mí hacer los trámites.","Esta farmacia siempre ha sido muy ordenada.","Ya me aprendí de memoria los nombres de los remedios.","Mi doctor dice que voy bien, ¡gracias a Dios!","Me vine temprano para no pillar la fila de la tarde."],"adult":["Salí del trabajo corriendo para llegar.","Ojalá me atiendan luego, tengo que ir a buscar a los niños.","Esta semana ha sido pesadísima.","Me encargaron que no se me olvidara retirar esto.","Con este tráfico casi no llego.","Me dijeron que acá atienden bien.","Qué fila más larga hoy, ¿no?","Mañana tengo que hacerme unos exámenes, ojalá salga todo bien."],"young":["Me escapé un ratito del trabajo para venir.","Mi mamá me encargó que no olvidara nada.","Tengo que volver a la u en media hora.","Esta fila no avanza nunca, ¿no?","Salí de turno y vine directo para acá.","Ojalá alcance a llegar al bus después de esto.","Mi papá estuvo pendiente toda la mañana de este remedio."]};
+function dlgTail(p){
+ if(dlgSeed(p,31)%100>=35)return '';
+ const m=patientMood(p);if(m=='angry'||m=='sad')return '';
+ const age=dlgAge(p);
+ return dlgPick(age>=65?DLG_TAIL.old:age<=28?DLG_TAIL.young:DLG_TAIL.adult,p,17);
+}
 function patientDialogue(p){
  if(DLG_KEEP_PLAIN.includes(p.kind))return baseDialogue(p);
  if(DLG_OWN_LINES.includes(p.kind)){
@@ -964,8 +979,9 @@ function patientDialogue(p){
  const opener=dlgOpener(p);
  const key=dlgProblemKey(p);
  if(key&&dlgHasHint(p))return `${opener} ${dlgPick(DLG_HINTS[key],p,5)}`;
- if(p.noDocument)return `${opener} ${dlgBody(p)} ¿Me puede revisar la receta?`;
- return `${opener} ${dlgBody(p)}`;
+ const tail=dlgTail(p);
+ if(p.noDocument)return `${opener} ${dlgBody(p)} ¿Me puede revisar la receta?${tail?' '+tail:''}`;
+ return `${opener} ${dlgBody(p)}${tail?' '+tail:''}`;
 }
 // Frase que dice el paciente una vez tomada la decisión.
 const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-registry':'el número de registro de la receta está malo','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock'};
@@ -989,39 +1005,41 @@ function outcomeDialogue(p,decision,reportCategory,returnReason,correct){
   return pk(['¿Cómo que no es médico? Yo... yo no sabía, me atendió en una consulta normal.','¡Ay, no! Yo no hice nada, solo fui a que me vieran. ¿Qué va a pasar ahora?','No entiendo... me dio la receta como cualquier doctor. Por favor, no me culpe a mí.','¿Falso? Pero si tenía timbre y todo... ¡Me asusté! Yo pagué la consulta de buena fe.']);
  }
  if(decision==='dispense'){
-  if(angry)return pk(cl?['Por fin, weón. Chao.','Ya po, ¿ves que no era tan difícil? Chao.','Al fin, weón. Que te vaya mal... digo, buenas tardes.']:['Por fin. Gracias, aunque tardó una eternidad.']);
-  if(!correct)return pk(['Gracias, químico. Que le vaya muy bien.','Listo, qué amable. Hasta luego.']);
-  if(mood==='sad')return pk(['Gracias, de verdad... me hacía falta.','Gracias, químico. Que tenga buena tarde.']);
-  if(mood==='happy')return pk(['¡Mil gracias! Que tenga un día precioso.','¡Gracias, químico! ¡Hasta la próxima!']);
-  return pk(['Gracias, químico. Hasta luego.','Perfecto, muchas gracias.','Gracias, que le vaya bien.']);
+  if(angry)return pk(cl?['Por fin, weón. Chao.','Ya po, ¿ves que no era tan difícil? Chao.','Al fin, weón. Que te vaya mal... digo, buenas tardes.','Ya, weón, gracias po. Qué lata la espera.','Listo, weón, con eso me voy. Chao.','Al tiro po, weón, ¿era tanto? Chao.']:['Por fin. Gracias, aunque tardó una eternidad.','Al fin. Espero que la próxima vez sea más rápido.','Menos mal, ya era hora. Buenas tardes.']);
+  if(!correct)return pk(['Gracias, químico. Que le vaya muy bien.','Listo, qué amable. Hasta luego.','Gracias, qué rápido. Que tenga buena jornada.','Perfecto, me retiro entonces. Gracias.','Muy amable, nos vemos.']);
+  if(mood==='sad')return pk(['Gracias, de verdad... me hacía falta.','Gracias, químico. Que tenga buena tarde.','Se lo agradezco... no ha sido una semana fácil.','Gracias por su paciencia, de verdad.','Qué bueno poder llevarme esto. Gracias.']);
+  if(mood==='happy')return pk(['¡Mil gracias! Que tenga un día precioso.','¡Gracias, químico! ¡Hasta la próxima!','¡Qué rápido y amable! Se lo agradezco mucho.','¡Perfecto! Me voy feliz, gracias.','¡Gracias, químico! Usted sí que atiende bien.','¡Qué alivio! Hasta luego, que le vaya espectacular.']);
+  return pk(['Gracias, químico. Hasta luego.','Perfecto, muchas gracias.','Gracias, que le vaya bien.','Listo, eso era todo. Buenas tardes.','Gracias por la ayuda, químico.','Perfecto, me voy tranquilo. Hasta pronto.','Muy amable, muchas gracias.','Todo en orden entonces. Que esté muy bien.','Gracias, nos vemos el próximo mes.']);
  }
  if(decision==='return'){
   if(angry)return pk(cl?[`¡Weón, ${say} y por eso me mandas pa la casa! Yo te alimento, culiao.`,'¡¿Me la devuelves?! Puta la weá, apúrate y arréglalo, weón.','Ándate a la cresta, weón. Ya vuelvo, pero esto no queda así, culiao.',`Weón, ${say}... ¡no es pa tanto, apúrate!`]:['¡Esto es inaceptable! Volveré, pero me quejaré.','¿Me la devuelve? ¡Qué falta de respeto!']);
-  if(mood==='sad')return pk([`Tiene razón, ${say}... perdone la molestia, vuelvo mañana.`,`Ay, ${say}. Qué pena, ya vuelvo con todo en orden.`]);
-  if(mood==='happy')return pk([`¡Ah, es cierto, ${say}! Qué despistado soy. Vuelvo enseguida.`,`Jajá, ${say}. ¡Gracias por avisarme, químico!`]);
-  if(!correct)return pk(['Pero si mi receta estaba bien... bueno, voy a reclamar.','No entiendo qué pasó, pero vuelvo a revisar.']);
-  return pk([`Ya, entiendo, ${say}. Vuelvo cuando lo tenga listo.`,`Tiene razón, ${say}. Gracias por avisar.`]);
+  if(mood==='sad')return pk([`Tiene razón, ${say}... perdone la molestia, vuelvo mañana.`,`Ay, ${say}. Qué pena, ya vuelvo con todo en orden.`,`Ya... ${say}. Voy a ver cómo lo soluciono.`,`Perdone, no me di cuenta de que ${say}. Vuelvo apenas lo arregle.`,`Qué lata... ${say}. Gracias por avisarme, químico.`]);
+  if(mood==='happy')return pk([`¡Ah, es cierto, ${say}! Qué despistado soy. Vuelvo enseguida.`,`Jajá, ${say}. ¡Gracias por avisarme, químico!`,`¡Ups! ${say}. Menos mal que lo revisó, ya lo arreglo.`,`Jejeje, ${say}. ¡Qué cabeza la mía! Vuelvo mañana.`]);
+  if(!correct)return pk(['Pero si mi receta estaba bien... bueno, voy a reclamar.','No entiendo qué pasó, pero vuelvo a revisar.','¿Segurísimo? A mí me parecía que estaba todo correcto.','Debe ser un error del doctor, voy a consultarle.','Qué raro, la revisé varias veces. Voy a averiguar.']);
+  return pk([`Ya, entiendo, ${say}. Vuelvo cuando lo tenga listo.`,`Tiene razón, ${say}. Gracias por avisar.`,`Entendido: ${say}. Mañana vuelvo con todo arreglado.`,`Ah, ${say}. Está bien, voy a corregirlo.`,`Gracias por explicarme que ${say}. Vuelvo en cuanto pueda.`]);
  }
  if(decision==='seremi'){
   if(angry)return pk(cl?[correct?'¡¿Me vas a acusar a la SEREMI, weón?! ¡Qué te pasa, culiao!':'¡Weón, mi receta es verdadera! ¡Te vas a arrepentir, culiao!','Ándate a la cresta, weón. Que vengan no más, yo no tengo nada que esconder.','¡Yo te alimento, culiao! ¿Ahora me mandas a la SEREMI?']:['¡Esto es un abuso! ¡Llamaré a mi abogado!']);
-  if(!correct)return pk(['Esto es un error, la receta es verdadera. Voy a reclamar.','¿La SEREMI? Pero si yo no hice nada malo...']);
-  if(mood==='sad')return pk(['Por favor, no... lo hice por necesidad, químico.','Perdóneme... no sabía qué más hacer.']);
-  if(mood==='happy')return pk(['Jejeje... bueno, valía la pena intentarlo.','Ay, me pillaron. Qué le vamos a hacer.']);
-  return pk(['Ya, me pilló. Fue una tontera.','Está bien... no pensé que lo iba a notar.']);
+  if(!correct)return pk(['Esto es un error, la receta es verdadera. Voy a reclamar.','¿La SEREMI? Pero si yo no hice nada malo...','Que revisen lo que quieran, yo no tengo nada que ocultar.','Es un malentendido, ya van a ver que la receta es legítima.','No puede ser... voy a hablar con mi doctor ahora mismo.']);
+  if(mood==='sad')return pk(['Por favor, no... lo hice por necesidad, químico.','Perdóneme... no sabía qué más hacer.','No quería meterme en problemas... lo siento mucho.','Tenga piedad, es primera vez que hago algo así.']);
+  if(mood==='happy')return pk(['Jejeje... bueno, valía la pena intentarlo.','Ay, me pillaron. Qué le vamos a hacer.','Ni modo, no se pierde nada con probar.','Uy, qué ojo tiene usted, químico.']);
+  return pk(['Ya, me pilló. Fue una tontera.','Está bien... no pensé que lo iba a notar.','Tiene razón, no debí intentarlo.','Bueno... al menos fui sincero.']);
  }
  if(decision==='police'){
   if(angry)return pk(cl?['¡¿Carabineros, weón?! ¡Yo te alimento, culiao, esto no queda así!','Chuta, weón, ¿llamaste a los pacos? ¡Ándate a la cresta!','¡Suéltame, weón! ¡No hice nada, culiao!']:['¡No me toque! ¡Esto es una injusticia!']);
-  if(!correct)return pk(['¡Se equivoca! Yo no hice nada, mire mis papeles.','Esto es un malentendido, llamen a mi doctor.']);
-  if(mood==='sad')return pk(['Por favor, no llame a Carabineros... tengo familia.','No quería llegar a esto, perdóneme.']);
-  return pk(['Está bien, está bien... voy con ellos, no hagamos escándalo.','Ya, me pillaron. No me resisto.']);
+  if(!correct)return pk(['¡Se equivoca! Yo no hice nada, mire mis papeles.','Esto es un malentendido, llamen a mi doctor.','¿Policía? ¡Pero si todo está en regla, revise bien!','No tengo nada que esconder, pueden llamar a quien quieran.']);
+  if(mood==='sad')return pk(['Por favor, no llame a Carabineros... tengo familia.','No quería llegar a esto, perdóneme.','Se lo ruego, no avise a nadie...','Fue una mala decisión, lo reconozco.']);
+  return pk(['Está bien, está bien... voy con ellos, no hagamos escándalo.','Ya, me pillaron. No me resisto.','Está bien, hablaré con ellos. No quiero problemas.','Qué mala suerte... voy con ustedes sin problema.']);
  }
  // retain, keep-paper u otros
  if(angry)return pk(cl?['¡Oye, weón, devuélveme la receta! ¡Ladrón, culiao!','¿Te quedas con mi receta? ¡Apúrate y devuélvemela, weón!']:['¡Devuélvame mis papeles de inmediato!']);
- if(mood==='sad')return pk(['Está bien... me quedo sin nada entonces.','Ya... qué le vamos a hacer.']);
- if(!correct)return pk(['Pero si es mía, ¿por qué se queda con ella?','No entiendo, pero bueno.']);
- return pk(['Está bien, como usted diga.','Ya, entonces me voy no más.']);
+ if(mood==='sad')return pk(['Está bien... me quedo sin nada entonces.','Ya... qué le vamos a hacer.','Y ahora, ¿cómo hago con mi tratamiento...?','Bueno... qué se le va a hacer.']);
+ if(!correct)return pk(['Pero si es mía, ¿por qué se queda con ella?','No entiendo, pero bueno.','¿Se la queda? Bueno, si no hay otra opción...','Ya, quédesela, igual me iba a servir poco.']);
+ return pk(['Está bien, como usted diga.','Ya, entonces me voy no más.','Entendido. Entonces me retiro.','Ya, que sea como usted dice, químico.']);
 }
 
+const DLG_OWN_POOLS={"noDoc":["Buenas, vengo por este medicamento. ¿Me puede revisar la receta?","Hola, traigo esta receta. ¿Todo en orden con ella?","Buenas tardes, vengo a retirar lo que dice la receta, ¿me ayuda?","Disculpe, ¿me puede revisar la receta? Vengo por el medicamento.","Hola, químico. Aquí tengo la receta, a ver si está todo bien.","Buenas, me mandaron a retirar este remedio. ¿Revisa la receta?","Hola, vengo con la receta del doctor. ¿Me la mira, por favor?","Buenas tardes, solo traje la receta. ¿Se puede retirar así?"],"lookHair":["La foto es de antes de cambiarme el pelo. Si quiere, verificamos mi huella.","Me teñí hace poco y en el carnet salgo con otro color. ¿Verificamos la huella?","En el carnet salgo con el pelo largo, ahora lo llevo corto. La huella no miente.","Sé que no me parezco a la foto, el pelo me cambió. Puede revisar mi huella.","Me corté el pelo por el verano, así que salgo distinto. ¿Me toma la huella?","Antes tenía el pelo de otro color, ahora vengo cambiado. Verifique mi huella si quiere.","Ese carnet es de cuando usaba otro peinado. Tengo la huella para comprobarlo.","La foto del carnet es antigua, el pelo ya no es el mismo. ¿Pasamos a la huella?","Me hice un cambio de look, pero soy yo. Si duda, confirme con la huella."],"lookClothes":["Andaba con otra pinta cuando renové el carnet. ¿Le sirve mi huella?","En la foto salgo de terno, hoy vengo de otra forma. Puede revisar mi huella.","La foto me la sacaron con uniforme del trabajo; hoy ando de civil. ¿Verifica la huella?","Ese día andaba con lentes y gorro, hoy no. La huella confirma que soy yo.","Me saqué la foto con otra ropa y otro estilo. Si quiere, tomamos la huella.","En el carnet salgo muy arreglado, hoy vengo casual. ¿Me revisa la huella?","Cuando me tomaron la foto andaba con un estilo más formal. Verifique con la huella.","Salgo con otra facha en el carnet, pero la huella es la misma.","La foto del carnet es de otra temporada: otra ropa, otro estilo. ¿Le muestro la huella?"],"lookAge":["Los años pasan para todos, ¡menos para la foto del carnet! ¿Me revisa la huella?","Esa foto es de otra época de mi vida, qué le vamos a hacer. La huella sigue igual.","Estoy distinto a la foto, lo sé: pasaron los años. ¿Verificamos mi huella?","Ese carnet ya tiene tiempo, y se nota en mi cara. Pruebe con la huella.","La foto del carnet es de otra época, ¡pero soy yo! La huella lo confirma.","La vida pasa... y la foto quedó en el pasado. ¿Me toma la huella?","Me ven distinto porque la foto es vieja, pero la identidad es la misma. Revise la huella.","El tiempo pasa y la cara cambia. Mejor verifiquemos con la huella."],"fakeid":["Lo de la fotografía es por el cambio de look, se lo juro. ¿Me atiende?","Sé que no me parezco mucho a la foto, pero soy yo. ¿Me atiende igual?","Esa foto es vieja, ando distinto, pero el carnet es mío.","Es mi carnet, de verdad. Me cambié mucho desde que me tomaron la foto.","Pucha, siempre me preguntan lo mismo con esta foto. Soy yo, créame.","Sí, la cara cambia, pero el carnet es mío. ¿Podemos seguir?","No es de nadie más, es mi carnet. ¿Hay algún problema con la foto?","¿Por qué mira tanto el carnet? Es mío, yo solo vengo por mi remedio.","Si quiere pregúnteme lo que sea del carnet, es mío."],"underage":["Tengo 17. La receta está a mi nombre, pero me dijeron que viniera con un adulto...","Mi mamá me mandó sin nadie más, dice que usted igual me atiende.","Soy menor, pero la receta es mía. ¿No me la puede entregar igual?","Vine sin mis papás porque trabajan. Aquí está la receta.","Es mi medicamento de siempre, solo que hoy mi papá no pudo venir.","Me dijeron que si traía la receta no habría problema, aunque sea menor.","Mi abuela me pasó la receta y la plata, ¿se puede?"],"stolen":["Vine de lejos y estoy apurado. ¿Por qué revisa ese número de folio tres veces?","Es una receta nueva, recién me la dieron. No sé por qué se demora tanto.","Tengo el auto mal estacionado y poco tiempo. ¿Falta algo?","La receta me la pasó un conocido... digo, mi doctor. Está todo bien.","¿Por qué tanta vuelta con el folio? Es solo una receta.","Vengo de otra comuna, por eso no me conocen aquí.","Si es por el folio, yo no sé de eso, solo me pasaron la receta."],"fakeDoctor":["Este doctor es nuevo. Tiene la consulta al lado de la feria, creo...","No conozco mucho al doctor, me lo recomendó una vecina.","La consulta queda en un segundo piso, arriba de un local. Me atendió rapidísimo.","El doctor me cobró en efectivo y me entregó la receta al tiro.","Es la primera vez que voy con este doctor, ¿hay problema?","No sé mucho de él, pero me dijo que era especialista."],"tmDecl":["Me dieron esta receta en la consulta. Me dijeron que podía retirar el medicamento acá.","La atención fue con un profesional de la salud, nos pidieron retirar acá.","Me dijeron que con esta firma bastaba, ¿está todo bien?","Yo no entiendo mucho de timbres, solo sé que me atendieron en la consulta.","El profesional me explicó el tratamiento, la receta es esta."],"tmNoDecl":["Me aseguró que era médico. Mire el timbre, está clarito... ¿por qué lo mira tanto?","El doctor se presentó como médico, tiene hasta diploma en la pared.","Es un doctor muy amable, me atendió rapidísimo. ¿Qué tiene la receta?","Ese timbre lo vi en la consulta, estaba el diploma colgado.","Me dijeron que era médico general. ¿Pasa algo con la firma?"]};
+function dlgOwn(p,key){return dlgPick(DLG_OWN_POOLS[key],p,8)}
 function baseDialogue(p){
  if(p.kind==='tuguelExpired')return '¡Qué pasa, papito! ¿Me da el medicamento? Traigo el carnet acá.';
  if(p.kind==='minorGuardian')return p.quote;
@@ -1033,23 +1051,17 @@ function baseDialogue(p){
  if(p.kind==='tarotera')return 'Tome, pa que sepa que hacer';
  if(p.kind==='abuelo')return 'Se le nota cansado, joven. Tome un dulce, que con algo rico se arregla el día.';
  if(p.kind==='giftPaper')return 'No vengo a comprar nada, joven. Le dejo esto de recuerdo. No me haga preguntas.';
- if(p.kind==='tmFraud')return declaresTechnologistTitle(p)
-  ?'Me dieron esta receta en la consulta. Me dijeron que podía retirar el medicamento acá.'
-  :'Me aseguró que era médico. Mire el timbre, está clarito... ¿por qué lo mira tanto?';
- if(p.kind==='underage')return 'Tengo 17. La receta está a mi nombre, pero me dijeron que viniera con un adulto...';
- if(p.kind==='stolen')return 'Vine de lejos y estoy apurado. ¿Por qué revisa ese número de folio tres veces?';
+ if(p.kind==='tmFraud')return dlgOwn(p,declaresTechnologistTitle(p)?'tmDecl':'tmNoDecl');
+ if(p.kind==='underage')return dlgOwn(p,'underage');
+ if(p.kind==='stolen')return dlgOwn(p,'stolen');
  if(p.kind==='idBirthDateFraud')return p.quote;
  if(p.kind==='fakeid'&&p.catalogId===618)return 'Soy yo el del carnet por si acaso, me corté el pelo';
- if(p.kind==='fakeid')return 'Lo de la fotografía es por el cambio de look, se lo juro. ¿Me atiende?';
+ if(p.kind==='fakeid')return dlgOwn(p,'fakeid');
  if(p.kind==='aluminio')return 'estos weones quieren puro controlarnos';
- if(p.noDocument){
-  return 'Buenas, vengo por este medicamento. ¿Me puede revisar la receta?';
- }
- if(p.kind==='lookHair')return 'La foto es de antes de cambiarme el pelo. Si quiere, verificamos mi huella.';
- if(p.kind==='lookClothes')return 'Andaba con otra pinta cuando renové el carnet. ¿Le sirve mi huella?';
- if(p.kind==='lookAge')return 'Los años pasan para todos, ¡menos para la foto del carnet! ¿Me revisa la huella?';
+ if(p.noDocument)return dlgOwn(p,'noDoc');
+ if(p.kind==='lookHair'||p.kind==='lookClothes'||p.kind==='lookAge')return dlgOwn(p,p.kind);
  if(p.kind==='sicolasMuros'||p.kind==='rufus'||p.kind==='podiatristRx')return p.quote;
- if(p.kind==='fakeDoctor')return 'Este doctor es nuevo. Tiene la consulta al lado de la feria, creo...';
+ if(p.kind==='fakeDoctor')return dlgOwn(p,'fakeDoctor');
  if(p.nationalityCode==='VE')return ['Vengo por mi receta. Traje todos los papeles, creo.','¿Me ayuda con esto? Siempre me confundo con el tipo de receta.'][p.portraitSeed%2];
  if(p.nationalityCode==='HT')return ['Buenas tardes, ¿me revisa la receta?',p.gaveId?'Aquí están la receta y la cédula.':'Tengo la cédula si la necesita.'][p.portraitSeed%2];
  if(p.nationalityCode==='AR')return ['Buenas, ¿está bien todo en esta receta?','Estoy esperando desde temprano, pero revísela con calma.'][p.portraitSeed%2];
@@ -2312,7 +2324,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.114 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.115 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2354,7 +2366,7 @@ function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" da
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.114','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.115','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -2363,7 +2375,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.114 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.115 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -2442,7 +2454,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.114 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.115 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -2796,7 +2808,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.114) =====
+// ===== Manual práctico (1.9.115) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
