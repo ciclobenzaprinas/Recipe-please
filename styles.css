@@ -874,3 +874,9 @@ html.modal-open{overflow:hidden}
 .e-card .e-validate{margin-top:8px;text-align:center}
 .e-card .e-validate .btn,.e-card .e-validate button{width:100%}
 .e-card .e-validate .notice{text-align:left}
+/* 1.9.111 · Sprite del dedo del lector de huella */
+.fingerprint-hand{width:82px;left:calc(50% + 6px)}
+.fingerprint-hand img{width:100%;display:block;image-rendering:auto}
+.fingerprint-hand{left:calc(50% - 41px);transform-origin:50% 100%;transform:translateY(-240px) rotate(12deg)}
+.fingerprint-hand img{transform:rotate(180deg)}
+@keyframes fingerPress{0%{transform:translateY(-240px) rotate(12deg);opacity:0}22%{opacity:1}55%,72%{transform:translateY(-96px) rotate(12deg);opacity:1}100%{transform:translateY(-240px) rotate(12deg);opacity:0}}
