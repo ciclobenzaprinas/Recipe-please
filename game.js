@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.130. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.131. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -886,7 +886,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.130) =====
+// ===== Diálogos personalizados (1.9.131) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1057,7 +1057,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.130) =====
+// ===== Habla de extranjeros (1.9.131) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1269,7 +1269,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.130) =====
+// ===== Eventos del barrio (1.9.131) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -1417,7 +1417,7 @@ function prepareDay(){
   game.specialEvents.tuguelDay1Seen=true;
  }
  ensureDaySevenPatient();
- game.patientIndex=0;game.patientResult=null;game.patientVerified=false;game.idRequested=false;game.qrChecked=false;game.deliveryDone=false;game.delivery=null;game.boxOpened=false;game.inspectedPacks=[];game.inspectionDone=false;game.inspectionIssue=null;game.inspectionResolutionLocked=false;game.finesToday=0;game.dayIncome=0;game.dayBonus=0;game.dayExpenses=0;game.dayPay=false;game.daySummary=null;game.illegalToday=0;
+ game.dayStats=newDayStats();game.patientIndex=0;game.patientResult=null;game.patientVerified=false;game.idRequested=false;game.qrChecked=false;game.deliveryDone=false;game.delivery=null;game.boxOpened=false;game.inspectedPacks=[];game.inspectionDone=false;game.inspectionIssue=null;game.inspectionResolutionLocked=false;game.finesToday=0;game.dayIncome=0;game.dayBonus=0;game.dayExpenses=0;game.dayPay=false;game.daySummary=null;game.illegalToday=0;
  if(game.day>=3)addNotice('stolen-3472','ALERTA · TALONARIO ROBADO',STOLEN_FOLIO_ALERT,'alerta');
  if(sisAvailable()){
   const {key,title,body,type}=SIS_UNLOCK_NOTICE;
@@ -1571,7 +1571,7 @@ function sellGift(index){
  if(!g||g.used)return;
  const price=giftSalePrice(g);
  if(!Number.isFinite(price)||price<0){toast('Falta asignar precio de venta a este regalo.');return}
- game.cash+=price;g.used=true;g.usedBy='Vendido';g.usedOnDay=game.day;
+ game.cash+=price;g.used=true;g.usedBy='Vendido';g.usedOnDay=game.day;if(g.item===PUDU_CARD&&price>=2000000)achGrant('rico-por-una-carta');
  record(`Vendiste ${g.item} por ${pesos(price)}.`);save();ui.modal='gifts';render();toast(`Venta registrada: ${pesos(price)}`);
 }
 function discardGift(index){
@@ -1834,6 +1834,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
    }else game.specialEvents.tuguelReturnPending=false;
  }
  p.done=true;game.patientResult={decision,expected,correct,p};
+ metaAfterPatient(p,decision,correct,reportCategory);
  if(!game.tutorial&&!isPaperEvent(p)&&p.kind!=='bribe')p.outcomeQuote=outcomeDialogue(p,decision,reportCategory,returnReason,correct);
  if(decision==='dispense'){
   ui.modal=null;
@@ -1905,6 +1906,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
   addProfessionalError({day:game.day,level:decision==='dispense'?'grave':'leve',desc:`Atención irregular: ${p.name} (${detail})`,reported:false,kind:p.kind,reviewReasons:patientReviewReasons(p,expected,reportCategory,returnReason,docStatus,fieldReasons,outstandingChecks),rxFolio:p.folio,drug:p.drug,patient:p.name,rut:p.rut});record(`Incidencia profesional en atención de ${p.name}.`)}
  if(!correct && decision!=='dispense')changeMood('qf',-8,'Decisión incorrecta durante la atención');
  if(correct&&!isPaperEvent(p)){game.successfulAttentions=(Number(game.successfulAttentions)||0)+1;}
+ checkAchievements();
  if(p.kind==='cifunando'&&decision==='dispense'){
    game.pendingGift={day:game.day,item:PUDU_CARD,event:PUDU_EVENT,effect:'sin uso',used:false};
    game.patientResult.gift=PUDU_CARD;
@@ -2263,7 +2265,7 @@ function closeDayGoHome(){
  if(hospitalizedToday)record(`Hospitalización de Carlitos: jornada ${hospital.days}, costo ${pesos(game.dayHospitalCost)}. ${dischargedToday?'Alta médica.':'Continúa en observación.'}`);
  if(hospital.active&&hospital.starts===game.day+1)record('Carlitos ingresó al hospital. Desde la siguiente jornada, se programaron tres días de hospitalización a $10.000 por día.');
  changeMood('qf',3,'Descanso y desconexión después del turno');
- game.scene='home';record(`Jornada finalizada. Sueldo ${pesos(40000)}; bono de libros ${pesos(game.dayBonus)}; multas ${pesos(game.finesToday)}. Carlitos: ${game.carlitosHealth}.`);save();render();
+ metaAfterClose();game.scene='home';ui.modal='day-summary';record(`Jornada finalizada. Sueldo ${pesos(40000)}; bono de libros ${pesos(game.dayBonus)}; multas ${pesos(game.finesToday)}. Carlitos: ${game.carlitosHealth}.`);save();render();
 }
 
 // A fixed narrative case uses the normal prescription, SIS and dispatch paths.
@@ -2433,7 +2435,7 @@ function stage(which,label,sub='',speech=''){
 function sisAvailable(){
  return game.day>=SIS_UNLOCK_DAY;
 }
-function header(){if(game.tutorial)return `<header class="game-top"><div class="brand">DÍA 0 · TURNO DE PRÁCTICA</div><div class="btn-row">${btn('VER INSTRUCCIÓN','practice-help','cream')}${btn('MANUAL','manual','dark')}${btn('SALIR DE LA PRÁCTICA','practice-exit','dark')}</div></header>`;let unread=(game.notifications||[]).filter(x=>!x.seen).length;return `<header class="game-top"><div class="brand brand-logo"><img src="${assetUrl('assets/branding/recipe-please-logo.png')}" alt="Recipe, Please" width="1254" height="1254"></div><div class="topstats"><span class="hud-stat">DÍA <strong>${z(game.day)}</strong> · ${dateOf(game.day)}</span><span class="hud-stat">EFECTIVO <strong>${pesos(game.cash)}</strong></span><span class="hud-stat">FALTAS <strong>${game.infractions}</strong></span>${moodBar('QF',game.moodQf,'qf',true)}${moodBar('CARLITOS',game.moodCarlitos,'carlitos',true)}</div><button class="smallbtn mobile-top-toggle" data-action="toggle-top" aria-expanded="${ui.topOpen?'true':'false'}">${ui.topOpen?'✕ CERRAR':'☰ OPCIONES'}${unread&&!ui.topOpen?`<span class="notification-count">${unread}</span>`:''}</button><div class="top-actions${ui.topOpen?' open':''}"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}" title="Activar o silenciar efectos sonoros">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}" title="Activar o silenciar música ambiental original">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button><button class="smallbtn" data-action="gifts">♢ REGALOS (${(game.gifts||[]).filter(g=>!g.used).length})</button><button class="smallbtn" data-action="calendar">▦ CALENDARIO</button><button class="smallbtn" data-action="phone">☎ AVISOS ${unread?`<span class="notification-count">${unread}</span>`:''}</button>${sisAvailable()?'<button class="smallbtn" data-action="sis">▣ REGISTRO SIS</button>':''}<button class="smallbtn" data-action="manual">? MANUAL</button><button class="smallbtn" data-action="book">▤ LIBRO</button>${game.scene==='book'?'':'<button class="smallbtn" data-action="go-menu">⌂ INICIO</button>'}<button class="smallbtn" data-action="menu">☷ MENÚ</button></div></header>`}
+function header(){if(game.tutorial)return `<header class="game-top"><div class="brand">DÍA 0 · TURNO DE PRÁCTICA</div><div class="btn-row">${btn('VER INSTRUCCIÓN','practice-help','cream')}${btn('MANUAL','manual','dark')}${btn('SALIR DE LA PRÁCTICA','practice-exit','dark')}</div></header>`;let unread=(game.notifications||[]).filter(x=>!x.seen).length;return `<header class="game-top"><div class="brand brand-logo"><img src="${assetUrl('assets/branding/recipe-please-logo.png')}" alt="Recipe, Please" width="1254" height="1254"></div><div class="topstats"><span class="hud-stat">DÍA <strong>${z(game.day)}</strong> · ${dateOf(game.day)}</span><span class="hud-stat">EFECTIVO <strong>${pesos(game.cash)}</strong></span><span class="hud-stat">FALTAS <strong>${game.infractions}</strong></span>${moodBar('QF',game.moodQf,'qf',true)}${moodBar('CARLITOS',game.moodCarlitos,'carlitos',true)}</div><button class="smallbtn mobile-top-toggle" data-action="toggle-top" aria-expanded="${ui.topOpen?'true':'false'}">${ui.topOpen?'✕ CERRAR':'☰ OPCIONES'}${unread&&!ui.topOpen?`<span class="notification-count">${unread}</span>`:''}</button><div class="top-actions${ui.topOpen?' open':''}"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}" title="Activar o silenciar efectos sonoros">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}" title="Activar o silenciar música ambiental original">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button><button class="smallbtn" data-action="gifts">♢ REGALOS (${(game.gifts||[]).filter(g=>!g.used).length})</button><button class="smallbtn" data-action="album">▦ ÁLBUM (${albumCount()}/${ALBUM.length})${Object.keys(meta().fresh).length?`<span class="notification-count">${Object.keys(meta().fresh).length}</span>`:''}</button><button class="smallbtn" data-action="achievements">★ LOGROS (${achCount()}/${ACHIEVEMENTS.length})</button><button class="smallbtn" data-action="calendar">▦ CALENDARIO</button><button class="smallbtn" data-action="phone">☎ AVISOS ${unread?`<span class="notification-count">${unread}</span>`:''}</button>${sisAvailable()?'<button class="smallbtn" data-action="sis">▣ REGISTRO SIS</button>':''}<button class="smallbtn" data-action="manual">? MANUAL</button><button class="smallbtn" data-action="book">▤ LIBRO</button>${game.scene==='book'?'':'<button class="smallbtn" data-action="go-menu">⌂ INICIO</button>'}<button class="smallbtn" data-action="menu">☷ MENÚ</button></div></header>`}
 const FOCUSABLE='button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex="0"]';
 let renderedModal=null;
 let modalOpener=null;
@@ -2470,7 +2472,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.130 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.131 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2510,9 +2512,347 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
+// ===== 1.9.131 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
+const META_KEY='recipe_please_meta_v1';
+let metaCache=null,metaMemory=null;
+function meta(){
+ if(metaCache)return metaCache;
+ let d=null;
+ try{let raw=null;try{raw=localStorage.getItem(META_KEY)}catch(e){}d=JSON.parse(raw||metaMemory||'null')}catch(e){d=null}
+ if(!d||typeof d!=='object'||Array.isArray(d))d={};
+ for(const k of ['album','ach','stats','fresh'])if(!d[k]||typeof d[k]!=='object'||Array.isArray(d[k]))d[k]={};
+ if(!Array.isArray(d.stats.nations))d.stats.nations=[];
+ return metaCache=d;
+}
+function metaSave(){if(TACA_PREVIEW)return;try{const s=JSON.stringify(meta());metaMemory=s;localStorage.setItem(META_KEY,s)}catch(e){}}
+let metaToastQueue=[],metaToastBusy=false;
+function metaToast(msg){metaToastQueue.push(msg);if(!metaToastBusy)metaToastNext()}
+function metaToastNext(){const m=metaToastQueue.shift();if(!m){metaToastBusy=false;return}metaToastBusy=true;toast(m);setTimeout(metaToastNext,2500)}
+
+// ---------- Álbum de pacientes ----------
+const RARITY_LABEL={comun:'COMÚN',poco:'POCO COMÚN',rara:'RARA',ultra:'ULTRA RARA'};
+const ALBUM=[
+ {id:'tuguel',n:1,name:'Tuguel Pagaba',kinds:['tuguelExpired','tuguelFake'],img:'assets/patients/tuguel_lacras.webp',rarity:'comun',
+  where:'Jornada 1, siempre. Llega con el carnet vencido. Si lo devuelves, regresa la jornada 2 con un carnet «impecable».',
+  odds:'100 % · garantizado',about:'Hablador, simpático y con una receta de clonazepam 2 mg. Dice que todo está «bacán», pero sus documentos cuentan otra historia.'},
+ {id:'sicolas',n:2,name:'Sicolás Muros',kinds:['sicolasMuros'],img:'assets/patients/sicolas-muros.webp',rarity:'comun',
+  where:'Jornada 2, siempre, apenas se habilita el Registro SIS.',
+  odds:'100 % · garantizado',about:'Trae una receta de ketazolam 30 mg firmada por un doctor de la «Clínica Kerito». Nadie en el registro ha oído hablar de él.'},
+ {id:'don-victor',n:3,name:'Don Víctor',kinds:['donVictor'],img:'assets/patients/don-victor.webp',rarity:'comun',
+  where:'Una sola visita por partida, entre las jornadas 2 y 6. No trae receta.',
+  odds:'60 % por jornada · ≈ 99 % de pasar en la primera semana',about:'Vecino de toda la vida. No viene por remedios: viene por «una moneita, cien peso».'},
+ {id:'rufus',n:4,name:'Rufus',kinds:['rufus'],img:'assets/patients/rufus.webp',rarity:'comun',
+  where:'Jornada 5, siempre.',
+  odds:'100 % · garantizado',about:'Se presenta con un carnet de fantasía como si fuera auténtico y un único saludo: «ñau».'},
+ {id:'nomeh',n:5,name:'No-Meh Wei',kinds:['chinese'],img:'assets/patients/nomeh_busto.webp',rarity:'poco',
+  where:'Entre las jornadas 1 y 4: 1 % por jornada y llega seguro la jornada 4.',
+  odds:'1 % diario · garantizado el día 4',about:'Anciano de barba blanca que no habla español. En vez de una receta, deja un papel escrito en chino.'},
+ {id:'club',n:6,name:'Visitante del Club Nocturno',kinds:['clubNocturno'],img:'assets/patients/visitante_club_busto.webp',rarity:'poco',
+  where:'Entre las jornadas 1 y 6: 1 % por jornada y llega seguro la jornada 6.',
+  odds:'1 % diario · garantizado el día 6',about:'No trae receta, sino una tarjeta. Asegura que fue de Noruega y que tuvo «fama máxima».'},
+ {id:'tarotera',n:7,name:'Clarisa Antilef',kinds:['tarotera'],img:'assets/cast600/cast_648_stage.webp',rarity:'poco',
+  where:'Jornada 10, siempre.',
+  odds:'100 % · garantizado',about:'Visita sin receta que deja una carta de tarot «pa que sepa qué hacer».'},
+ {id:'aluminio',n:8,name:'Hernán Zúñiga',kinds:['aluminio'],img:'assets/cast600/cast_641_stage.webp',rarity:'poco',
+  where:'Desde la jornada 2: 8 % por jornada y llega seguro la jornada 9.',
+  odds:'8 % diario · garantizado el día 9',about:'Llega sin carnet y con teorías propias sobre para qué sirven los documentos de identidad.'},
+ {id:'chemy',n:9,name:'Chemy Araucanía',kinds:['chemy'],img:'assets/patients/chemy.webp',rarity:'poco',
+  where:'Desde la jornada 3: 12 % por jornada y llega segura la jornada 12.',
+  odds:'12 % diario · garantizada el día 12',about:'Viene por su fenbendazol al 25 %. Su receta siempre está en regla, y saluda con un «Muuu».'},
+ {id:'eliseo',n:10,name:'Eliseo Quintrel',kinds:['abuelo'],img:'assets/cast600/cast_649_stage.webp',rarity:'rara',
+  where:'Una sola vez por partida: aparece cuando el ánimo del QF o el de Carlitos cae por debajo de 60.',
+  odds:'100 % si se cumple la condición',about:'El abuelo de la bufanda naranja. No pide nada: reparte dulces para arreglar el día de otros.'},
+ {id:'carlos',n:11,name:'Carlos Neira Ibacache',kinds:['specialCarlos'],img:'assets/patients/carlos_sin_lentes_busto.png',rarity:'rara',
+  where:'Solo en jornadas pares: 0,5 % por jornada (1 % la jornada 14).',
+  odds:'≈ 3,9 % por campaña de 14 jornadas',about:'Receta de clotiazepam 10 mg de la Dra. Ysela Creyó y un RUT que nunca has visto. Un caso especial poco frecuente.'},
+ {id:'cifunando',n:12,name:'Cifunando Feruentes Crack',kinds:['cifunando'],img:'assets/patients/cifunando.webp',rarity:'ultra',
+  where:'Cualquier jornada, por sorteo diario. Solo puede aparecer una vez por partida.',
+  odds:'1 de cada 100.000 partidas (≈ 0,001 %)',about:'Amable, con su receta de clonazepam 2 mg y su carnet en regla. Al final del turno, un problema de efectivo y una propuesta en cartas.'}
+];
+function albumIdForKind(kind){for(const a of ALBUM)if(a.kinds.includes(kind))return a.id;return null}
+function albumCount(){const m=meta();return ALBUM.filter(a=>m.album[a.id]).length}
+function metaSeePatient(p){
+ if(!game||game.tutorial||!p||p.metaSeen)return;
+ p.metaSeen=true;
+ const m=meta();let dirty=false;
+ const nat=p.nationalityCode;
+ if(nat&&!m.stats.nations.includes(nat)){m.stats.nations.push(nat);dirty=true}
+ const id=albumIdForKind(p.kind);
+ if(id){
+  const a=ALBUM.find(x=>x.id===id),e=m.album[id];dirty=true;
+  if(e){e.n=(e.n||1)+1;e.last=game.day}
+  else{
+   m.album[id]={n:1,day:game.day,at:Date.now(),last:game.day};m.fresh[id]=true;
+   dayStats().newStickers.push(id);
+   metaToast(`✦ ¡NUEVA ESTAMPA! Nº ${String(a.n).padStart(2,'0')} · ${a.name}`);
+  }
+  if(id==='cifunando')achGrant('maestro-bolsillomon');
+ }
+ if(dirty)metaSave();
+ checkAchievements();
+}
+
+// ---------- Logros ----------
+const ACHIEVEMENTS=[
+ {id:'primera-atencion',name:'Primera atención',desc:'Atiende correctamente a tu primer paciente.',tier:'bronce',icon:'✚',prog:c=>[c.ok,1]},
+ {id:'mano-firme',name:'Mano firme',desc:'Suma 10 atenciones correctas en una partida.',tier:'bronce',icon:'✎',prog:c=>[c.ok,10]},
+ {id:'quimico-de-barrio',name:'Químico de barrio',desc:'Suma 50 atenciones correctas en una partida.',tier:'plata',icon:'⚕',prog:c=>[c.ok,50]},
+ {id:'cien-recetas',name:'Cien recetas',desc:'Suma 100 atenciones correctas en una partida.',tier:'oro',icon:'★',prog:c=>[c.ok,100]},
+ {id:'racha-10',name:'Racha limpia',desc:'Encadena 10 decisiones correctas seguidas.',tier:'bronce',icon:'≫',prog:c=>[c.streak,10]},
+ {id:'racha-25',name:'Imparable',desc:'Encadena 25 decisiones correctas seguidas.',tier:'plata',icon:'⇉',prog:c=>[c.streak,25]},
+ {id:'jornada-impecable',name:'Jornada impecable',desc:'Cierra una jornada con al menos 3 atenciones, sin errores ni multas.',tier:'bronce',icon:'☼'},
+ {id:'tres-impecables',name:'Hat-trick',desc:'Cierra 3 jornadas impecables en una misma partida.',tier:'plata',icon:'☼☼',prog:c=>[c.perfect,3]},
+ {id:'libros-al-dia',name:'Libros al día',desc:'Cobra el bono por dejar el libro de movimientos al día.',tier:'bronce',icon:'▤'},
+ {id:'ojo-de-aguila',name:'Ojo de águila',desc:'Realiza una denuncia o reporte procedente.',tier:'bronce',icon:'◉',prog:c=>[c.reports,1]},
+ {id:'cazafalsos',name:'Cazafalsos',desc:'Realiza 5 denuncias o reportes procedentes en una partida.',tier:'plata',icon:'⚑',prog:c=>[c.reports,5]},
+ {id:'brazo-de-la-ley',name:'Brazo de la ley',desc:'Denuncia a la policía un documento falso, con fundamento.',tier:'plata',icon:'⚖',prog:c=>[c.police,1]},
+ {id:'una-semana',name:'Una semana en pie',desc:'Cierra la jornada 7.',tier:'bronce',icon:'7'},
+ {id:'dos-semanas',name:'Dos semanas',desc:'Cierra la jornada 14.',tier:'plata',icon:'14'},
+ {id:'treinta',name:'Treinta jornadas',desc:'Cierra la jornada 30.',tier:'oro',icon:'30'},
+ {id:'retiro-limpio',name:'Retiro bien hecho',desc:'El día del retiro del clotiazepam, reporta correctamente todas las recetas afectadas.',tier:'plata',icon:'☎'},
+ {id:'carlitos-primero',name:'Carlitos primero',desc:'Cierra una jornada con el ánimo de Carlitos en 90 o más.',tier:'plata',icon:'♥'},
+ {id:'cuentas-claras',name:'Cuentas claras',desc:'Cierra una jornada, desde la 5, sin deudas.',tier:'plata',icon:'$'},
+ {id:'vecino-querido',name:'Vecino querido',desc:'Junta 5 regalos de pacientes.',tier:'bronce',icon:'♢',prog:c=>[c.gifts,5]},
+ {id:'sin-fronteras',name:'Farmacia sin fronteras',desc:'Atiende pacientes de 6 nacionalidades distintas.',tier:'plata',icon:'✈',prog:c=>[c.nations,6]},
+ {id:'ciudadano-mundo',name:'Ciudadano del mundo',desc:'Atiende pacientes de las 13 nacionalidades del juego.',tier:'oro',icon:'◍',prog:c=>[c.nations,13]},
+ {id:'primera-estampa',name:'Primera estampa',desc:'Descubre tu primera estampa del álbum.',tier:'bronce',icon:'▦',prog:c=>[c.album,1]},
+ {id:'coleccionista',name:'Coleccionista',desc:'Descubre 6 estampas del álbum.',tier:'plata',icon:'▩',prog:c=>[c.album,6]},
+ {id:'album-completo',name:'Álbum completo',desc:'Descubre las 12 estampas del álbum.',tier:'oro',icon:'✦',prog:c=>[c.album,ALBUM.length]},
+ {id:'consecuencias',name:'Todo tiene consecuencias',desc:'Llega a un final de partida.',tier:'bronce',icon:'⌛',test:c=>c.over},
+ {id:'maestro-bolsillomon',name:'Maestro Bolsillomón',desc:'Encuentra al chico que regala la carta.',tier:'especial',hidden:true,icon:'✦'},
+ {id:'pago-en-cartas',name:'Pago en cartas',desc:'Acepta una carta Bolsillomón como medio de pago.',tier:'especial',hidden:true,icon:'✧',test:c=>c.pudu},
+ {id:'rico-por-una-carta',name:'Rico por una carta',desc:'Vende la carta Pudú Brasa por $2.000.000.',tier:'especial',hidden:true,icon:'$$'}
+];
+function achCtx(){
+ const m=meta();
+ return {ok:Number(game?.successfulAttentions)||0,streak:Number(game?.maxOkStreak)||0,perfect:Number(game?.perfectDays)||0,
+  reports:Number(game?.correctReports)||0,police:Number(game?.policeOk)||0,gifts:(game?.gifts||[]).length,
+  nations:m.stats.nations.length,album:albumCount(),over:Boolean(game?.gameOver),
+  pudu:(game?.gifts||[]).some(g=>g.item===PUDU_CARD)};
+}
+function achCount(){const m=meta();return ACHIEVEMENTS.filter(a=>m.ach[a.id]).length}
+function achGrant(id){
+ const a=ACHIEVEMENTS.find(x=>x.id===id);if(!a)return false;
+ const m=meta();if(m.ach[id])return false;
+ m.ach[id]={day:game?.day||0,at:Date.now()};metaSave();
+ if(game&&!game.tutorial)dayStats().newAch.push(id);
+ metaToast('★ LOGRO: '+a.name);
+ return true;
+}
+function checkAchievements(){
+ if(!game||game.tutorial)return;
+ const c=achCtx(),m=meta();
+ for(const a of ACHIEVEMENTS){
+  if(m.ach[a.id])continue;
+  const ok=a.test?a.test(c):a.prog?a.prog(c)[0]>=a.prog(c)[1]:false;
+  if(ok)achGrant(a.id);
+ }
+}
+function metaTick(){
+ if(!game||game.tutorial)return;
+ if(game.scene==='counter'){const p=game.patients?.[game.patientIndex];if(p)metaSeePatient(p)}
+ checkAchievements();
+}
+
+// ---------- Estadísticas de la jornada ----------
+function newDayStats(){return {attended:0,correct:0,wrong:0,dispensed:0,returned:0,reported:0,visits:0,seq:[],newStickers:[],newAch:[],perfect:false}}
+function dayStats(){
+ if(!game)return newDayStats();
+ if(!game.dayStats||typeof game.dayStats!=='object')game.dayStats=newDayStats();
+ for(const k of ['seq','newStickers','newAch'])if(!Array.isArray(game.dayStats[k]))game.dayStats[k]=[];
+ return game.dayStats;
+}
+function metaAfterPatient(p,decision,correct,reportCategory){
+ if(!game||game.tutorial)return;
+ const s=dayStats(),paper=isPaperEvent(p);
+ s.attended++;
+ if(paper)s.visits++;
+ else{
+  if(decision==='dispense')s.dispensed++;else if(decision==='return')s.returned++;else s.reported++;
+  if(correct){s.correct++;game.okStreak=(game.okStreak||0)+1;game.maxOkStreak=Math.max(game.maxOkStreak||0,game.okStreak)}
+  else{s.wrong++;game.okStreak=0}
+ }
+ s.seq.push({k:paper?'visit':correct?'ok':'bad',name:String(p.name||'Paciente'),dec:decision});
+ if(reportCategory&&correct){game.correctReports=(game.correctReports||0)+1;if(reportCategory==='police-id')game.policeOk=(game.policeOk||0)+1}
+ if(p.eventRecall===true&&correct&&decision==='seremi')p.recallOk=true;
+ checkAchievements();
+}
+function metaAfterClose(){
+ if(!game||game.tutorial)return;
+ const s=dayStats();
+ game.dayHistory=(Array.isArray(game.dayHistory)?game.dayHistory:[]).filter(x=>x&&x.day!==game.day);
+ game.dayHistory.push({day:game.day,cash:game.cash,qf:game.moodQf,carlitos:game.moodCarlitos,correct:s.correct,wrong:s.wrong,attended:s.attended,fines:game.finesToday||0,income:game.dayIncome||0});
+ s.perfect=s.attended>=3&&s.wrong===0&&!(game.finesToday>0);
+ if(s.perfect){game.perfectDays=(game.perfectDays||0)+1;achGrant('jornada-impecable')}
+ if(game.dayBonus>0)achGrant('libros-al-dia');
+ if(game.day>=7)achGrant('una-semana');
+ if(game.day>=14)achGrant('dos-semanas');
+ if(game.day>=30)achGrant('treinta');
+ if(game.moodCarlitos>=90)achGrant('carlitos-primero');
+ if(game.day>=5&&game.debt<=0)achGrant('cuentas-claras');
+ const rec=(game.patients||[]).filter(x=>x.eventRecall===true);
+ if(game.day===PHONE_BROKEN_DAY&&rec.length>0&&rec.every(x=>x.recallOk===true))achGrant('retiro-limpio');
+ checkAchievements();
+}
+function metaAfterPay(){
+ const h=Array.isArray(game?.dayHistory)?game.dayHistory:[];const e=h.find(x=>x.day===game.day);
+ if(e){e.cash=game.cash;e.qf=game.moodQf;e.carlitos=game.moodCarlitos}
+}
+
+// ---------- Gráficos SVG ----------
+function kPesos(v){const a=Math.abs(v);const s=a>=1000?(a/1000).toFixed(a%1000===0?0:1).replace('.',',')+'k':String(Math.round(a));return (v<0?'−':'')+'$'+s}
+function metaLineChart(days,series,o={}){
+ const W=480,H=176,L=48,R=92,T=14,B=26;
+ const all=series.flatMap(s=>s.vals).filter(Number.isFinite);
+ if(!days.length||!all.length)return '<p class="tiny ds-empty">Todavía no hay datos suficientes.</p>';
+ let lo=o.min!=null?o.min:Math.min(...all),hi=o.max!=null?o.max:Math.max(...all);
+ if(lo===hi){lo-=1;hi+=1}
+ if(o.min==null)lo-=(hi-lo)*.12;
+ if(o.max==null)hi+=(hi-lo)*.12;
+ const fmt=o.fmt||(v=>String(Math.round(v)));
+ const X=i=>days.length===1?L+(W-L-R)/2:L+(W-L-R)*i/(days.length-1);
+ const Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+ const grid=[0,1,2].map(i=>{const v=lo+(hi-lo)*i/2,y=Y(v);return `<line x1="${L}" x2="${W-R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" class="ds-grid"/><text x="${L-6}" y="${(y+3).toFixed(1)}" text-anchor="end" class="ds-axis">${escapeText(fmt(v))}</text>`}).join('');
+ const step=days.length>12?2:1;
+ const xl=days.map((d,i)=>i%step===0||i===days.length-1?`<text x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle" class="ds-axis">${d}</text>`:'').join('');
+ let ends=[];
+ const lines=series.map(s=>{
+  const pts=s.vals.map((v,i)=>Number.isFinite(v)?[X(i),Y(v),v]:null).filter(Boolean);
+  if(!pts.length)return '';
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const last=pts[pts.length-1];ends.push({y:last[1],x:last[0],s,v:last[2]});
+  return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===pts.length-1?4.5:3}" fill="${s.color}" stroke="#1d2a23" stroke-width="1.5"/>`).join('')}`;
+ }).join('');
+ ends.sort((a,b)=>a.y-b.y);
+ for(let i=1;i<ends.length;i++)if(ends[i].y-ends[i-1].y<13)ends[i].y=ends[i-1].y+13;
+ const labels=ends.map(e=>`<text x="${(e.x+9).toFixed(1)}" y="${(e.y+3.5).toFixed(1)}" class="ds-end" fill="${e.s.color}">${o.endName===false?'':escapeText(e.s.name)+' '}${escapeText(fmt(e.v))}</text>`).join('');
+ const desc=series.map(s=>`${s.name}: ${s.vals.filter(Number.isFinite).map(fmt).join(', ')}`).join('. ');
+ return `<svg class="ds-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeText((o.label||'Gráfico')+'. Jornadas '+days.join(', ')+'. '+desc)}"><title>${escapeText(o.label||'Gráfico')}</title>${grid}${xl}${lines}${labels}</svg>`;
+}
+
+function daySummaryGrade(s,fines){
+ const dec=s.correct+s.wrong;
+ if(!s.attended)return {t:'JORNADA TRANQUILA',c:'neutral'};
+ if(s.perfect)return {t:'JORNADA IMPECABLE',c:'good'};
+ const acc=dec?s.correct/dec:1;
+ if(acc>=.75&&!(fines>0))return {t:'BUENA JORNADA',c:'good'};
+ if(acc>=.5)return {t:'JORNADA IRREGULAR',c:'warn'};
+ return {t:'JORNADA COMPLICADA',c:'bad'};
+}
+function daySummaryHtml(){
+ const s=dayStats(),hist=(Array.isArray(game.dayHistory)?game.dayHistory:[]).filter(x=>x&&Number.isFinite(x.day)).sort((a,b)=>a.day-b.day);
+ const fines=game.finesToday||0,dec=s.correct+s.wrong,pct=dec?Math.round(s.correct/dec*100):null;
+ const grade=daySummaryGrade(s,fines);
+ const strip=s.seq.length?s.seq.map((x,i)=>`<span class="ds-dot ${x.k}" title="${escapeText(`${i+1}. ${x.name}`)}" aria-label="${escapeText(`Paciente ${i+1}: ${x.name}, ${x.k==='ok'?'correcto':x.k==='bad'?'incorrecto':'visita sin receta'}`)}">${x.k==='ok'?'✓':x.k==='bad'?'✗':'•'}</span>`).join(''):'<span class="tiny">Hoy no se registraron atenciones.</span>';
+ const parts=[['Dispensadas',s.dispensed,'g'],['Devueltas',s.returned,'a'],['Denunciadas o retenidas',s.reported,'b'],['Visitas sin receta',s.visits,'n']];
+ const tot=parts.reduce((t,x)=>t+x[1],0);
+ const bar=tot?`<div class="ds-stack" role="img" aria-label="${escapeText(parts.map(x=>`${x[0]}: ${x[1]}`).join(', '))}">${parts.filter(x=>x[1]).map(x=>`<span class="ds-seg ${x[2]}" style="flex:${x[1]}">${x[1]}</span>`).join('')}</div><div class="ds-legend">${parts.map(x=>`<span><i class="ds-sw ${x[2]}"></i>${x[0]} <b>${x[1]}</b></span>`).join('')}</div>`:'<p class="tiny">Sin movimientos que mostrar.</p>';
+ const wage=Math.max(0,(game.dayIncome||0)-(game.dayBonus||0));
+ const net=(game.dayIncome||0)-fines;
+ const days=hist.map(x=>x.day);
+ const cashChart=metaLineChart(days,[{name:'Efectivo',color:'#e3b25f',vals:hist.map(x=>x.cash)}],{fmt:kPesos,endName:false,label:'Efectivo al cierre de cada jornada'});
+ const moodChart=metaLineChart(days,[{name:'QF',color:'#8fd0a0',vals:hist.map(x=>x.qf)},{name:'Carlitos',color:'#7fb7e0',vals:hist.map(x=>x.carlitos)}],{min:0,max:100,label:'Ánimo del químico y de Carlitos al cierre'});
+ const stickers=s.newStickers.map(id=>ALBUM.find(a=>a.id===id)).filter(Boolean);
+ const achs=s.newAch.map(id=>ACHIEVEMENTS.find(a=>a.id===id)).filter(Boolean);
+ const news=(stickers.length||achs.length)?`<div class="ds-card ds-news"><h3>NOVEDADES DE HOY</h3><div class="ds-news-row">${stickers.map(a=>`<span class="ds-chip st"><img src="${assetUrl(a.img)}" alt="" draggable="false">Estampa Nº ${String(a.n).padStart(2,'0')} · ${escapeText(a.name)}</span>`).join('')}${achs.map(a=>`<span class="ds-chip ach">★ ${escapeText(a.name)}</span>`).join('')}</div></div>`:'';
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Resumen de jornada"><div class="modal summary-modal">
+ <div class="section-head"><h2>▤ RESUMEN DE JORNADA · DÍA ${z(game.day)}</h2></div>
+ <div class="ds-hero ${grade.c}"><b>${grade.t}</b><span>${escapeText(dateOf(game.day))} · ${s.attended} atención${s.attended===1?'':'es'}${game.maxOkStreak?` · mejor racha: ${game.maxOkStreak}`:''}</span></div>
+ <div class="ds-kpis">
+  <div class="ds-kpi"><small>ATENDIDOS</small><strong>${s.attended}</strong></div>
+  <div class="ds-kpi"><small>ACIERTOS</small><strong>${pct===null?'—':pct+' %'}</strong><em>${s.correct} de ${dec}</em></div>
+  <div class="ds-kpi ${fines>0?'neg':''}"><small>MULTAS</small><strong>${pesos(fines)}</strong></div>
+  <div class="ds-kpi"><small>EFECTIVO</small><strong>${pesos(game.cash)}</strong></div>
+ </div>
+ <div class="ds-card"><h3>PACIENTE POR PACIENTE</h3><div class="ds-strip">${strip}</div><p class="tiny ds-note">✓ correcto · ✗ incorrecto · • visita sin receta</p></div>
+ <div class="ds-grid2">
+  <div class="ds-card"><h3>CÓMO RESOLVISTE</h3>${bar}</div>
+  <div class="ds-card"><h3>DINERO DEL TURNO</h3>
+   <div class="money-line"><span>Sueldo</span><strong class="good">+${pesos(wage)}</strong></div>
+   <div class="money-line"><span>Bono por libros</span><strong class="good">+${pesos(game.dayBonus||0)}</strong></div>
+   <div class="money-line"><span>Multas</span><strong class="${fines>0?'danger':''}">−${pesos(fines)}</strong></div>
+   <div class="money-line"><span><b>Resultado del turno</b></span><strong>${pesos(net)}</strong></div>
+   <p class="tiny ds-note">Gastos del hogar por pagar: ${pesos(game.dayExpenses||0)}</p></div>
+ </div>
+ <div class="ds-grid2">
+  <div class="ds-card"><h3>EFECTIVO POR JORNADA</h3>${cashChart}</div>
+  <div class="ds-card"><h3>ÁNIMO POR JORNADA</h3>${moodChart}</div>
+ </div>
+ ${news}
+ <div class="btn-row">${btn('CONTINUAR','close-modal','green')}</div></div></div>`;
+}
+
+// ---------- Álbum y logros (ventanas) ----------
+function stickerHtml(a,mode='grid'){
+ const e=meta().album[a.id],num=String(a.n).padStart(2,'0');
+ const imgSrc=assetUrl(a.img);
+ if(!e){
+  return `<div class="sticker locked r-${a.rarity}" role="img" aria-label="Estampa número ${num}, todavía no descubierta"><span class="st-num">Nº ${num}</span><div class="st-art" aria-hidden="true"><img src="${imgSrc}" alt="" draggable="false" loading="lazy"><b class="st-q">?</b></div><div class="st-name">? ? ?</div><span class="st-rar">?</span></div>`;
+ }
+ const fresh=meta().fresh[a.id];
+ const inner=`<span class="st-num">Nº ${num}</span>${fresh&&mode!=='big'?'<i class="st-new">¡NUEVA!</i>':''}<div class="st-art"><img src="${imgSrc}" alt="${escapeText(a.name)}" draggable="false" loading="lazy"></div><div class="st-name">${escapeText(a.name)}</div><span class="st-rar">${RARITY_LABEL[a.rarity]}</span>`;
+ if(mode==='big')return `<div class="sticker got big r-${a.rarity}">${inner}</div>`;
+ return `<button class="sticker got r-${a.rarity}" data-action="album-open" data-id="${a.id}" aria-label="Estampa ${num}: ${escapeText(a.name)}. Ver ficha.">${inner}</button>`;
+}
+function albumModalHtml(){
+ const got=albumCount(),total=ALBUM.length;
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Álbum de pacientes"><div class="modal album-modal">
+ <div class="section-head"><h2>▦ ÁLBUM DE PACIENTES</h2><button class="smallbtn" data-action="meta-close">✕ CERRAR</button></div>
+ <div class="album-progress"><b>${got} / ${total} estampas</b><div class="meta-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${got}"><span style="width:${Math.round(got/total*100)}%"></span></div></div>
+ <p class="tiny album-hint">Cada paciente especial que atiendas pega su estampa en el álbum. Toca una estampa descubierta para ver su ficha: cuándo aparece y con qué probabilidad.</p>
+ <div class="album-grid">${ALBUM.map(a=>stickerHtml(a)).join('')}</div>
+ ${got===total?'<p class="album-done">✦ ¡Álbum completo! Eres el químico más observador del barrio.</p>':''}
+ </div></div>`;
+}
+function albumCardHtml(){
+ const idx=Math.max(0,ALBUM.findIndex(a=>a.id===ui.albumCard)),a=ALBUM[idx],m=meta(),e=m.album[a.id];
+ if(!e)return albumModalHtml();
+ const found=ALBUM.filter(x=>m.album[x.id]),pos=found.findIndex(x=>x.id===a.id);
+ const prev=found[(pos-1+found.length)%found.length],next=found[(pos+1)%found.length];
+ const times=e.n||1;
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Ficha de ${escapeText(a.name)}"><div class="modal album-modal album-detail">
+ <div class="section-head"><h2>▦ FICHA DE ESTAMPA</h2><button class="smallbtn" data-action="meta-close">✕ CERRAR</button></div>
+ <div class="album-card-body">
+  <div class="album-card-art">${stickerHtml(a,'big')}</div>
+  <div class="album-card-info">
+   <h3>${escapeText(a.name)}</h3>
+   <div class="album-data"><b>RAREZA</b><span class="rar-chip r-${a.rarity}">${RARITY_LABEL[a.rarity]}</span></div>
+   <div class="album-data"><b>CONDICIÓN DE APARICIÓN</b><span>${escapeText(a.where)}</span></div>
+   <div class="album-data"><b>PROBABILIDAD</b><span>${escapeText(a.odds)}</span></div>
+   <div class="album-data"><b>QUIÉN ES</b><span>${escapeText(a.about)}</span></div>
+   <div class="album-data"><b>TU REGISTRO</b><span>Atendido ${times} ${times===1?'vez':'veces'} · visto por primera vez en la jornada ${e.day}</span></div>
+  </div>
+ </div>
+ <div class="btn-row">${found.length>1?`<button class="btn dark" data-action="album-open" data-id="${prev.id}">‹ ANTERIOR</button>`:''}${btn('VOLVER AL ÁLBUM','album-back','cream')}${found.length>1?`<button class="btn dark" data-action="album-open" data-id="${next.id}">SIGUIENTE ›</button>`:''}</div>
+ </div></div>`;
+}
+function achievementsModalHtml(){
+ const m=meta(),got=achCount(),total=ACHIEVEMENTS.length,c=achCtx();
+ const cards=ACHIEVEMENTS.map(a=>{
+  const e=m.ach[a.id];
+  if(!e&&a.hidden)return `<div class="ach locked secret"><span class="ach-icon" aria-hidden="true">?</span><div><b>LOGRO SECRETO</b><p>Sigue jugando para descubrirlo.</p></div></div>`;
+  let prog='';
+  if(!e&&a.prog){const [cur,goal]=a.prog(c),w=Math.max(0,Math.min(100,Math.round(cur/goal*100)));prog=`<div class="meta-bar small" role="progressbar" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(cur,goal)}"><span style="width:${w}%"></span></div><small>${Math.min(cur,goal)} / ${goal}</small>`}
+  return `<div class="ach ${e?'done':'locked'} t-${a.tier}"><span class="ach-icon" aria-hidden="true">${e?a.icon:'○'}</span><div><b>${escapeText(a.name)}</b><p>${escapeText(a.desc)}</p>${e?`<small class="ach-when">✓ Desbloqueado${e.day?` · jornada ${e.day}`:''}</small>`:prog}</div></div>`;
+ }).join('');
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Logros"><div class="modal album-modal ach-modal">
+ <div class="section-head"><h2>★ LOGROS</h2><button class="smallbtn" data-action="meta-close">✕ CERRAR</button></div>
+ <div class="album-progress"><b>${got} / ${total} logros</b><div class="meta-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${got}"><span style="width:${Math.round(got/total*100)}%"></span></div></div>
+ <p class="tiny album-hint">Los logros se guardan aparte de la partida: no se pierden al empezar una nueva. Los de conteo usan los datos de la partida en curso.</p>
+ <div class="ach-grid">${cards}</div></div></div>`;
+}
+function metaModalHtml(){
+ if(ui.modal==='album-card')return albumCardHtml();
+ if(ui.modal==='achievements')return achievementsModalHtml();
+ return albumModalHtml();
+}
+const META_MODALS=['album','album-card','achievements'];
+function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():''}
+
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.130','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.131','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -2521,7 +2861,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.130 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.131 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -2600,7 +2940,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.130 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.131 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -2951,11 +3291,11 @@ function homeHtml(){
  const status=game.carlitosHealth||'estable';
  const mood=game.moodCarlitos>=75?'contento':game.moodCarlitos>=50?'tranquilo':game.moodCarlitos>=25?'desanimado':'muy decaído';
  return `${stage('home','HOGAR · ECONOMÍA FAMILIAR','21:30 · Regreso al hogar')}<section class="content"><div class="salary-grid"><div class="paper"><h2>LIQUIDACIÓN DEL DÍA</h2><div class="money-line pos"><span>Sueldo QF</span><strong>+${pesos(40000)}</strong></div>${game.dayBonus>0?`<div class="money-line pos"><span>Bono por libro al día</span><strong>+${pesos(game.dayBonus)}</strong></div>`:''}<div class="money-line neg"><span>Multas SEREMI</span><strong>−${pesos(game.finesToday)}</strong></div><div class="money-line neg"><span>Alimentación</span><strong>−$12.000</strong></div><div class="money-line neg"><span>Tratamiento Carlitos</span><strong>−${pesos(game.dayTreatmentCost??3000)}</strong></div>${game.couponUsedOnDay?`<div class="money-line pos"><span>Cupón aplicado</span><strong>${game.couponUsedOnDay.pct}%</strong></div>`:''}${crisis?'<div class="money-line neg"><span>Consulta extraordinaria</span><strong>−$25.000</strong></div>':''}${hospitalDay?`<div class="money-line neg"><span>Hospitalización (día ${game.hospital?.days||1})</span><strong>−${pesos(game.dayHospitalCost)}</strong></div>`:''}${game.day%20===0?'<div class="money-line neg"><span>Arriendo (25% sueldo mensual)</span><strong>−$200.000</strong></div>':''}<hr><div class="money-total"><span>GASTOS POR PAGAR</span><span>${pesos(game.dayExpenses)}</span></div><p class="mini">Sueldo diario $40.000 · 20 jornadas al mes · arriendo mensual $200.000.</p></div>
- <div class="dark-card family-diary"><h2>DIARIO DE CARLITOS · 8 AÑOS</h2><div class="family-status ${hospitalized?'family-status-alert':''}"><span class="family-pulse">♥</span><div><span class="family-status-label">ESTADO DE SALUD</span><strong>${escapeText(status.toUpperCase())}</strong></div></div>${moodBar('Ánimo de Carlitos',game.moodCarlitos,'carlitos')}<p class="small">Hoy se siente <b>${escapeText(mood)}</b>.</p><div class="family-day-story"><b>${hospitalized?'NOTICIAS DEL HOSPITAL':game.currentHealthEvent==='de alta'?'DE REGRESO EN CASA':crisis||game.currentHealthEvent==='molestias'?'UN DÍA DE DESCANSO':'ASÍ LE FUE HOY EN EL COLEGIO'}</b><p>${escapeText(game.dayStory||storyForDay(game.day,game.currentHealthEvent||'estable'))}</p></div>${game.lastFamilyGift?`<p class="small family-gift-note">${escapeText(game.lastFamilyGift)}</p>`:''}${hospitalized?`<p class="small family-hospital-note">${game.currentHealthEvent==='ingresó al hospital'?'Inicia hospitalización mañana: $10.000 por jornada.':`Jornadas hospitalizado: ${game.hospital?.days||0}. Costo de hoy: ${pesos(game.dayHospitalCost||0)}.`}</p>`:''}<div class="money-line"><span>Dinero disponible</span><strong>${pesos(game.cash)}</strong></div><div class="money-line"><span>Deudas acumuladas</span><strong>${pesos(game.debt)}</strong></div><div class="money-line"><span>Confianza familiar</span><strong>${game.familyTrust}/100</strong></div><div class="family-quote">«${hospitalized?'Lo importante es que estemos juntos. Mañana volvemos a acompañarlo.':'Hoy hubo cosas difíciles, pero también nos reímos un rato.'}» — Tu pareja</div>${moodBar('Ánimo del QF',game.moodQf,'qf')}<div class="ledger-row"><b>Regalos disponibles:</b> ${(game.gifts||[]).filter(g=>!g.used).length}</div>${(game.gifts||[]).some(g=>!g.used&&canGiftCarlitos(g))?`<p class="small good">Tienes dulces para Carlitos. Abre REGALOS y presiona «REGALAR A CARLITOS».</p>`:''}</div></div>${schoolClothHtml()}${game.day===ONCE_DAY&&game.neighborsOnce?.choice==='home'?'<div class="notice ok"><h3>LA ONCE DE LOS VECINOS</h3><p>Carlitos prueba una sopaipilla y decide que va primera en su ranking del barrio. «Es que todavía está calentita. Mañana vemos si sigue primera».</p></div>':''}${game.daySummary?`<div class="notice ${game.daySummary.paid?'ok':'warn'}">${game.daySummary.paid?'Gastos pagados. La familia puede descansar.':'Gastos pendientes registrados como deuda familiar.'} · Saldo: ${pesos(game.cash)}. ${game.daySummary.treatmentCovered===false?'El tratamiento de Carlitos sigue pendiente.':''}</div>`:''}${game.day===30&&game.daySummary?`<div class="notice ok"><h2>HITO: 30 JORNADAS COMPLETADAS</h2><p>Dinero: ${pesos(game.cash)} · Deuda: ${pesos(game.debt)} · Infracciones: ${game.infractions} · Regalos: ${(game.gifts||[]).length}.</p></div>`:''}</section>${game.daySummary?actionbar([['DESCANSAR · SIGUIENTE DÍA','next-day','green'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['REVISAR HISTORIAL','history','dark']]):actionbar([['✓ PAGAR GASTOS','pay-expenses','green'],['POSPONER Y GENERAR DEUDA','defer-expenses','amber'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['REVISAR MENSAJES','history','dark']])}`;
+ <div class="dark-card family-diary"><h2>DIARIO DE CARLITOS · 8 AÑOS</h2><div class="family-status ${hospitalized?'family-status-alert':''}"><span class="family-pulse">♥</span><div><span class="family-status-label">ESTADO DE SALUD</span><strong>${escapeText(status.toUpperCase())}</strong></div></div>${moodBar('Ánimo de Carlitos',game.moodCarlitos,'carlitos')}<p class="small">Hoy se siente <b>${escapeText(mood)}</b>.</p><div class="family-day-story"><b>${hospitalized?'NOTICIAS DEL HOSPITAL':game.currentHealthEvent==='de alta'?'DE REGRESO EN CASA':crisis||game.currentHealthEvent==='molestias'?'UN DÍA DE DESCANSO':'ASÍ LE FUE HOY EN EL COLEGIO'}</b><p>${escapeText(game.dayStory||storyForDay(game.day,game.currentHealthEvent||'estable'))}</p></div>${game.lastFamilyGift?`<p class="small family-gift-note">${escapeText(game.lastFamilyGift)}</p>`:''}${hospitalized?`<p class="small family-hospital-note">${game.currentHealthEvent==='ingresó al hospital'?'Inicia hospitalización mañana: $10.000 por jornada.':`Jornadas hospitalizado: ${game.hospital?.days||0}. Costo de hoy: ${pesos(game.dayHospitalCost||0)}.`}</p>`:''}<div class="money-line"><span>Dinero disponible</span><strong>${pesos(game.cash)}</strong></div><div class="money-line"><span>Deudas acumuladas</span><strong>${pesos(game.debt)}</strong></div><div class="money-line"><span>Confianza familiar</span><strong>${game.familyTrust}/100</strong></div><div class="family-quote">«${hospitalized?'Lo importante es que estemos juntos. Mañana volvemos a acompañarlo.':'Hoy hubo cosas difíciles, pero también nos reímos un rato.'}» — Tu pareja</div>${moodBar('Ánimo del QF',game.moodQf,'qf')}<div class="ledger-row"><b>Regalos disponibles:</b> ${(game.gifts||[]).filter(g=>!g.used).length}</div>${(game.gifts||[]).some(g=>!g.used&&canGiftCarlitos(g))?`<p class="small good">Tienes dulces para Carlitos. Abre REGALOS y presiona «REGALAR A CARLITOS».</p>`:''}</div></div>${schoolClothHtml()}${game.day===ONCE_DAY&&game.neighborsOnce?.choice==='home'?'<div class="notice ok"><h3>LA ONCE DE LOS VECINOS</h3><p>Carlitos prueba una sopaipilla y decide que va primera en su ranking del barrio. «Es que todavía está calentita. Mañana vemos si sigue primera».</p></div>':''}${game.daySummary?`<div class="notice ${game.daySummary.paid?'ok':'warn'}">${game.daySummary.paid?'Gastos pagados. La familia puede descansar.':'Gastos pendientes registrados como deuda familiar.'} · Saldo: ${pesos(game.cash)}. ${game.daySummary.treatmentCovered===false?'El tratamiento de Carlitos sigue pendiente.':''}</div>`:''}${game.day===30&&game.daySummary?`<div class="notice ok"><h2>HITO: 30 JORNADAS COMPLETADAS</h2><p>Dinero: ${pesos(game.cash)} · Deuda: ${pesos(game.debt)} · Infracciones: ${game.infractions} · Regalos: ${(game.gifts||[]).length}.</p></div>`:''}</section>${game.daySummary?actionbar([['DESCANSAR · SIGUIENTE DÍA','next-day','green'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR HISTORIAL','history','dark']]):actionbar([['✓ PAGAR GASTOS','pay-expenses','green'],['POSPONER Y GENERAR DEUDA','defer-expenses','amber'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR MENSAJES','history','dark']])}`;
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.130) =====
+// ===== Manual práctico (1.9.131) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -3234,6 +3574,8 @@ function openTacaPreview(day){
 }
 
 function modalHtml(){
+ if(META_MODALS.includes(ui.modal))return metaModalHtml();
+ if(ui.modal==='day-summary')return daySummaryHtml();
  if(['start-choice','prologue','practice-help','practice-complete'].includes(ui.modal))return onboardingModal();let m=ui.modal;if(!m)return '';
  if(m==='taca')return tacaHtml();
  if(m==='compare-documents')return compareDocumentsHtml(game.patients[game.patientIndex]);
@@ -3383,7 +3725,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.130 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.131 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -3402,6 +3744,7 @@ function preloadUpcomingPortraits(ahead=4){
 }
 function render(){if(!game){menuHtml();return;}if(game.scene==='welcome')ui.modal='start-choice';if(game.scene==='prologue')ui.modal='prologue';if(game.tutorial?.helpOpen)ui.modal='practice-help';if(game.tutorial?.completed)ui.modal='practice-complete';activateDaySevenEnding();ensureDaySevenPatient();ensureSicolasPatient();maybeShowSisIntro();if(!ui.modal&&tacaPending())ui.modal='taca';switch(game.scene){case'welcome':case'prologue':wrap(stage('pharmacy','RECIPE, PLEASE','Antes de abrir'));break;case'briefing':wrap(briefingHtml());break;case'counter':wrap(counterHtml());break;case'inspect':wrap(inspectHtml());break;case'receive':wrap(receiveHtml());break;case'inspector':wrap(inspectionHtml());break;case'close':wrap(closeHtml());break;case'book':wrap(bookHtml());break;case'home':wrap(homeHtml());break;case'gameover':wrap(gameOverHtml());break;default:wrap(briefingHtml())}
  if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>setTimeout(()=>preloadUpcomingPortraits(),0));
+ metaTick();
 }
 function pushReceipt(drug,qty,ref){if(qty<=0)return;if(DRUGS[drug]?.book){game.stock[drug]+=qty;game.receipts.push({day:game.day,drug,qty,ref,posted:false});}else{game.receiptsNormal.push({day:game.day,drug,qty,ref});} }
 function afterReceiving(){game.deliveryDone=true;game.delivery=null;game.inspectedPacks=[];game.boxOpened=false;
@@ -3515,7 +3858,7 @@ function homePay(defer){
  if(game.couponUsedOnDay)game.couponUsedOnDay=null;
  if(!treatmentCovered){changeMood('carlitos',-18,'Tratamiento del día sin pagar');record('No alcanzó el dinero para pagar el tratamiento de Carlitos.');}
  if(remainder>0)game.familyTrust=Math.max(0,game.familyTrust-(defer?8:5));else game.familyTrust=Math.min(100,game.familyTrust+1);
- game.daySummary={paid:remainder===0,deferred:remainder,total:game.dayExpenses,treatmentCovered};
+ game.daySummary={paid:remainder===0,deferred:remainder,total:game.dayExpenses,treatmentCovered};metaAfterPay();
  record(`Gastos familiares: pagados ${pesos(paid)}, pendientes ${pesos(remainder)}. Tratamiento ${treatmentCovered?'cubierto':'pendiente'}.`);save();render();
 }
 function notifyAuthority(kind){
@@ -3634,7 +3977,12 @@ function handleAction(action,target){if(action==='new'){startNew();return}
  if(action==='toggle-top'){ui.topOpen=!ui.topOpen;render();return}
  if(action==='toggle-sound'){ui.soundEnabled=!ui.soundEnabled;render();if(ui.soundEnabled)soundEffect('good');return}
  if(action==='toggle-music'){setMusicEnabled(!ui.musicEnabled);render();if(ui.soundEnabled)soundEffect('good');return}
+ if(action==='album'||action==='achievements'){ui.modal=action;ui.topOpen=false;game?render():menuHtml();return}
+ if(action==='album-open'){ui.albumCard=target.dataset.id;ui.modal='album-card';const mm=meta();if(mm.fresh[ui.albumCard]){delete mm.fresh[ui.albumCard];metaSave()}game?render():menuHtml();return}
+ if(action==='album-back'){ui.modal='album';game?render():menuHtml();return}
+ if(action==='meta-close'){ui.modal=null;game?render():menuHtml();return}
  if(!game)return;
+ if(action==='day-summary'){ui.modal='day-summary';render();return}
  if(action==='choose-practice'){chooseOpening('practice');return;}
  if(action==='choose-campaign'){chooseOpening('campaign');return;}
  if(action==='prologue-next'){nextPrologue();return;}
@@ -3876,7 +4224,7 @@ document.addEventListener('focusin',event=>{
  if(dialog?.matches?.('.modal')&&!dialog.contains(event.target))dialog.focus({preventScroll:true});
 });
 document.addEventListener('keydown',event=>{
- if(!game)return;
+ if(!game){if(event.key==='Escape'&&META_MODALS.includes(ui.modal)){event.preventDefault();ui.modal=null;menuHtml();}return;}
  if(event.key==='Tab'&&renderedModal){trapModalTab(event);return;}
  if(event.key==='Escape'){
   if(ui.modal==='taca'){event.preventDefault();tacaClose();return;}
