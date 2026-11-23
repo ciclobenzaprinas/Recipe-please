@@ -1016,3 +1016,10 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .outro-title{margin:4px 0;color:#f3d99b}
 @media(max-width:600px){.prac-check .btn{flex-basis:auto}.coach-bubble{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.coach-target{animation:none}}
+
+/* Caja del pedido con sprite propio (1.9.136). */
+.shipping-box.shipping-sprite{background:none;border:0;box-shadow:none;padding:6px 8px 10px;display:block;margin:0 auto;width:min(460px,100%);cursor:pointer}
+.shipping-box.shipping-sprite::before,.shipping-box.shipping-sprite::after{display:none}
+.shipping-box.shipping-sprite .shipping-icon{display:block;width:100%;height:auto;image-rendering:pixelated;filter:drop-shadow(0 8px 10px #0009)}
+.shipping-box.shipping-sprite .shipping-cta{display:block;margin-top:6px;font-weight:bold;color:#f3d99b;text-shadow:0 2px 0 #000}
+.shipping-box.shipping-sprite:focus-visible{outline:3px solid #f1cf78;outline-offset:4px}
