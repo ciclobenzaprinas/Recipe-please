@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.122. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.123. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -776,7 +776,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  }[kind]||[];
  let r=randomRut(),rr=r,rxDate=dateOf(game.day),rxType=config[2],folio=kind==='stolen'?'003472':String(4100+game.day*13+n*7).padStart(6,'0');
  if(kind==='typo')rr=typoRut(r);if(kind==='different')rr=rutFmt(randomRut());if(kind==='expired')rxDate='20/09/2026';
- let drugId=config[1];if(game.day>=2&&['correct','typo','different','expired','electronic'].includes(kind)){const pool=SIMPLE_IDS.filter(id=>DRUGS[id].kind==='SIMPLE');drugId=pool[Math.floor(Math.random()*pool.length)];}
+ let drugId=config[1];if(game.day>=2&&['correct','typo','different','expired','electronic'].includes(kind)){const pool=SIMPLE_IDS.filter(id=>DRUGS[id].kind==='SIMPLE');drugId=pool[Math.floor(Math.random()*pool.length)];const evp=dayEventPool();if(evp&&kind!=='expired'&&Math.random()<0.7)drugId=evp[Math.floor(Math.random()*evp.length)];}
  if(['retainedCommon'].includes(kind)){let pool=Object.keys(DRUGS).filter(k=>DRUGS[k].kind==='RETENIDA_COMUN');drugId=pool[Math.floor(Math.random()*pool.length)];}
  if(kind==='expired'){
   // La receta vencida depende del tipo: controlado, cheque y antibiótico (1 mes) o simple (6 meses); a veces llega electrónica.
@@ -883,7 +883,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.122) =====
+// ===== Diálogos personalizados (1.9.123) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -977,6 +977,8 @@ const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','speci
 const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
 const DLG_TAIL={"old":["Ojalá no se acabe el remedio, hijito, me cuesta venir hasta acá.","Mi nieta me acompaña, pero me dejó esperando afuera.","Hoy hace harto frío para andar en la calle.","Desde que enviudé me toca a mí hacer los trámites.","Esta farmacia siempre ha sido muy ordenada.","Ya me aprendí de memoria los nombres de los remedios.","Mi doctor dice que voy bien, ¡gracias a Dios!","Me vine temprano para no pillar la fila de la tarde."],"adult":["Salí del trabajo corriendo para llegar.","Ojalá me atiendan luego, tengo que ir a buscar a los niños.","Esta semana ha sido pesadísima.","Me encargaron que no se me olvidara retirar esto.","Con este tráfico casi no llego.","Me dijeron que acá atienden bien.","Qué fila más larga hoy, ¿no?","Mañana tengo que hacerme unos exámenes, ojalá salga todo bien."],"young":["Me escapé un ratito del trabajo para venir.","Mi mamá me encargó que no olvidara nada.","Tengo que volver a la u en media hora.","Esta fila no avanza nunca, ¿no?","Salí de turno y vine directo para acá.","Ojalá alcance a llegar al bus después de esto.","Mi papá estuvo pendiente toda la mañana de este remedio."]};
 function dlgTail(p){
+ const evT=DAY_EVENTS[game?.dayEvent]?.tails;
+ if(evT&&dlgSeed(p,33)%100<55){const m0=patientMood(p);if(m0!='angry'&&m0!='sad')return dlgPick(evT,p,19)}
  if(dlgSeed(p,31)%100>=35)return '';
  const m=patientMood(p);if(m=='angry'||m=='sad')return '';
  const age=dlgAge(p);
@@ -1051,7 +1053,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.122) =====
+// ===== Habla de extranjeros (1.9.123) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1261,6 +1263,37 @@ function addCorrectedPrescriptionVisits(){
  });
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
+
+// ===== Eventos del barrio (1.9.123) =====
+// Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
+const DAY_EVENTS={
+ gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
+  groups:['Antiinfecciosos','Gastrointestinales y respiratorios','Antiinflamatorios y relajantes'],extra:['correct','correct','correct'],
+  tails:['Con este brote de gripe el consultorio estaba repleto.','Toda mi familia anda con tos, ojalá me alcance.','Llevo tres noches sin dormir por la tos.','Dicen que este año la gripe viene fuerte.','En el trabajo ya van cuatro enfermos.','Me dieron la receta apenas me vio el doctor, había una fila enorme.']},
+ cronicos:{title:'OPERATIVO DE CONTROL DEL CESFAM',memo:'El Cesfam hizo un operativo de controles crónicos. Llegarán más pacientes con recetas de presión, diabetes y tiroides, muchos de ellos con receta electrónica.',
+  groups:['Cardiovasculares','Endocrinos y metabólicos'],extra:['correct','correct','electronic'],
+  tails:['Me tocó control en el Cesfam y me renovaron todo de una vez.','Hicieron un operativo de controles y salimos todos con receta nueva.','Me tomaron la presión y me subieron la dosis.','Aprovechamos de ir a control con mi señora, salimos temprano.','Por fin me dieron hora en el Cesfam, tenía meses esperando.']},
+ temporal:{title:'TEMPORAL DE LLUVIA',memo:'Hay un temporal. Muchos pacientes no salen de casa y presentan recetas electrónicas desde el teléfono; los que vienen llegan mojados y apurados.',
+  groups:null,extra:['electronic','electronic'],
+  tails:['Vengo empapado, con este temporal no se puede salir.','Casi me llevo un paraguas por delante con tanto viento.','Está cayendo el mundo afuera, ojalá no me demore mucho.','Mi receta me llegó al teléfono, no quise salir a la consulta con esta lluvia.','Se cortó la luz en mi cuadra por el temporal.']},
+ alerta:{title:'ALERTA SEREMI: RECETAS FALSIFICADAS',memo:'La SEREMI informa que circulan recetas con timbres de médicos inexistentes y RUT de prescriptor alterados. Revise con especial cuidado el prescriptor de cada receta.',
+  groups:null,extra:['prescriberMismatch','prescriberTypo','fakeDoctor'],
+  tails:['Escuché que andan falsificando recetas por el sector.','Dicen que la SEREMI está revisando todo estos días.','Hoy todo el mundo anda con miedo a las recetas falsas.']}
+};
+function dayEventPool(){
+ const ev=DAY_EVENTS[game?.dayEvent];if(!ev||!ev.groups)return null;
+ const pool=SIMPLE_IDS.filter(id=>DRUGS[id]&&DRUGS[id].kind==='SIMPLE'&&ev.groups.includes(DRUGS[id].group));
+ return pool.length?pool:null;
+}
+function rollDayEvent(){
+ game.dayEvent=null;
+ if(game.day<2||game.tutorial)return null;
+ if(Math.random()>=0.45)return null;
+ const ids=Object.keys(DAY_EVENTS).filter(id=>id!==game.lastDayEvent);
+ const id=ids[Math.floor(Math.random()*ids.length)];
+ game.dayEvent=id;game.lastDayEvent=id;
+ return id;
+}
 function prepareDay(){
  if(activateDaySevenEnding())return;
  const standard=game.day===1?['correct','carvedilol','correct','typo','controlled']:
@@ -1304,6 +1337,8 @@ function prepareDay(){
   const position=Math.floor(Math.random()*(types.length+1));
   types.splice(position,0,'idBirthDateFraud');
  }
+ const evId=rollDayEvent();
+ if(evId){for(const k of DAY_EVENTS[evId].extra)types.splice(Math.min(types.length,1+Math.floor(Math.random()*types.length)),0,k);addNotice('day-event-'+game.day,DAY_EVENTS[evId].title,DAY_EVENTS[evId].memo,'alerta')}
  game.patients=types.map((type,i)=>makePatient(type,i,tmTitle));
  insertAbueloIfDue(Math.min(2,game.patients.length));
  if(game.day>=2&&game.day<=6&&!game.donVictorVisitDay&&Math.random()<0.60){
@@ -2398,7 +2433,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.122 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?game.patientIndex:''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.123 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  if(!modal){
   clearModalRendering();
@@ -2440,8 +2475,8 @@ function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" da
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.122','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
-function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.123','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="toggle-sound" aria-pressed="${ui.soundEnabled?'true':'false'}">${ui.soundEnabled?'♫ SONIDO: SÍ':'♪ SONIDO: NO'}</button><button class="smallbtn music-toggle" data-action="toggle-music" aria-pressed="${ui.musicEnabled?'true':'false'}">${ui.musicEnabled?'♬ MÚSICA: SÍ':'♩ MÚSICA: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Carlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>`}
+function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Carlitos</b> y padece el síndrome ficticio de Neibacache.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
 }
@@ -2449,7 +2484,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.122 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.123 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -2528,7 +2563,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.122 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.123 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -2882,7 +2917,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.122) =====
+// ===== Manual práctico (1.9.123) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -3309,7 +3344,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.122 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.123 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
