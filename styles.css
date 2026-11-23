@@ -713,7 +713,7 @@ html.modal-open{overflow:hidden}
 .prologue-art{width:100%;aspect-ratio:3/2;background-image:url('assets/onboarding/prologo.webp');background-size:200% 200%;background-repeat:no-repeat;image-rendering:pixelated;border:2px solid #a89970;box-sizing:border-box;animation:opening-light 4s ease-in-out infinite}
 .prologue-art-0{background-position:0 0}.prologue-art-1{background-position:100% 0}.prologue-art-2{background-position:0 100%}.prologue-art-3{background-position:100% 100%}
 .prologue-text{color:#f2e5c2}
-[data-practice-step="0"] [data-action="dispense"],[data-practice-step="1"] [data-action="return"],[data-practice-step="2"] [data-action="inspect"],[data-practice-step="2"] [data-action="verify-identity"],[data-practice-step="3"] [data-action="dispense"],[data-practice-step="4"] [data-action="post-dispatch"]{outline:3px solid #f1cf78;outline-offset:4px;animation:practice-highlight 1.8s ease-in-out infinite}
+[data-practice-step="dispense"] [data-action="dispense"],[data-practice-step="missingid"] [data-action="return"],[data-practice-step="expired"] [data-action="return"],[data-practice-step="fakeid"] [data-action="inspect"],[data-practice-step="fakeid"] [data-action="verify-identity"],[data-practice-step="simple"] [data-action="dispense"],[data-practice-step="electronic"] [data-action="verify-qr"],[data-practice-step="electronic-ok"] [data-action="dispense"],[data-practice-step="retained"] [data-action="dispense"],[data-practice-step="close"] [data-action="post-dispatch"]{outline:3px solid #f1cf78;outline-offset:4px;animation:practice-highlight 1.8s ease-in-out infinite}
 @keyframes opening-light{0%,100%{filter:brightness(.88)}50%{filter:brightness(1.07)}}
 @keyframes practice-highlight{50%{outline-color:#fff2bb;box-shadow:0 0 18px #e5bf6044}}
 @media(max-width:600px){.onboarding-modal{padding:16px}.onboarding-modal p{font-size:16px;line-height:1.45}.onboarding-modal h2{font-size:22px}.onboarding-modal .btn-row{gap:10px}.onboarding-modal .btn{flex-basis:100%}.prologue-art{aspect-ratio:3/2}}
@@ -990,3 +990,29 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .album-danger>b{color:#ffb3a6!important}
 .album-danger>span{color:#ffe3dc!important;font-weight:700}
 .st-warn{position:absolute;z-index:3;top:26px;left:4px;background:#c2413a;color:#fff;font-style:normal;font-weight:900;font-size:13px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:2px solid #fff3dc;box-shadow:2px 2px 0 #0b110d}
+
+/* Tutorial 1.9.135: pistas en pantalla, progreso, resumen. */
+.coach-target{outline:3px solid #f1cf78;outline-offset:3px;animation:practice-highlight 1.8s ease-in-out infinite}
+.coach-bubble{position:absolute;z-index:40;box-sizing:border-box;background:#fff3c9;color:#2b2415;border:2px solid #c8a24a;border-radius:4px;padding:10px 12px;box-shadow:0 6px 18px #0008;font-size:15px;line-height:1.35}
+.coach-bubble p{margin:0 0 8px;font-weight:bold}
+.coach-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.coach-n{font-size:12px;opacity:.7;margin-right:auto}
+.coach-bubble .smallbtn{min-height:34px}
+.coach-bubble .coach-next{background:#3f7d4e;color:#fff}
+.prac-count{display:block;font-size:13px;color:#f3d99b;letter-spacing:.04em;margin-top:2px}
+.prac-bar{height:6px;background:#0006;border:1px solid #a89970;margin-top:4px;min-width:150px}
+.prac-bar i{display:block;height:100%;background:#7fcf8e;transition:width .3s}
+.prac-check{list-style:none;margin:8px 0;padding:0;display:grid;gap:8px}
+.prac-check li{display:flex;align-items:center;gap:10px;background:#0003;padding:8px 10px;border:1px solid #a8997055}
+.prac-check .prac-mark{font-size:22px;width:26px;text-align:center}
+.prac-check .ok .prac-mark{color:#7fcf8e}.prac-check .no .prac-mark{color:#e5bf60}
+.prac-check .prac-name{flex:1;font-size:17px}
+.prac-check .btn{flex:0 0 auto;min-height:36px;padding:4px 12px}
+.prac-ach{color:#ffe7a1;font-weight:bold;border:1px solid #c8a24a;padding:8px 10px;text-align:center}
+.prac-topics{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.outro-art{display:flex;justify-content:center;background:#0004;border:2px solid #a89970;padding:14px;margin-bottom:10px}
+.outro-art img{width:auto;height:150px;max-width:100%;object-fit:contain;image-rendering:pixelated}
+.outro-art img.outro-sil{filter:brightness(0)}
+.outro-title{margin:4px 0;color:#f3d99b}
+@media(max-width:600px){.prac-check .btn{flex-basis:auto}.coach-bubble{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.coach-target{animation:none}}
