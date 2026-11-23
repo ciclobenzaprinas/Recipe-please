@@ -979,3 +979,14 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .ds-chip.ach{border-color:#e3b94f;color:#f6dea0}
 @media (max-width:700px){.ds-kpis{grid-template-columns:repeat(2,1fr)}.ds-grid2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.sticker,.sticker.r-ultra .st-art{transition:none;animation:none}button.sticker:hover,button.sticker:focus-visible{transform:none!important}}
+/* Príncipe Egg: huevo y carnet noruego */
+.club-id-stack{display:flex;flex-direction:column;align-items:center;gap:10px}
+.club-id-stack .egg-art{min-height:0;width:100%}
+.club-id-stack .egg-art img{max-height:130px}
+.club-id-card{width:100%}
+.id-country-no .idt-f{color:#102a52}
+
+.album-danger{background:#4a2420;border:2px solid #b5574c;padding:9px 10px;margin-top:8px}
+.album-danger>b{color:#ffb3a6!important}
+.album-danger>span{color:#ffe3dc!important;font-weight:700}
+.st-warn{position:absolute;z-index:3;top:26px;left:4px;background:#c2413a;color:#fff;font-style:normal;font-weight:900;font-size:13px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:2px solid #fff3dc;box-shadow:2px 2px 0 #0b110d}
