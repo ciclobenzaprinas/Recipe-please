@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.150. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.151. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -666,7 +666,7 @@ function addNotice(key,title,body,type='alerta'){
  if(game.notifications.length>90)game.notifications.length=90;
 }
 let game=null;let ui={inspectionConsent:null,fingerprintPhase:'ready',fingerprintSubject:null,notifyOutcome:null,modal:null,help:false,manual:'INICIO',selectedDrug:'clonazepam2',inspectZoom:100,modalValue:'',reportType:'',reportCount:0,notificationFilter:'Todos',sisQuery:'',arrivalKey:null,openingBox:false,soundEnabled:false,musicEnabled:false};
-function newState(){let stock={},bookStock={},folios={};for(const [key,d] of Object.entries(DRUGS)){stock[key]=d.stock;bookStock[key]=d.stock;folios[key]=0}return {version:53,sisIntroSeen:false,carlitosArc:{},bookReturnScene:null,correctedPrescriptionQueue:[],donVictorVisitDay:null,schoolClothChoice:null,returnedElectronicPrescriptions:[],destroyedElectronicFolios:[],specialEvents:{nomehWeiSeen:false,clubNocturnoSeen:false,tuguelDay1Seen:false,tuguelReturnPending:false,tuguelReturnSeen:false,tuguelArrested:false,tuguelPatient:null},successfulAttentions:0,priorRxUses:[],usedExtraPortraits:[],crisesSinceAdmission:0,hospital:{active:false,starts:0,days:0},dayHospitalCost:0,dayStory:"",dayStoryKind:"",moodQf:75,moodCarlitos:82,carlitosHealth:'estable',dayTreatmentCost:3000,currentHealthEvent:'estable',moodNotes:[],reviewedMoves:{},notifications:[],pendingGift:null,usedIdentityNames:[],usedVisualModels:[],usedCatalogIds:[],chequeWarnings:{},pendingChequeRevisit:null,gameOverReason:null,sisChecks:{},fakeDoctorFindings:0,idWarnings:0,retainedArchive:[],policeReports:[],authorityReports:[],gifts:[],couponPct:0,couponUsedOnDay:null,day:1,scene:'briefing',patients:[],patientIndex:0,patientResult:null,patientVerified:false,idRequested:false,qrChecked:false,stock,bookStock,folios,ledger:[],dispatches:[],simpleDispenses:[],receipts:[],receiptsNormal:[],hidden:{},quarantine:{},inventoryGap:{},delivery:null,deliveryDone:false,boxOpened:false,inspectedPacks:[],pendingCorrections:[],inspectionDone:false,inspectionIssue:null,inspectionResolutionLocked:false,inspections:[],infractions:0,finesToday:0,errors:[],cash:25000,debt:0,earnedIllegal:0,illegalToday:0,illegalCount:0,undercover:false,dayIncome:0,dayBonus:0,dayExpenses:0,dayPay:false,daySummary:null,healthCrises:0,familyTrust:75,characterRegistry:{},characterCounter:{female:0,male:0},history:[],gameOver:false}};
+function newState(){let stock={},bookStock={},folios={};for(const [key,d] of Object.entries(DRUGS)){stock[key]=d.stock;bookStock[key]=d.stock;folios[key]=0}return {version:53,insAlarm:0,insPolicy:0,robberyPlan:null,robbery:null,lastRobberyDay:0,robberyCount:0,dayInsFee:0,sisIntroSeen:false,carlitosArc:{},bookReturnScene:null,correctedPrescriptionQueue:[],donVictorVisitDay:null,schoolClothChoice:null,returnedElectronicPrescriptions:[],destroyedElectronicFolios:[],specialEvents:{nomehWeiSeen:false,clubNocturnoSeen:false,tuguelDay1Seen:false,tuguelReturnPending:false,tuguelReturnSeen:false,tuguelArrested:false,tuguelPatient:null},successfulAttentions:0,priorRxUses:[],usedExtraPortraits:[],crisesSinceAdmission:0,hospital:{active:false,starts:0,days:0},dayHospitalCost:0,dayStory:"",dayStoryKind:"",moodQf:75,moodCarlitos:82,carlitosHealth:'estable',dayTreatmentCost:3000,currentHealthEvent:'estable',moodNotes:[],reviewedMoves:{},notifications:[],pendingGift:null,usedIdentityNames:[],usedVisualModels:[],usedCatalogIds:[],chequeWarnings:{},pendingChequeRevisit:null,gameOverReason:null,sisChecks:{},fakeDoctorFindings:0,idWarnings:0,retainedArchive:[],policeReports:[],authorityReports:[],gifts:[],couponPct:0,couponUsedOnDay:null,day:1,scene:'briefing',patients:[],patientIndex:0,patientResult:null,patientVerified:false,idRequested:false,qrChecked:false,stock,bookStock,folios,ledger:[],dispatches:[],simpleDispenses:[],receipts:[],receiptsNormal:[],hidden:{},quarantine:{},inventoryGap:{},delivery:null,deliveryDone:false,boxOpened:false,inspectedPacks:[],pendingCorrections:[],inspectionDone:false,inspectionIssue:null,inspectionResolutionLocked:false,inspections:[],infractions:0,finesToday:0,errors:[],cash:25000,debt:0,earnedIllegal:0,illegalToday:0,illegalCount:0,undercover:false,dayIncome:0,dayBonus:0,dayExpenses:0,dayPay:false,daySummary:null,healthCrises:0,familyTrust:75,characterRegistry:{},characterCounter:{female:0,male:0},history:[],gameOver:false}};
 let memorySave=null;function save(){if(!game||TACA_PREVIEW)return;const snapshot=JSON.stringify(game);memorySave=snapshot;try{localStorage.setItem(SAVE_KEY,snapshot)}catch(e){/* session in-memory fallback */}}
 function load(){if(TACA_PREVIEW)return null;try{let raw=null;try{raw=localStorage.getItem(SAVE_KEY)}catch(e){}const d=JSON.parse(raw||memorySave||'null');
  if(d&&[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53].includes(d.version)&&d.stock&&d.ledger){
@@ -694,6 +694,7 @@ function load(){if(TACA_PREVIEW)return null;try{let raw=null;try{raw=localStorag
   if(d.correctedPrescriptionQueue==null)d.correctedPrescriptionQueue=[];
   if(!Array.isArray(d.minorGuardianQueue))d.minorGuardianQueue=[];
   if(typeof d.sisIntroSeen!=='boolean')d.sisIntroSeen=d.day>=3;
+  d.insAlarm=d.insAlarm||0;d.insPolicy=d.insPolicy||0;d.robberyPlan=d.robberyPlan||null;d.robbery=d.robbery||null;d.lastRobberyDay=d.lastRobberyDay||0;d.robberyCount=d.robberyCount||0;d.dayInsFee=d.dayInsFee||0;
   const legacyVersion=d.version;
   d.version=53;d.carlitosArc=d.carlitosArc||{};
   d.errors=d.errors||[];
@@ -944,7 +945,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.150) =====
+// ===== Diálogos personalizados (1.9.151) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1115,7 +1116,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.150) =====
+// ===== Habla de extranjeros (1.9.151) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1327,7 +1328,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.150) =====
+// ===== Eventos del barrio (1.9.151) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -2331,6 +2332,8 @@ function closeDayGoHome(){
  game.lastFamilyGift='';
  game.dayTreatmentCost=3000;
  game.dayExpenses=12000+game.dayTreatmentCost+(crisis?25000:0)+(game.day%20===0?200000:0)+game.dayHospitalCost;
+ game.dayInsFee=insuranceFeeToday();game.dayExpenses+=game.dayInsFee;
+ planRobbery();
  game.couponUsedOnDay=null;
  if(hospitalizedToday)record(`Hospitalización de Charlitos: jornada ${hospital.days}, costo ${pesos(game.dayHospitalCost)}. ${dischargedToday?'Alta médica.':'Continúa en observación.'}`);
  if(hospital.active&&hospital.starts===game.day+1)record('Charlitos ingresó al hospital. Desde la siguiente jornada, se programaron tres días de hospitalización a $10.000 por día.');
@@ -2399,7 +2402,92 @@ function daySevenEndingHtml(){
  return `<section class="content ending-credits"><figure class="ending-family"><img src="${assetUrl('assets/endings/familia-dia-8.webp')}" alt="Charlitos y su madre lloran juntos en casa, junto a una silla vacía"></figure><div class="paper center"><h2>RECIPE, PLEASE</h2><p>En casa, Charlitos y su madre lloran juntos. Tu silla queda vacía.</p><p>Una persona perdió la vida. Su familia también queda enfrentando su ausencia.</p><p>El químico farmacéutico es guardián de la salud de las personas.</p><p class="small">Creado por Carlos Sebastián Neira Ibacache.</p><p><b>FIN DE LA PARTIDA</b></p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;
 }
 
-function beginNextDay(){if(game.gameOver)return;game.day++;game.scene='briefing';prepareDay();save();render()}
+// ---------- Robos, seguro y alarma ----------
+const ROBBERY_CHANCE=0.06,ROBBERY_MIN_DAY=3,ROBBERY_GAP=7,ROBBERY_MIN_CASH=20000,ROBBERY_MIN=5000,ROBBERY_CAP=150000;
+const ROBBERY_WARN_CHANCE=0.7,ALARM_WORKS=0.8,POLICY_COVER=0.6,REPORT_CHANCE=0.15;
+const INSURANCE={alarm:{name:'Alarma',cost:60000,weekly:6000},policy:{name:'Seguro',cost:80000,weekly:10000}};
+function insuranceDue(since){return since>0&&game.day>since&&(game.day-since)%7===0}
+function insuranceDueNames(){const o=[];if(insuranceDue(game.insAlarm))o.push('la alarma');if(insuranceDue(game.insPolicy))o.push('el seguro');return o}
+function insuranceFeeToday(){return (insuranceDue(game.insAlarm)?INSURANCE.alarm.weekly:0)+(insuranceDue(game.insPolicy)?INSURANCE.policy.weekly:0)}
+function planRobbery(){
+ game.robberyPlan=null;
+ const next=game.day+1;
+ if(game.gameOver||next<ROBBERY_MIN_DAY||next-(game.lastRobberyDay||0)<ROBBERY_GAP||Math.random()>=ROBBERY_CHANCE)return;
+ game.robberyPlan={day:next,pct:0.2+Math.random()*0.4,warned:Math.random()<ROBBERY_WARN_CHANCE};
+}
+function robberyAmount(cash,pct){return Math.min(cash,ROBBERY_CAP,Math.max(ROBBERY_MIN,Math.round(cash*pct/500)*500))}
+function applyRobbery(){
+ const plan=game.robberyPlan;game.robberyPlan=null;game.robbery=null;
+ if(!plan||plan.day!==game.day||game.tutorial||game.cash<ROBBERY_MIN_CASH)return;
+ const amount=robberyAmount(game.cash,plan.pct);
+ game.lastRobberyDay=game.day;
+ const alarm=Boolean(game.insAlarm)&&Math.random()<ALARM_WORKS;
+ if(alarm){
+  game.robbery={day:game.day,amount,alarm:true,covered:0,loss:0,insured:Boolean(game.insPolicy),reported:true,recovered:0};
+  record('Intentaron robar la farmacia, pero sonó la alarma y los ladrones huyeron sin llevarse nada.');
+  achGrant('alarma-sono');
+ }else{
+  const insured=Boolean(game.insPolicy);
+  const covered=insured?Math.round(amount*POLICY_COVER/100)*100:0;
+  game.cash-=amount-covered;game.robberyCount=(game.robberyCount||0)+1;
+  game.robbery={day:game.day,amount,alarm:false,covered,loss:amount-covered,insured,reported:false,recovered:0,hadAlarm:Boolean(game.insAlarm)};
+  changeMood('qf',-10,'Robo en la farmacia');
+  record(`Robo en la farmacia: se llevaron ${pesos(amount)}${insured?` y el seguro devolvió ${pesos(covered)}`:''}.`);
+  achGrant('robado');
+ }
+ ui.modal='robbery';
+}
+function reportRobbery(){
+ const r=game.robbery;if(!r||r.reported||r.alarm)return;
+ r.reported=true;
+ if(Math.random()<REPORT_CHANCE){
+  const rec=r.insured?r.loss:Math.round(r.amount*(0.05+Math.random()*0.15)/100)*100;
+  r.recovered=Math.min(rec,r.loss);
+  game.cash+=r.recovered;r.loss-=r.recovered;
+  record(`Los cabos recuperaron ${pesos(r.recovered)} del robo.`);achGrant('cabos-al-rescate');
+ }else record('Denunciaste el robo a Carabineros. Por ahora no hay novedades.');
+ save();render();
+}
+function buyInsurance(kind){
+ const it=INSURANCE[kind];if(!it||!game||game.tutorial)return;
+ const key=kind==='alarm'?'insAlarm':'insPolicy';
+ if(game[key]){toast('Ya tienes esa cobertura vigente.');return}
+ if(game.cash<it.cost){toast(`Necesitas ${pesos(it.cost)} para contratarla.`);return}
+ game.cash-=it.cost;game[key]=game.day;
+ record(`Contrataste ${it.name.toLowerCase()}: pago inicial ${pesos(it.cost)} y cuota de ${pesos(it.weekly)} cada 7 días.`);
+ achGrant('asegurado');save();render();toast(kind==="alarm"?"Alarma contratada":"Seguro contratado");
+}
+function cancelInsurance(kind){
+ const key=kind==='alarm'?'insAlarm':kind==='policy'?'insPolicy':null;if(!key||!game[key])return;
+ game[key]=0;record(`Cancelaste ${INSURANCE[kind].name.toLowerCase()}. No se devuelve el pago inicial.`);save();render();
+}
+function insuranceNoticeHtml(){
+ const out=[];
+ if(game.insLapsed)out.push(`<div class="notice warn"><h3>COBERTURA SUSPENDIDA</h3><p>No alcanzó para la cuota: ${escapeText(game.insLapsed)} quedó sin vigencia. Para recuperarla hay que pagar de nuevo el monto inicial.</p></div>`);
+ const plan=game.robberyPlan;
+ if(plan&&plan.warned&&plan.day===game.day+1)out.push('<div class="notice warn"><h3>ROBOS EN EL BARRIO</h3><p>Los vecinos comentan que anoche forzaron la cortina de la botillería de la esquina. Conviene cuidar la farmacia.</p></div>');
+ return out.join('');
+}
+function insuranceHtml(){
+ const card=(kind,desc)=>{const it=INSURANCE[kind],key=kind==='alarm'?'insAlarm':'insPolicy',on=game[key];
+  const next=on?on+7*(Math.floor((game.day-on)/7)+1):0;
+  return `<div class="paper ins-card"><h3>${it.name.toUpperCase()}</h3><p>${desc}</p><div class="money-line"><span>Pago inicial</span><strong>${pesos(it.cost)}</strong></div><div class="money-line"><span>Cuota cada 7 días</span><strong>${pesos(it.weekly)}</strong></div>${on?`<p class="small good">Vigente desde el día ${on}. Próxima cuota: día ${next}.</p>${btn('CANCELAR','ins-cancel','amber',`data-kind="${kind}"`)}`:btn('CONTRATAR','ins-buy','green',`data-kind="${kind}"${game.cash<it.cost?' disabled':''}`)}</div>`};
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Seguro y alarma"><div class="modal ins-modal"><div class="section-head"><h2>☂ SEGURO Y ALARMA</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div><p class="small">Te cubren ante robos de dinero. No afectan qué tan seguido ocurren. Se paga un monto inicial grande y después una cuota cada 7 días; si un día no alcanza para la cuota, la cobertura se suspende. Dinero disponible: <b>${pesos(game.cash)}</b>.</p>${card('alarm','Si intentan robar, suena la alarma en 8 de cada 10 ocasiones y los ladrones huyen sin llevarse nada.')}${card('policy','Si el robo ocurre, el seguro te devuelve el 60 % de lo robado. Sin deducible.')}<p class="mini">Con ambos, la alarma intenta frenar el robo y, si falla, el seguro cubre el 60 %.</p><div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
+}
+const CABO_FAIL=['Cabo Azucarinas anotó la denuncia con lápiz de cera. Cabo Carahue perdió la hoja en el camino de vuelta.','Los cabos recorrieron tres cuadras buscando a los ladrones y volvieron con una sopaipilla. No hay novedades.','Cabo Carahue preguntó si «robo» se escribe con be larga. Dijeron que investigarían.'];
+const CABO_WIN=['¡Milagro! Los cabos tropezaron con los ladrones, que se asustaron y soltaron parte del dinero.','Cabo Azucarinas encontró un fajo de billetes en su propio bolsillo y concluyó que el caso estaba resuelto.'];
+function robberyHtml(){
+ const r=game.robbery;if(!r)return '';
+ const head=r.alarm?'¡SONÓ LA ALARMA!':'ROBARON LA FARMACIA';
+ const body=r.alarm?`Esta madrugada intentaron forzar la puerta. La alarma sonó, los ladrones huyeron y no se llevaron nada. Iban por ${pesos(r.amount)}.`:`Al abrir encuentras la caja forzada. Se llevaron <b>${pesos(r.amount)}</b>.`;
+ const cover=!r.alarm&&r.insured?`<div class="money-line"><span>Seguro (60 %)</span><strong>+${pesos(r.covered)}</strong></div>`:'';
+ const net=!r.alarm?`<div class="money-line neg"><span>Pérdida ${r.recovered?'final':'neta'}</span><strong>−${pesos(r.loss)}</strong></div>`:'';
+ const result=r.reported&&!r.alarm?(r.recovered?`<div class="notice ok"><p>${escapeText(CABO_WIN[r.day%CABO_WIN.length])} Recuperaste <b>${pesos(r.recovered)}</b>.</p></div>`:`<div class="notice warn"><p>${escapeText(CABO_FAIL[r.day%CABO_FAIL.length])}</p></div>`):'';
+ const buttons=r.alarm||r.reported?btn('ENTENDIDO','close-modal','green'):btn('DENUNCIAR A CARABINEROS','robbery-report','blue')+btn('NO DENUNCIAR','close-modal','cream');
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${head}"><div class="modal robbery-modal"><div class="eyebrow">${r.alarm?'¡QUÉ ALIVIO!':'MALA NOTICIA'}</div><h2>${head}</h2><p>${body}</p>${r.alarm?'':`<div class="money-line neg"><span>Robado</span><strong>−${pesos(r.amount)}</strong></div>${cover}${net}`}${result}<p class="small">Dinero disponible: <b>${pesos(game.cash)}</b></p><div class="btn-row">${buttons}</div></div></div>`;
+}
+
+function beginNextDay(){if(game.gameOver)return;game.day++;game.scene='briefing';prepareDay();applyRobbery();save();render()}
 const PROLOGUE_SCENES=[
  ['Tu oficio','Eres químico farmacéutico. Hoy abres tu propia farmacia. Ayer dejaste listo el mostrador. Esta mañana llegaste temprano para contar las cajas una vez más.'],
  ['Charlitos','Tienes un hijo, Charlitos. Vive con el síndrome de Ibanei y, entre sus controles y el colegio, en casa se organizan para acompañarlo cuando lo necesita. Esta mañana te pidió permiso para usar una de las cajas vacías. Tiene un proyecto y dice que todavía es secreto.'],
@@ -2677,7 +2765,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.150 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.151 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  practiceCoach(modal);
  if(!modal){
@@ -2718,7 +2806,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.150 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.151 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -2840,7 +2928,11 @@ const ACHIEVEMENTS=[
  {id:'maestro-bolsillomon',name:'Maestro Bolsillomón',desc:'Encuentra al chico que regala la carta.',tier:'especial',hidden:true,icon:'✦'},
  {id:'pago-en-cartas',name:'Pago en cartas',desc:'Acepta una carta Bolsillomón como medio de pago.',tier:'especial',hidden:true,icon:'✧',test:c=>c.pudu},
  {id:'rico-por-una-carta',name:'Rico por una carta',desc:'Vende la carta Pudú Brasa por $2.000.000.',tier:'especial',hidden:true,icon:'$$'},
- {id:'soy-celiaco',name:'Soy celiaco',desc:'Descarta el Optimus Pan que te regalan los cabos.',tier:'especial',hidden:true,icon:'🍞'}
+ {id:'soy-celiaco',name:'Soy celiaco',desc:'Descarta el Optimus Pan que te regalan los cabos.',tier:'especial',hidden:true,icon:'🍞'},
+ {id:'robado',name:'Bienvenido al barrio',desc:'Sufre un robo en la farmacia.',tier:'bronce',icon:'☠',test:()=>false},
+ {id:'asegurado',name:'Mejor prevenir',desc:'Contrata el seguro o la alarma.',tier:'bronce',icon:'☂',test:()=>false},
+ {id:'alarma-sono',name:'¡Suena la alarma!',desc:'Frustra un robo con la alarma de la farmacia.',tier:'plata',icon:'♪',test:()=>false},
+ {id:'cabos-al-rescate',name:'Los cabos al rescate',desc:'Recupera dinero robado gracias a los carabineros.',tier:'especial',hidden:true,icon:'✪'}
 ];
 function achCtx(){
  const m=meta();
@@ -3077,7 +3169,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.150','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.151','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -3086,7 +3178,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.150 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.151 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -3165,7 +3257,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.150 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.151 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -3549,12 +3641,12 @@ function homeHtml(){
  const hospitalDay=(game.dayHospitalCost||0)>0;
  const status=game.carlitosHealth||'estable';
  const mood=game.moodCarlitos>=75?'contento':game.moodCarlitos>=50?'tranquilo':game.moodCarlitos>=25?'desanimado':'muy decaído';
- return `${stage('home','HOGAR · ECONOMÍA FAMILIAR','21:30 · Regreso al hogar')}<section class="content"><div class="salary-grid"><div class="paper"><h2>LIQUIDACIÓN DEL DÍA</h2><div class="money-line pos"><span>Sueldo QF</span><strong>+${pesos(40000)}</strong></div>${game.dayBonus>0?`<div class="money-line pos"><span>Bono por libro al día</span><strong>+${pesos(game.dayBonus)}</strong></div>`:''}<div class="money-line neg"><span>Multas SEREMI</span><strong>−${pesos(game.finesToday)}</strong></div><div class="money-line neg"><span>Alimentación</span><strong>−$12.000</strong></div><div class="money-line neg"><span>Tratamiento Charlitos</span><strong>−${pesos(game.dayTreatmentCost??3000)}</strong></div>${game.couponUsedOnDay?`<div class="money-line pos"><span>Cupón aplicado</span><strong>${game.couponUsedOnDay.pct}%</strong></div>`:''}${crisis?'<div class="money-line neg"><span>Consulta extraordinaria</span><strong>−$25.000</strong></div>':''}${hospitalDay?`<div class="money-line neg"><span>Hospitalización (día ${game.hospital?.days||1})</span><strong>−${pesos(game.dayHospitalCost)}</strong></div>`:''}${game.day%20===0?'<div class="money-line neg"><span>Arriendo (25% sueldo mensual)</span><strong>−$200.000</strong></div>':''}<hr><div class="money-total"><span>GASTOS POR PAGAR</span><span>${pesos(game.dayExpenses)}</span></div><p class="mini">Sueldo diario $40.000 · 20 jornadas al mes · arriendo mensual $200.000.</p></div>
- <div class="dark-card family-diary"><h2>DIARIO DE CHARLITOS · 8 AÑOS</h2><div class="family-status ${hospitalized?'family-status-alert':''}"><span class="family-pulse">♥</span><div><span class="family-status-label">ESTADO DE SALUD</span><strong>${escapeText(status.toUpperCase())}</strong></div></div>${moodBar('Ánimo de Charlitos',game.moodCarlitos,'carlitos')}<p class="small">Hoy se siente <b>${escapeText(mood)}</b>.</p><div class="family-day-story"><b>${hospitalized?'NOTICIAS DEL HOSPITAL':game.currentHealthEvent==='de alta'?'DE REGRESO EN CASA':crisis||game.currentHealthEvent==='molestias'?'UN DÍA DE DESCANSO':'ASÍ LE FUE HOY EN EL COLEGIO'}</b><p>${escapeText(game.dayStory||storyForDay(game.day,game.currentHealthEvent||'estable'))}</p></div>${game.lastFamilyGift?`<p class="small family-gift-note">${escapeText(game.lastFamilyGift)}</p>`:''}${hospitalized?`<p class="small family-hospital-note">${game.currentHealthEvent==='ingresó al hospital'?'Inicia hospitalización mañana: $10.000 por jornada.':`Jornadas hospitalizado: ${game.hospital?.days||0}. Costo de hoy: ${pesos(game.dayHospitalCost||0)}.`}</p>`:''}<div class="money-line"><span>Dinero disponible</span><strong>${pesos(game.cash)}</strong></div><div class="money-line"><span>Deudas acumuladas</span><strong>${pesos(game.debt)}</strong></div><div class="money-line"><span>Confianza familiar</span><strong>${game.familyTrust}/100</strong></div><div class="family-quote">«${hospitalized?'Lo importante es que estemos juntos. Mañana volvemos a acompañarlo.':'Hoy hubo cosas difíciles, pero también nos reímos un rato.'}» — Tu pareja</div>${moodBar('Ánimo del QF',game.moodQf,'qf')}<div class="ledger-row"><b>Regalos disponibles:</b> ${(game.gifts||[]).filter(g=>!g.used).length}</div>${(game.gifts||[]).some(g=>!g.used&&canGiftCarlitos(g))?`<p class="small good">Tienes dulces para Charlitos. Abre REGALOS y presiona «REGALAR A CHARLITOS».</p>`:''}</div></div>${schoolClothHtml()}${game.day===ONCE_DAY&&game.neighborsOnce?.choice==='home'?'<div class="notice ok"><h3>LA ONCE DE LOS VECINOS</h3><p>Charlitos prueba una sopaipilla y decide que va primera en su ranking del barrio. «Es que todavía está calentita. Mañana vemos si sigue primera».</p></div>':''}${game.daySummary?`<div class="notice ${game.daySummary.paid?'ok':'warn'}">${game.daySummary.paid?'Gastos pagados. La familia puede descansar.':'Gastos pendientes registrados como deuda familiar.'} · Saldo: ${pesos(game.cash)}. ${game.daySummary.treatmentCovered===false?'El tratamiento de Charlitos sigue pendiente.':''}</div>`:''}${game.day===30&&game.daySummary?`<div class="notice ok"><h2>HITO: 30 JORNADAS COMPLETADAS</h2><p>Dinero: ${pesos(game.cash)} · Deuda: ${pesos(game.debt)} · Infracciones: ${game.infractions} · Regalos: ${(game.gifts||[]).length}.</p></div>`:''}</section>${game.daySummary?actionbar([['DESCANSAR · SIGUIENTE DÍA','next-day','green'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR HISTORIAL','history','dark']]):actionbar([['✓ PAGAR GASTOS','pay-expenses','green'],['POSPONER Y GENERAR DEUDA','defer-expenses','amber'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR MENSAJES','history','dark']])}`;
+ return `${stage('home','HOGAR · ECONOMÍA FAMILIAR','21:30 · Regreso al hogar')}<section class="content"><div class="salary-grid"><div class="paper"><h2>LIQUIDACIÓN DEL DÍA</h2><div class="money-line pos"><span>Sueldo QF</span><strong>+${pesos(40000)}</strong></div>${game.dayBonus>0?`<div class="money-line pos"><span>Bono por libro al día</span><strong>+${pesos(game.dayBonus)}</strong></div>`:''}<div class="money-line neg"><span>Multas SEREMI</span><strong>−${pesos(game.finesToday)}</strong></div><div class="money-line neg"><span>Alimentación</span><strong>−$12.000</strong></div><div class="money-line neg"><span>Tratamiento Charlitos</span><strong>−${pesos(game.dayTreatmentCost??3000)}</strong></div>${game.couponUsedOnDay?`<div class="money-line pos"><span>Cupón aplicado</span><strong>${game.couponUsedOnDay.pct}%</strong></div>`:''}${game.dayInsFee>0?`<div class="money-line neg"><span>Cuota semanal de ${insuranceDueNames().join(' y ')}</span><strong>−${pesos(game.dayInsFee)}</strong></div>`:''}${crisis?'<div class="money-line neg"><span>Consulta extraordinaria</span><strong>−$25.000</strong></div>':''}${hospitalDay?`<div class="money-line neg"><span>Hospitalización (día ${game.hospital?.days||1})</span><strong>−${pesos(game.dayHospitalCost)}</strong></div>`:''}${game.day%20===0?'<div class="money-line neg"><span>Arriendo (25% sueldo mensual)</span><strong>−$200.000</strong></div>':''}<hr><div class="money-total"><span>GASTOS POR PAGAR</span><span>${pesos(game.dayExpenses)}</span></div><p class="mini">Sueldo diario $40.000 · 20 jornadas al mes · arriendo mensual $200.000.</p></div>
+ <div class="dark-card family-diary"><h2>DIARIO DE CHARLITOS · 8 AÑOS</h2><div class="family-status ${hospitalized?'family-status-alert':''}"><span class="family-pulse">♥</span><div><span class="family-status-label">ESTADO DE SALUD</span><strong>${escapeText(status.toUpperCase())}</strong></div></div>${moodBar('Ánimo de Charlitos',game.moodCarlitos,'carlitos')}<p class="small">Hoy se siente <b>${escapeText(mood)}</b>.</p><div class="family-day-story"><b>${hospitalized?'NOTICIAS DEL HOSPITAL':game.currentHealthEvent==='de alta'?'DE REGRESO EN CASA':crisis||game.currentHealthEvent==='molestias'?'UN DÍA DE DESCANSO':'ASÍ LE FUE HOY EN EL COLEGIO'}</b><p>${escapeText(game.dayStory||storyForDay(game.day,game.currentHealthEvent||'estable'))}</p></div>${game.lastFamilyGift?`<p class="small family-gift-note">${escapeText(game.lastFamilyGift)}</p>`:''}${hospitalized?`<p class="small family-hospital-note">${game.currentHealthEvent==='ingresó al hospital'?'Inicia hospitalización mañana: $10.000 por jornada.':`Jornadas hospitalizado: ${game.hospital?.days||0}. Costo de hoy: ${pesos(game.dayHospitalCost||0)}.`}</p>`:''}<div class="money-line"><span>Dinero disponible</span><strong>${pesos(game.cash)}</strong></div><div class="money-line"><span>Deudas acumuladas</span><strong>${pesos(game.debt)}</strong></div><div class="money-line"><span>Confianza familiar</span><strong>${game.familyTrust}/100</strong></div><div class="family-quote">«${hospitalized?'Lo importante es que estemos juntos. Mañana volvemos a acompañarlo.':'Hoy hubo cosas difíciles, pero también nos reímos un rato.'}» — Tu pareja</div>${moodBar('Ánimo del QF',game.moodQf,'qf')}<div class="ledger-row"><b>Regalos disponibles:</b> ${(game.gifts||[]).filter(g=>!g.used).length}</div>${(game.gifts||[]).some(g=>!g.used&&canGiftCarlitos(g))?`<p class="small good">Tienes dulces para Charlitos. Abre REGALOS y presiona «REGALAR A CHARLITOS».</p>`:''}</div></div>${insuranceNoticeHtml()}${schoolClothHtml()}${game.day===ONCE_DAY&&game.neighborsOnce?.choice==='home'?'<div class="notice ok"><h3>LA ONCE DE LOS VECINOS</h3><p>Charlitos prueba una sopaipilla y decide que va primera en su ranking del barrio. «Es que todavía está calentita. Mañana vemos si sigue primera».</p></div>':''}${game.daySummary?`<div class="notice ${game.daySummary.paid?'ok':'warn'}">${game.daySummary.paid?'Gastos pagados. La familia puede descansar.':'Gastos pendientes registrados como deuda familiar.'} · Saldo: ${pesos(game.cash)}. ${game.daySummary.treatmentCovered===false?'El tratamiento de Charlitos sigue pendiente.':''}</div>`:''}${game.day===30&&game.daySummary?`<div class="notice ok"><h2>HITO: 30 JORNADAS COMPLETADAS</h2><p>Dinero: ${pesos(game.cash)} · Deuda: ${pesos(game.debt)} · Infracciones: ${game.infractions} · Regalos: ${(game.gifts||[]).length}.</p></div>`:''}</section>${game.daySummary?actionbar([['DESCANSAR · SIGUIENTE DÍA','next-day','green'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['SEGURO Y ALARMA','insurance','cream'],['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR HISTORIAL','history','dark']]):actionbar([['✓ PAGAR GASTOS','pay-expenses','green'],['POSPONER Y GENERAR DEUDA','defer-expenses','amber'],...(game.debt>0&&game.cash>0?[['ABONAR DEUDA','repay-debt','cream']]:[]),['SEGURO Y ALARMA','insurance','cream'],['RESUMEN DE JORNADA','day-summary','cream'],['REVISAR MENSAJES','history','dark']])}`;
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.150) =====
+// ===== Manual práctico (1.9.151) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -3835,6 +3927,8 @@ function openTacaPreview(day){
 function modalHtml(){
  if(META_MODALS.includes(ui.modal))return metaModalHtml();
  if(ui.modal==='day-summary')return daySummaryHtml();
+ if(ui.modal==='robbery')return robberyHtml();
+ if(ui.modal==='insurance')return insuranceHtml();
  if(['start-choice','prologue','practice-help','practice-complete','practice-outro'].includes(ui.modal))return onboardingModal();let m=ui.modal;if(!m)return '';
  if(m==='taca')return tacaHtml();
  if(m==='compare-documents')return compareDocumentsHtml(game.patients[game.patientIndex]);
@@ -3984,7 +4078,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.150 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.151 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -4117,6 +4211,8 @@ function homePay(defer){
  if(game.couponUsedOnDay)game.couponUsedOnDay=null;
  if(!treatmentCovered){changeMood('carlitos',-18,'Tratamiento del día sin pagar');record('No alcanzó el dinero para pagar el tratamiento de Charlitos.');}
  if(remainder>0)game.familyTrust=Math.max(0,game.familyTrust-(defer?8:5));else game.familyTrust=Math.min(100,game.familyTrust+1);
+ game.insLapsed=null;
+ if(game.dayInsFee>0&&remainder>0){const names=insuranceDueNames();if(game.insAlarm&&insuranceDue(game.insAlarm))game.insAlarm=0;if(game.insPolicy&&insuranceDue(game.insPolicy))game.insPolicy=0;game.insLapsed=names.join(' y ');record(`No pagaste la cuota: ${game.insLapsed} quedó sin vigencia.`)}
  game.daySummary={paid:remainder===0,deferred:remainder,total:game.dayExpenses,treatmentCovered};metaAfterPay();
  record(`Gastos familiares: pagados ${pesos(paid)}, pendientes ${pesos(remainder)}. Tratamiento ${treatmentCovered?'cubierto':'pendiente'}.`);save();render();
 }
@@ -4243,6 +4339,10 @@ function handleAction(action,target){if(action==='new'){startNew();return}
  if(action==='meta-close'){ui.modal=null;game?render():menuHtml();return}
  if(!game)return;
  if(action==='day-summary'){ui.modal='day-summary';render();return}
+ if(action==='insurance'){ui.modal='insurance';render();return}
+ if(action==='ins-buy'){buyInsurance(target.dataset.kind);return}
+ if(action==='ins-cancel'){cancelInsurance(target.dataset.kind);return}
+ if(action==='robbery-report'){reportRobbery();return}
  if(action==='choose-practice'){chooseOpening('practice');return;}
  if(action==='choose-campaign'){chooseOpening('campaign');return;}
  if(action==='prologue-next'){nextPrologue();return;}
