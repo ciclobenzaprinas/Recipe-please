@@ -1068,3 +1068,6 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 @keyframes safeDep{0%{transform:scale(1)}40%{transform:scale(1.07);filter:brightness(1.35) drop-shadow(5px 6px 0 #0a100c)}100%{transform:scale(1)}}
 @keyframes safeWd{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-1.5deg)}40%{transform:translateX(6px) rotate(1.5deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 @media (prefers-reduced-motion:reduce){.safe-sprite.safe-dep,.safe-sprite.safe-wd{animation:none}}
+.shop-modal{max-width:640px}.shop-bar{display:flex;align-items:center;gap:10px;background:#101a14;border:2px solid #7c7358;padding:6px 10px;margin-bottom:10px}.shop-dots{color:#baa16b;letter-spacing:2px;font-size:11px}.shop-url{flex:1;font-size:12px;background:#1f2b23;padding:4px 8px;border:1px solid #4d5a4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-head h2{margin:4px 0}.shop-card{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0}.shop-info{flex:1;min-width:0}.shop-info h3{margin:0 0 4px}.shop-info p{margin:0}.shop-buy{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}.tag-ok{font-size:11px;font-weight:900;color:#2f6b3f}
+.shop-card .btn{text-shadow:none!important;color:#f8ead1}.shop-card .btn:disabled{opacity:.5}
