@@ -1057,3 +1057,5 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .album-id .idtpl,.album-id .rufus-id-sprite{display:block;width:100%;max-width:280px;height:auto;pointer-events:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .album-id-none,.album-id-note{margin:4px 0 0;font-size:13px;line-height:1.4;color:#f1e8cb}
 .album-id-note{color:#bcd0a8;font-size:12px}
+
+.dni-gallery{max-width:760px;width:calc(100% - 24px)}.dni-stage{display:flex;align-items:center;gap:10px;justify-content:center;margin:12px 0}.dni-stage figure{margin:0;flex:1;text-align:center;min-width:0}.dni-stage img{width:100%;height:auto;border:3px solid #7c7358;box-shadow:5px 6px 0 #0a100c}.dni-stage figcaption{margin-top:10px;font-size:14px;line-height:1.4}.dni-arrow{font-size:34px;line-height:1;padding:14px 16px;flex:none}.dni-count{text-align:center;margin:0}
