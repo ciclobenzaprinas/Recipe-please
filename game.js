@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.145. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.146. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -343,6 +343,7 @@ function subjectPortrait(p,mode='stage'){
    const file=mode==='id'?'sicolas-muros-id.webp':'sicolas-muros.webp';
    return `<img class="patient-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl('assets/patients/'+file)}" alt="Sicolás Muros" draggable="false">`;
   }
+  if(p?.kind==='carabineros')return `<img class="patient-portrait carabineros-portrait" src="${assetUrl('assets/patients/carabineros.webp')}" alt="Cabo Azucarinas y Cabo Carahue" draggable="false">`;
   if(p?.kind==='donVictor')return `<img class="patient-portrait don-victor-portrait" src="${assetUrl('assets/patients/don-victor.webp')}" alt="Don Invictus" draggable="false">`;
   if(p?.kind==='tuguelExpired'||p?.kind==='tuguelFake'){const asset=mode==='id'?'assets/patients/tuguel_id.webp':'assets/patients/tuguel_lacras.webp';return `<img class="patient-portrait tuguel-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Retrato de Tuguel Pagaba" draggable="false">`;}
   if(p?.kind==='cifunando'){const asset=mode==='id'?'assets/patients/cifunando_id.webp':'assets/patients/cifunando.webp';return `<img class="patient-portrait chemy-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Cifunando Feruentes Crack" draggable="false">`;}
@@ -456,7 +457,7 @@ function visualAgeIssueRange(rec){
  return rec.age>=65?[1570,2400]:rec.age>=45?[800,1640]:rec.age>=30?[400,1000]:[110,800];
 }
 function initializeIdentityDocument(p,day=game?.day||1){
- if(!p||['chinese','giftPaper','clubNocturno','tarotera','abuelo','bribe','donVictor'].includes(p.kind))return;
+ if(!p||['chinese','giftPaper','clubNocturno','tarotera','abuelo','bribe','donVictor','carabineros'].includes(p.kind))return;
  if(!p.documentNumber){
   const seed=(Number(p.portraitSeed)||412501)>>>0;
   const salted=(Math.imul(seed,1664525)+1013904223)>>>0;
@@ -723,7 +724,7 @@ d.returnedElectronicPrescriptions=d.returnedElectronicPrescriptions||[];d.destro
   }
   d.characterRegistry=d.characterRegistry||{};d.characterCounter=d.characterCounter||{female:0,male:0};
   for(const [i,p] of (d.patients||[]).entries()){
-   if(p.kind==='donVictor')continue;
+   if(p.kind==='donVictor'||p.kind==='carabineros')continue;
    if(p.kind==='double')p.rxType='ELECTRÓNICA';
    if(p.kind==='electronicRepeat')p.rxType='ELECTRÓNICA';
    p.nationalityCode=p.nationalityCode||'CL';
@@ -943,7 +944,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.145) =====
+// ===== Diálogos personalizados (1.9.146) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1114,7 +1115,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.145) =====
+// ===== Habla de extranjeros (1.9.146) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1326,7 +1327,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.145) =====
+// ===== Eventos del barrio (1.9.146) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -1432,6 +1433,12 @@ function prepareDay(){
   const position=Math.floor(Math.random()*(game.patients.length+1));
   game.patients.splice(position,0,{kind:'donVictor',name:'Don Invictus',quote:'Me da una moneita, me da cien peso?',noDocument:true,done:false});
   game.donVictorVisitDay=game.day;
+ }
+ // Cabo Azucarinas y Cabo Carahue: pasan a saludar cualquier jornada desde el día 2 (8 %). No traen receta ni dan nada.
+ if(game.day>=2&&Math.random()<CARABINEROS_CHANCE){
+  const position=Math.floor(Math.random()*(game.patients.length+1));
+  game.patients.splice(position,0,{kind:'carabineros',name:'Cabo Azucarinas y Cabo Carahue',quote:'Buenos días… buenas tardes.',noDocument:true,done:false});
+  game.carabinerosVisits=(game.carabinerosVisits||0)+1;
  }
  // Solo las recetas electrónicas ya dispensadas pueden volver con el mismo código.
  // Devolver la copia permite un nuevo intento desde el día siguiente (35% diario).
@@ -1818,7 +1825,7 @@ function rutMismatchIsFraud(p){return rutDigitDiffs(p)>=3}
 function isReportablePrescription(p){
  return !isPaperEvent(p)&&p.rxType!=='NINGUNA'&&p.kind!=='bribe'&&!unauthorizedPrescriberCase(p)&&(p.eventRecall===true||p.callRejected===true||electronicValidationFailed(p)||isStolenPrescription(p)||!validPrescriptionSignature(p)||prescriberIdentityIsFalse(lookupPrescriber(p).status)||['wrongtype','wrongtypeRepeat'].includes(p.kind)||rutMismatchIsFraud(p));
 }
-function finalizePatient(decision,reportCategory=null,returnReason=null){const p=game.patients[game.patientIndex];if(!p||p.done||p.kind==='donVictor')return;
+function finalizePatient(decision,reportCategory=null,returnReason=null){const p=game.patients[game.patientIndex];if(!p||p.done||p.kind==='donVictor'||p.kind==='carabineros')return;
  if(!practiceDecisionAllowed(decision,reportCategory,returnReason))return;
  const dates=fictionalIdDates(p);
  const documentedAge=ageFromBirth(dates.birth);
@@ -2664,7 +2671,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.145 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.146 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  practiceCoach(modal);
  if(!modal){
@@ -2705,7 +2712,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.145 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.146 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -2768,7 +2775,10 @@ const ALBUM=[
   odds:'3,5 % por jornada · ≈ 35 % en una campaña de 14 jornadas',about:'Menor de edad con una receta de clotiazepam 10 mg a su nombre. Insiste en que se la den igual. Si lo devuelves, vuelve al día siguiente con su papá.'},
  {id:'oscar',n:14,name:'Óscar Hidalgo Campos',kinds:['minorGuardian'],img:'assets/cast600/cast_626_stage.webp',rarity:'rara',
   where:'Su aparición depende del azar de Benjamín: solo llega el día siguiente a devolver a Benjamín por ser menor de edad. Viene con su hijo.',
-  odds:'100 % si devuelves a Benjamín · depende de que el menor llegue primero',about:'Papá de Benjamín. Llega con su carnet y la receta en regla para retirar el medicamento de su hijo. Siempre es el mismo hombre.'}
+  odds:'100 % si devuelves a Benjamín · depende de que el menor llegue primero',about:'Papá de Benjamín. Llega con su carnet y la receta en regla para retirar el medicamento de su hijo. Siempre es el mismo hombre.'},
+ {id:'carabineros',n:15,name:'Cabo Azucarinas y Cabo Carahue',kinds:['carabineros'],img:'assets/patients/carabineros.webp',rarity:'poco',
+  where:'Pueden pasar por la farmacia cualquier jornada desde el día 2. No traen receta y no piden nada.',
+  odds:'8 % por jornada · ≈ 66 % de verlos al menos una vez en una campaña de 14 días',about:'Son carabineros y son un poco tontos, pero buena gente. Solo pasan a saludar: no te dan nada y tampoco te quitan nada. Siempre dicen «Buenos días, buenas tardes», por si acaso.'}
 ];
 function albumIdForKind(kind){for(const a of ALBUM)if(a.kinds.includes(kind))return a.id;return null}
 function albumCount(){const m=meta();return ALBUM.filter(a=>m.album[a.id]).length}
@@ -2819,7 +2829,7 @@ const ACHIEVEMENTS=[
  {id:'ciudadano-mundo',name:'Ciudadano del mundo',desc:'Atiende pacientes de las 14 nacionalidades del juego.',tier:'oro',icon:'◍',prog:c=>[c.nations,14]},
  {id:'primera-estampa',name:'Primera estampa',desc:'Descubre tu primera estampa del álbum.',tier:'bronce',icon:'▦',prog:c=>[c.album,1]},
  {id:'coleccionista',name:'Coleccionista',desc:'Descubre 6 estampas del álbum.',tier:'plata',icon:'▩',prog:c=>[c.album,6]},
- {id:'album-completo',name:'Álbum completo',desc:'Descubre las 14 estampas del álbum.',tier:'oro',icon:'✦',prog:c=>[c.album,ALBUM.length]},
+ {id:'album-completo',name:'Álbum completo',desc:'Descubre todas las estampas del álbum.',tier:'oro',icon:'✦',prog:c=>[c.album,ALBUM.length]},
  {id:'consecuencias',name:'Todo tiene consecuencias',desc:'Llega a un final de partida.',tier:'bronce',icon:'⌛',test:c=>c.over},
  {id:'maestro-bolsillomon',name:'Maestro Bolsillomón',desc:'Encuentra al chico que regala la carta.',tier:'especial',hidden:true,icon:'✦'},
  {id:'pago-en-cartas',name:'Pago en cartas',desc:'Acepta una carta Bolsillomón como medio de pago.',tier:'especial',hidden:true,icon:'✧',test:c=>c.pudu},
@@ -3060,7 +3070,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.145','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.146','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -3069,7 +3079,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.145 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.146 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -3148,7 +3158,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.145 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.146 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -3312,10 +3322,41 @@ function eRxBarcodeSvg(p){
 }
 function eRxStatusHtml(p){return p.rxType==='ELECTRÓNICA'&&!p.qrValidation?btn('VALIDAR CÓDIGO','verify-qr','blue',p.done?'disabled':''):p.rxType==='ELECTRÓNICA'&&p.qrValidation==='valid'?'<p class="good">✓ Código validado</p>':electronicValidationFailed(p)?`<div class="notice warning" role="status"><b>RECETA ELECTRÓNICA NO VÁLIDA</b><p>${escapeText(p.qrFraudReason)}</p><p>Receta falsa. Decide cómo proceder en «Notificar o retener».</p></div>`:p.rxType==='ELECTRÓNICA'&&p.qrValidation==='expired'?`<div class="notice warn" role="status"><b>✕ CÓDIGO RECHAZADO · RECETA VENCIDA</b><p>${escapeText(p.qrExpiredNote||'La receta electrónica está vencida.')} No es una falsificación: devuélvela con el motivo «Receta vencida».</p></div>`:p.rxType==='ELECTRÓNICA'&&p.qrValidation==='invalid'?'<p class="warning">✕ Validación fallida: receta electrónica falsa.</p>':p.rxType==='ELECTRÓNICA'&&p.qrValidation==='dispensed'?btn('▣ RECETA DESPACHADA','show-used-qr','red'):''}
 function eRxHtml(p){return `<div class="e-card draggable" data-drag="erx"><h3>▦ RECETA ELECTRÓNICA</h3><div class="ebar-wrap">${eRxBarcodeSvg(p)}<div class="ebar-num">${escapeText(p.folio||'')}</div></div><p class="center small">${escapeText(rxPatientName(p))} · RUT: ${prescriptionPatientId(p)}</p><div class="e-validate">${eRxStatusHtml(p)}</div></div>`}
-function counterHtml(){const p=game.patients[game.patientIndex];if(!p)return '';if(p.kind==='donVictor')return donVictorHtml(p);if(p.kind==='bribe')return bribeHtml(p);if(p.kind==='clubNocturno')return clubEncounterHtml(p);if(p.kind==='tarotera'||p.kind==='abuelo')return tarotEncounterHtml(p);if(isPaperEvent(p))return paperEncounterHtml(p);
+function counterHtml(){const p=game.patients[game.patientIndex];if(!p)return '';if(p.kind==='donVictor')return donVictorHtml(p);if(p.kind==='carabineros')return carabinerosHtml(p);if(p.kind==='bribe')return bribeHtml(p);if(p.kind==='clubNocturno')return clubEncounterHtml(p);if(p.kind==='tarotera'||p.kind==='abuelo')return tarotEncounterHtml(p);if(isPaperEvent(p))return paperEncounterHtml(p);
  return `${stage('pharmacy',`ATENCIÓN DE PACIENTES · ${game.patientIndex+1}/${game.patients.length}`,`FILA: ${game.patients.length-game.patientIndex-1} · DÍA ${game.day}`,p.quote)}<div class="desk"><nav class="touch-document-tools" aria-label="Documentos del paciente">${btn('Ampliar y comparar','inspect','cream')}${!canShowPatientId(p)&&!game.idRequested&&!p.done?btn('Solicitar cédula','request-id','cream'):''}</nav><div class="desk-columns"><aside class="paper manual"><h3>▤ PROTOCOLOS</h3><p class="mini">Reglas de atención · Manual del juego</p>${btn('VER CATÁLOGO COMPLETO','catalog','cream')}<hr>${Object.entries(DRUGS).slice(0,8).map(([id,d])=>`<div class="ledger-row"><b>${escapeText(drugName(id))}</b><br><span class="mini">${d.kind==='SIMPLE'?'Receta simple':d.kind==='RETENIDA'||d.kind==='RETENIDA_COMUN'?'Receta retenida':'Receta cheque'} · ${d.pack}</span></div>`).join('')}</aside><div class="vstack">${prescriptionHtml(p)}${p.rxType==='ELECTRÓNICA'?eRxHtml(p):''}${p.kind==='chinese'||p.kind==='giftPaper'?`<div class="paper"><h3>PAPEL ENTREGADO</h3><p>${escapeText(p.note||'Papel ilegible')}</p><p class="mini">No corresponde a receta ni documento válido.</p></div>`:''}</div><div class="vstack panel-right"><div class="dark-card"><h3>IDENTIFICACIÓN</h3>${canShowPatientId(p)?idHtml(p):p.noDocument&&game.idRequested?'<p class="warning"><b>NO PORTA DOCUMENTO DE IDENTIDAD</b></p><p>Lo solicitaste, pero el paciente confirma que no lo trae.</p><p class="mini">Corresponde devolver la receta, sin denunciar automáticamente.</p>':`<p>${p.noDocument?'El paciente no tiene identificación consigo.':'El paciente aún no entregó cédula.'}</p><p class="mini">Solicita la identificación antes de tomar una decisión.</p>${btn('SOLICITAR CÉDULA','request-id','cream')}`}</div><div class="dark-card"><h3>FICHA DE IDENTIFICACIÓN</h3><p class="mini">Sexo registral confirmado en la ficha: <b>${escapeText(p.confirmedIdSex||'—')}</b></p><p class="tiny">Compáralo con el dato de la cédula. No se determina por apariencia.</p>${btn('▦ VER CALENDARIO','calendar','cream')}</div><div class="dark-card"><h3>STOCK DE LA FARMACIA</h3><p>${DRUGS[p.drug]?escapeText(drugName(p.drug)):'Sin medicamento válido'}</p><div class="stock-big">${DRUGS[p.drug]?.stockControl?game.stock[p.drug]+' cajas disponibles':'Sin control de stock en esta modalidad'}</div><p class="mini">Documento presentado: ${p.rxType==='CHEQUE'?'Cheque':p.rxType==='ELECTRÓNICA'?'Electrónica':'Blanca'}</p></div><div class="notice desktop-document-tip">Doble clic sobre una receta o cédula para ampliar y comparar. También puedes arrastrarlas.</div></div></div>${game.patientResult?resultHtml():''}</div>${game.patientResult?actionbar([['SIGUIENTE CLIENTE →','next-patient','green']]):actionbar([['✓ DISPENSAR','dispense','green'],['↶ DEVOLVER','return','amber'],['⌕ VERIFICAR','inspect','cream'],['⚠ NOTIFICAR O RETENER','notify','red']])}`
 }
 function resultHtml(){if(game.tutorial)return `<div class="notice ok" role="status">${escapeText(practiceStep()?.result||'')}</div>`;const r=game.patientResult;const dateIssue=!isPaperEvent(r.p)?idDocumentCheck(r.p):{status:'valid'};const reason=r.decision==='return'&&r.correct?(foreignPrescriptionIssue(r.p)|| (r.p.qrValidation==='invalid'?'Se devuelve por código electrónico inválido.':r.p.qrValidation==='dispensed'?(r.p.qrDisposition==='destroy'?'Código electrónico ya despachado: se destruyó la copia presentada. No habrá nuevas visitas por este folio.':'Código electrónico ya despachado: se devuelve la copia al paciente, que podría regresar con el mismo folio.'):r.p.noDocument?'Se devuelve porque el paciente no porta un documento de identidad. No corresponde denuncia policial.':dateIssue.status==='expired'?'Se devuelve porque la cédula está vencida.':dateIssue.status==='future'?'Se devuelve por fecha de emisión futura en la cédula.':sexFieldMismatch(r.p)?'Se devuelve para aclarar la discrepancia entre los datos registrales de la ficha y la cédula.':r.p.kind==='typo'?'Se devuelve por un dígito incorrecto en el RUT.':r.p.kind==='different'?'Se devuelve por discrepancia importante de RUT.':['wrongtype','wrongtypeRepeat'].includes(r.p.kind)?'Se devuelve porque la condición de venta exige receta cheque y no receta blanca.':r.p.kind==='underage'?'Se devuelve por requisito de edad: no se entregan controlados a menores.':r.p.kind==='expired'?'Se devuelve porque la receta se emitió fuera del plazo aceptado en el caso.':r.p.kind==='fakeDoctor'?'Se devuelve porque no fue posible verificar al prescriptor.':r.p.kind==='double'?'Se devuelve por receta ya utilizada.':r.p.kind==='tuguelExpired'?'Se devuelve porque la cédula de identidad está vencida. No corresponde notificar a la policía.':r.p.kind==='fakeid'?'Se devuelve por discrepancia de fotografía.':'Se devuelve para aclaración documental.')):'';const retentionReason=r.decision==='retain'&&r.correct?('Se retiene por indicios documentales que requieren verificación sanitaria.') : '';const resultTone=r.decision==='dispense'?'':r.correct?'ok':'';if(r.decision==='dispense'&&!r.idNotice&&!r.noStock&&!r.gift)return '';return `<div class="notice ${resultTone}"><b>${r.decision==='dispense'?(r.noStock?'INTENTO DE DESPACHO REGISTRADO':'DISPENSACIÓN REGISTRADA'):r.decision==='return'?'RECETA DEVUELTA':r.decision==='police'?'AVISO A POLICÍA':r.decision==='seremi'?'RECETA NOTIFICADA A SEREMI':r.decision==='keep-paper'?'PAPEL GUARDADO':'RECETA RETENIDA'}</b><p>${r.decision==='dispense'?(r.noStock?'Faltan unidades en el inventario y no se hizo una entrega.':'La dispensación quedó registrada.'):'La atención quedó registrada. Revisa el motivo documental indicado cuando corresponda.'}</p>${r.returnReason?`<p class="${r.correct?'good':'warning'}"><b>Motivo registrado:</b> ${escapeText(returnReasonLabel(r.returnReason))}. ${r.correct?'Motivo válido.':'El motivo elegido no justifica la devolución en este caso.'}</p>`:reason?`<p class="good"><b>${escapeText(reason)}</b></p>`:''}${r.retainedWithoutNotice?'<p class="good">La receta queda en la farmacia. El paciente se retira y la atención continúa.</p>':retentionReason?`<p class="good"><b>${escapeText(retentionReason)}</b></p>`:''}${r.notificationReason?`<p class="good">${escapeText(r.notificationReason)} · notificación registrada.</p>`:''}${r.idNotice?'<p class="warning">Advertencia de fiscalizador encubierto por no solicitar cédula. Sin multa ni infracción.</p>':''}${r.gift?`<p class="good">El paciente dejó un obsequio: <b>${escapeText(r.gift)}</b>.</p>`:''}${r.decision==='dispense'&&!r.noStock&&DRUGS[r.p.drug]?`<p>${DRUGS[r.p.drug].book||DRUGS[r.p.drug].exclusive?'Stock actualizado: '+drugName(r.p.drug)+' · '+game.stock[r.p.drug]+' cajas.':DRUGS[r.p.drug].kind==='RETENIDA_COMUN'?'Receta archivada.':''}</p>`:''}</div>`}
+const CARABINEROS_CHANCE=0.08;
+const CARABINEROS_LINES={
+ dia:[
+  '«Buenas tardes», responde Cabo Carahue. Cabo Azucarinas lo codea: «Dijo días, cabo». «Ah, claro. Buenos días… y tardes». Se retiran marcando el paso.',
+  'Cabo Azucarinas anota en una libretita: «saludo recibido: días». Cabo Carahue pregunta qué anotó. «Días». Se van conformes.',
+  '«¡Buenos días!», responden los dos al mismo tiempo, y luego se quedan mirando el reloj sin saber si es verdad. Se van igual.'
+ ],
+ tarde:[
+  '«¿Tardes? Pero si recién desayuné», dice Cabo Carahue. Cabo Azucarinas: «Eso lo decidimos nosotros». Se retiran.',
+  'Los cabos se miran. «Buenas tardes», repiten, y se van marcando el paso, uno medio segundo antes que el otro.',
+  'Cabo Azucarinas se emociona: «¡Alguien que sí sabe la hora!». Cabo Carahue revisa su muñeca desnuda. Se van felices.'
+ ]
+};
+function carabinerosHtml(p){
+ const result=game.patientResult;
+ const content=result
+  ? `<p role="status">${escapeText(result.message)}</p>${btn('Siguiente paciente','next-patient','green')}`
+  : `<div class="btn-row">${btn('Decirles buenos días','greet-carabineros','green','data-greet="dia"')}${btn('Decirles buenas tardes','greet-carabineros','green','data-greet="tarde"')}</div>`;
+ return `${stage('pharmacy','CABO AZUCARINAS Y CABO CARAHUE',`DÍA ${game.day}`,result?'':p.quote)}<section class="content"><div class="paper don-victor-visit">${content}</div></section>`;
+}
+function greetCarabineros(kind){
+ const patient=game.patients[game.patientIndex];
+ if(game.scene!=='counter'||patient?.kind!=='carabineros'||patient.done||game.patientResult)return;
+ const k=kind==='tarde'?'tarde':'dia',pool=CARABINEROS_LINES[k];
+ patient.done=true;
+ // Sin importar el saludo que reciban, al irse dicen siempre una despedida y le desean suerte en el turno.
+ const farewell=Math.random()<.5?'Que tenga un buen día':'Que tenga una buena tarde';
+ game.patientResult={message:`${pool[Math.floor(Math.random()*pool.length)]} Antes de salir dicen los dos: «${farewell}, suerte en el turno».`,greeting:k,farewell};
+ record(`Les dijiste ${k==='dia'?'buenos días':'buenas tardes'} a Cabo Azucarinas y Cabo Carahue. No pidieron nada.`);
+ save();render();
+}
 function donVictorHtml(p){
  const result=game.patientResult;
  const giveLabel=`<img class="donation-coin" src="${assetUrl('assets/gifts/moneda-100.png')}" alt="" width="32" height="32">Darle 100 pesos`;
@@ -3504,7 +3545,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.145) =====
+// ===== Manual práctico (1.9.146) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -3713,7 +3754,7 @@ function calendarHtml(){
  let cells='';for(let i=0;i<weekdayOffset;i++)cells+='<span class="calendar-blank"></span>';
  for(let d=1;d<=last.getUTCDate();d++)cells+=`<span class="calendar-date ${d===now.getUTCDate()?'current':''}">${d}</span>`;
  const p=game.scene==='counter'||game.scene==='inspect'?game.patients[game.patientIndex]:null;
- const result=p&&!isPaperEvent(p)&&p.kind!=='bribe'&&p.kind!=='donVictor'?idDocumentCheck(p,{checkRegistry:p.identityScan==='mismatch'}):null;
+ const result=p&&!isPaperEvent(p)&&p.kind!=='bribe'&&p.kind!=='donVictor'&&p.kind!=='carabineros'?idDocumentCheck(p,{checkRegistry:p.identityScan==='mismatch'}):null;
  return `<div class="overlay" role="dialog" aria-modal="true"><div class="modal calendar-modal"><div class="section-head"><h2>▦ CALENDARIO · ${escapeText(monthYear.toUpperCase())}</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div><div class="paper"><h3>HOY · ${dateOf(game.day)}</h3><div class="calendar-grid">${['L','M','M','J','V','S','D'].map(t=>`<strong>${t}</strong>`).join('')}${cells}</div><p><b>Reglas de cédulas en el juego:</b> emisión futura = documento sospechoso; vencimiento anterior a hoy = vencida; vencimiento hoy = todavía vigente. La vigencia configurada es de 7 u 8 años.</p>${p&&!p.noDocument&&result&&game.idRequested||p?.gaveId&&!p?.noDocument&&result?`<div class="calendar-status ${result.status==='valid'?'calendar-valid':'calendar-warning'}"><b>Cédula presentada:</b> ${escapeText(result.reason)}<div class="mini">Emisión: ${escapeText(p.idIssued)} · Vencimiento: ${escapeText(p.idExpires)}</div></div>`:''}<p class="tiny">El calendario avanza al cerrar cada jornada; no cambia la fecha del dispositivo.</p></div></div></div>`;
 }
 const TACA_PRIZE=25000;
@@ -3934,7 +3975,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.145 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.146 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -4247,7 +4288,7 @@ function handleAction(action,target){if(action==='new'){startNew();return}
  if(action==='phone-filter'){ui.notificationFilter=target.dataset.filter;render();return}
  if(action==='verify-identity'){
   const p=game.patients?.[game.patientIndex];
-  if(!p||p.done||isPaperEvent(p)||p.kind==='bribe'||p.kind==='donVictor'){toast('Necesitas una atención y una cédula para comparar.');return}
+  if(!p||p.done||isPaperEvent(p)||p.kind==='bribe'||p.kind==='donVictor'||p.kind==='carabineros'){toast('Necesitas una atención y una cédula para comparar.');return}
   if(!canShowPatientId(p)){toast(p.noDocument?'El paciente no trae DNI; no hay huella que comparar.':'Solicita la cédula antes de comprobar la huella.');return}
   ui.fingerprintPhase=p.identityScan?'result':'ready';
   ui.fingerprintSubject=p.folio;
@@ -4365,6 +4406,7 @@ function handleAction(action,target){if(action==='new'){startNew();return}
   ui.modal=null;finalizePatient('retain','retain-unreported');return;
  }
  if(action==='next-patient'){nextPatient();return}
+ if(action==='greet-carabineros'){greetCarabineros(target?.dataset?.greet);return}
  if(action==='give-don-victor'){chooseDonVictor(true);return}
  if(action==='decline-don-victor'){chooseDonVictor(false);return}
  if(action==='reject-bribe'){chooseBribe(false);return}
@@ -4411,7 +4453,7 @@ app.addEventListener('click',e=>{let el=e.target.closest('[data-action]');if(!el
   const audioActions={
     'open-box':'box','inspect-pack':'paper','accept-order':'cash','report-order':'alert','confirm-report':'stamp',
     'post-dispatch':'stamp','post-receipt':'stamp','post-backlog':'stamp','sell-gift':'cash','eat-sweet':'good',
-    'give-don-victor':'cash','wash-school-cloth':'paper','buy-school-cloth':'cash','use-school-cloth':'good',
+    'give-don-victor':'cash','greet-carabineros':'bell','wash-school-cloth':'paper','buy-school-cloth':'cash','use-school-cloth':'good',
     'give-sweet':'good','apply-coupon':'cash','discard-gift':'paper','keep-gift':'good','accept-card':'good','decline-gift':'reject',
     'return':'reject','retain':'stamp','notify':'bell','notify-police-bribe':'alert','notify-police-id':'alert','notify-police-illegal-practice':'alert',
     'notify-seremi-rx':'alert','request-id':'paper','verify-identity':'finger','compare':'paper',
