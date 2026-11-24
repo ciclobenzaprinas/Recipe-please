@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.154. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.158. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -46,6 +46,8 @@ for(const [key,[name,mg,pack,group]] of Object.entries(ADDITIONAL_RETAINED)){
  DRUGS[key]={name,mg,pack,kind:'RETENIDA_COMUN',stock:0,book:false,stockControl:false,group,form:pack};
 }
 // Fenbendazol 25 %: receta blanca (simple), exclusivo de Chemy. Stock 1, nunca se pide ni sale en sorteos de otros pacientes.
+DRUGS.ozempic2={name:'Ozempic (semaglutida)',mg:'2 mg/1,5 mL',pack:'pluma inyectable',kind:'SIMPLE',stock:1,book:false,stockControl:false,group:'Endocrinos y metabólicos',form:'pluma inyectable',exclusive:true,refrigerated:true};
+for(const k of ['amoxicilina_250_mg_5_ml_suspension_oral','amoxicilina_500_mg_5_ml_suspension_oral','amoxicilina_acido_clavulanico_400_mg_57_mg_5_ml_suspension_oral'])if(DRUGS[k])DRUGS[k].refrigerated=true;
 DRUGS.fenbendazol25={name:'Fenbendazol',mg:'25 %',pack:'sobres',kind:'SIMPLE',stock:1,book:false,stockControl:false,group:'Antiparasitarios',form:'sobres',exclusive:true};
 const CONTROLLED_IDS=Object.keys(DRUGS).filter(id=>DRUGS[id].book);
 const CHEQUE_IDS=CONTROLLED_IDS.filter(id=>DRUGS[id].kind==='CHEQUE');
@@ -174,7 +176,7 @@ const LAST_NAMES=['Rojas','Muñoz','Pérez','Soto','Contreras','Silva','Martíne
 const FOREIGN_PATIENT_CHANCE=0.10; // ≈ población extranjera residente en Chile (INE/SERMIG 2023)
 const FOREIGN_NATIONALITY_WEIGHTS=[['VE',22],['PE',12],['CO',11],['HT',10],['BO',10],['AR',7],['EC',5],['CN',5],['BR',5],['US',5],['IT',4],['DE',4]];
 const NATIONALITY_LABELS={
- CL:['CHILENO','CHILENA'],NO:['NORUEGO','NORUEGA'],VE:['VENEZOLANO','VENEZOLANA'],HT:['HAITIANO','HAITIANA'],
+ CL:['CHILENO','CHILENA'],ES:['ESPAÑOL','ESPAÑOLA'],NO:['NORUEGO','NORUEGA'],VE:['VENEZOLANO','VENEZOLANA'],HT:['HAITIANO','HAITIANA'],
  AR:['ARGENTINO','ARGENTINA'],PE:['PERUANO','PERUANA'],CN:['CHINO','CHINA'],
  IT:['ITALIANO','ITALIANA'],DE:['ALEMÁN','ALEMANA'],BO:['BOLIVIANO','BOLIVIANA'],BR:['BRASILEÑO','BRASILEÑA'],US:['ESTADOUNIDENSE','ESTADOUNIDENSE'],CO:['COLOMBIANO','COLOMBIANA'],EC:['ECUATORIANO','ECUATORIANA']
 };
@@ -347,6 +349,7 @@ function subjectPortrait(p,mode='stage'){
   if(p?.kind==='donVictor')return `<img class="patient-portrait don-victor-portrait" src="${assetUrl('assets/patients/don-victor.webp')}" alt="Don Invictus" draggable="false">`;
   if(p?.kind==='tuguelExpired'||p?.kind==='tuguelFake'){const asset=mode==='id'?'assets/patients/tuguel_id.webp':'assets/patients/tuguel_lacras.webp';return `<img class="patient-portrait tuguel-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Retrato de Tuguel Pagaba" draggable="false">`;}
   if(p?.kind==='cifunando'){const asset=mode==='id'?'assets/patients/cifunando_id.webp':'assets/patients/cifunando.webp';return `<img class="patient-portrait chemy-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Cifunando Feruentes Crack" draggable="false">`;}
+  if(p?.kind==='veniai'){const asset=mode==='id'?'assets/patients/veniai_id.webp':'assets/patients/veniai.webp';return `<img class="patient-portrait veniai-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Veniai Rugoso" draggable="false">`;}
   if(p?.kind==='chemy'){const asset=mode==='id'?'assets/patients/chemy_id.webp':'assets/patients/chemy.webp';return `<img class="patient-portrait chemy-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Chemy Araucanía" draggable="false">`;}
   if(p?.kind==='clubNocturno'){const asset=mode==='id'?'assets/patients/principe_egg_id.webp':'assets/patients/principe_egg.webp';return `<img class="patient-portrait special-club-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Príncipe Egg" draggable="false">`;}
   if(p?.kind==='chinese'){return `<img class="patient-portrait special-nomeh-portrait" src="${assetUrl('assets/patients/nomeh_busto.webp')}" alt="No-Meh Wei, anciano de barba blanca" draggable="false">`;}
@@ -386,7 +389,7 @@ function assignPatientModel(p){
  game.usedIdentityNames=game.usedIdentityNames||[];
  game.usedExtraPortraits=game.usedExtraPortraits||[];
  game.usedCatalogIds=game.usedCatalogIds||[];
- if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(p.kind)){
+ if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(p.kind)){
   if(!Number.isInteger(p.catalogId)){
    const rec=pickCatalogEntry(p,game.usedCatalogIds);
    if(rec)applyCatalogIdentity(p,rec);
@@ -666,7 +669,7 @@ function addNotice(key,title,body,type='alerta'){
  if(game.notifications.length>90)game.notifications.length=90;
 }
 let game=null;let ui={inspectionConsent:null,fingerprintPhase:'ready',fingerprintSubject:null,notifyOutcome:null,modal:null,help:false,manual:'INICIO',selectedDrug:'clonazepam2',inspectZoom:100,modalValue:'',reportType:'',reportCount:0,notificationFilter:'Todos',sisQuery:'',arrivalKey:null,openingBox:false,soundEnabled:false,musicEnabled:false};
-function newState(){let stock={},bookStock={},folios={};for(const [key,d] of Object.entries(DRUGS)){stock[key]=d.stock;bookStock[key]=d.stock;folios[key]=0}return {version:53,safe:0,hasSafe:false,repairs:{phone:false,pc:false},surprise:null,lastSurpriseDay:0,dayPurchases:0,dayInterest:0,dayBills:[],pendingBill:null,insAlarm:0,insPolicy:0,robberyPlan:null,robbery:null,lastRobberyDay:0,robberyCount:0,dayInsFee:0,sisIntroSeen:false,carlitosArc:{},bookReturnScene:null,correctedPrescriptionQueue:[],donVictorVisitDay:null,schoolClothChoice:null,returnedElectronicPrescriptions:[],destroyedElectronicFolios:[],specialEvents:{nomehWeiSeen:false,clubNocturnoSeen:false,tuguelDay1Seen:false,tuguelReturnPending:false,tuguelReturnSeen:false,tuguelArrested:false,tuguelPatient:null},successfulAttentions:0,priorRxUses:[],usedExtraPortraits:[],crisesSinceAdmission:0,hospital:{active:false,starts:0,days:0},dayHospitalCost:0,dayStory:"",dayStoryKind:"",moodQf:75,moodCarlitos:82,carlitosHealth:'estable',dayTreatmentCost:3000,currentHealthEvent:'estable',moodNotes:[],reviewedMoves:{},notifications:[],pendingGift:null,usedIdentityNames:[],usedVisualModels:[],usedCatalogIds:[],chequeWarnings:{},pendingChequeRevisit:null,gameOverReason:null,sisChecks:{},fakeDoctorFindings:0,idWarnings:0,retainedArchive:[],policeReports:[],authorityReports:[],gifts:[],couponPct:0,couponUsedOnDay:null,day:1,scene:'briefing',patients:[],patientIndex:0,patientResult:null,patientVerified:false,idRequested:false,qrChecked:false,stock,bookStock,folios,ledger:[],dispatches:[],simpleDispenses:[],receipts:[],receiptsNormal:[],hidden:{},quarantine:{},inventoryGap:{},delivery:null,deliveryDone:false,boxOpened:false,inspectedPacks:[],pendingCorrections:[],inspectionDone:false,inspectionIssue:null,inspectionResolutionLocked:false,inspections:[],infractions:0,finesToday:0,errors:[],cash:25000,debt:0,earnedIllegal:0,illegalToday:0,illegalCount:0,undercover:false,dayIncome:0,dayBonus:0,dayExpenses:0,dayPay:false,daySummary:null,healthCrises:0,familyTrust:75,characterRegistry:{},characterCounter:{female:0,male:0},history:[],gameOver:false}};
+function newState(){let stock={},bookStock={},folios={};for(const [key,d] of Object.entries(DRUGS)){stock[key]=d.stock;bookStock[key]=d.stock;folios[key]=0}return {version:53,safe:0,hasSafe:false,repairs:{phone:false,pc:false,fridge:false,leak:false,shutter:false},billsNext:null,surprise:null,lastSurpriseDay:0,dayPurchases:0,dayInterest:0,dayBills:[],pendingBill:null,insAlarm:0,insPolicy:0,robberyPlan:null,robbery:null,lastRobberyDay:0,robberyCount:0,dayInsFee:0,sisIntroSeen:false,carlitosArc:{},bookReturnScene:null,correctedPrescriptionQueue:[],donVictorVisitDay:null,schoolClothChoice:null,returnedElectronicPrescriptions:[],destroyedElectronicFolios:[],specialEvents:{nomehWeiSeen:false,clubNocturnoSeen:false,tuguelDay1Seen:false,tuguelReturnPending:false,tuguelReturnSeen:false,tuguelArrested:false,tuguelPatient:null},successfulAttentions:0,priorRxUses:[],usedExtraPortraits:[],crisesSinceAdmission:0,hospital:{active:false,starts:0,days:0},dayHospitalCost:0,dayStory:"",dayStoryKind:"",moodQf:75,moodCarlitos:82,carlitosHealth:'estable',dayTreatmentCost:3000,currentHealthEvent:'estable',moodNotes:[],reviewedMoves:{},notifications:[],pendingGift:null,usedIdentityNames:[],usedVisualModels:[],usedCatalogIds:[],chequeWarnings:{},pendingChequeRevisit:null,gameOverReason:null,sisChecks:{},fakeDoctorFindings:0,idWarnings:0,retainedArchive:[],policeReports:[],authorityReports:[],gifts:[],couponPct:0,couponUsedOnDay:null,day:1,scene:'briefing',patients:[],patientIndex:0,patientResult:null,patientVerified:false,idRequested:false,qrChecked:false,stock,bookStock,folios,ledger:[],dispatches:[],simpleDispenses:[],receipts:[],receiptsNormal:[],hidden:{},quarantine:{},inventoryGap:{},delivery:null,deliveryDone:false,boxOpened:false,inspectedPacks:[],pendingCorrections:[],inspectionDone:false,inspectionIssue:null,inspectionResolutionLocked:false,inspections:[],infractions:0,finesToday:0,errors:[],cash:25000,debt:0,earnedIllegal:0,illegalToday:0,illegalCount:0,undercover:false,dayIncome:0,dayBonus:0,dayExpenses:0,dayPay:false,daySummary:null,healthCrises:0,familyTrust:75,characterRegistry:{},characterCounter:{female:0,male:0},history:[],gameOver:false}};
 let memorySave=null;function save(){if(!game||TACA_PREVIEW)return;const snapshot=JSON.stringify(game);memorySave=snapshot;try{localStorage.setItem(SAVE_KEY,snapshot)}catch(e){/* session in-memory fallback */}}
 function load(){if(TACA_PREVIEW)return null;try{let raw=null;try{raw=localStorage.getItem(SAVE_KEY)}catch(e){}const d=JSON.parse(raw||memorySave||'null');
  if(d&&[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53].includes(d.version)&&d.stock&&d.ledger){
@@ -694,7 +697,7 @@ function load(){if(TACA_PREVIEW)return null;try{let raw=null;try{raw=localStorag
   if(d.correctedPrescriptionQueue==null)d.correctedPrescriptionQueue=[];
   if(!Array.isArray(d.minorGuardianQueue))d.minorGuardianQueue=[];
   if(typeof d.sisIntroSeen!=='boolean')d.sisIntroSeen=d.day>=3;
-  d.safe=d.safe||0;d.hasSafe=Boolean(d.hasSafe);d.repairs=d.repairs||{phone:false,pc:false};d.surprise=d.surprise||null;d.lastSurpriseDay=d.lastSurpriseDay||0;d.dayPurchases=d.dayPurchases||0;d.dayInterest=d.dayInterest||0;d.dayBills=Array.isArray(d.dayBills)?d.dayBills:[];d.pendingBill=d.pendingBill??null;
+  d.safe=d.safe||0;d.hasSafe=Boolean(d.hasSafe);d.repairs=Object.assign({phone:false,pc:false,fridge:false,leak:false,shutter:false},d.repairs||{});d.billsNext=d.billsNext||null;d.surprise=d.surprise||null;d.lastSurpriseDay=d.lastSurpriseDay||0;d.dayPurchases=d.dayPurchases||0;d.dayInterest=d.dayInterest||0;d.dayBills=Array.isArray(d.dayBills)?d.dayBills:[];d.pendingBill=d.pendingBill??null;
   d.insAlarm=d.insAlarm||0;d.insPolicy=d.insPolicy||0;d.robberyPlan=d.robberyPlan||null;d.robbery=d.robbery||null;d.lastRobberyDay=d.lastRobberyDay||0;d.robberyCount=d.robberyCount||0;d.dayInsFee=d.dayInsFee||0;
   const legacyVersion=d.version;
   d.version=53;d.carlitosArc=d.carlitosArc||{};
@@ -740,7 +743,7 @@ d.returnedElectronicPrescriptions=d.returnedElectronicPrescriptions||[];d.destro
    const basePool=p.face==='male'?MALE_BASES:FEMALE_BASES;
    if(p.portraitModel===undefined){const seed=(p.portraitSeed>>>0)||i+1;const slot=seed%160;p.portraitModel=basePool[Math.floor(slot/20)]*20+(slot%20)}
    if(p.idPortraitModel===undefined){const bad=p.kind==='fakeid'||p.idPortraitSeed!==p.portraitSeed;const base=basePool.indexOf(Math.floor(p.portraitModel/20));p.idPortraitModel=bad?basePool[(base+3+basePool.length)%basePool.length]*20+(p.portraitModel%20):p.portraitModel}
-   if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(p.kind)){
+   if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(p.kind)){
     // Guardados antiguos: si el personaje del catálogo ya no existe, se reasigna uno equivalente (mismo sexo y nacionalidad) sin cambiar el nombre.
     if(Number.isInteger(p.catalogId)&&p.catalogId>=NEW_CAST_START&&!CAST600[p.catalogId]){delete p.catalogId;delete p.idCatalogId;delete p.variantImpostor}
     if(Number.isInteger(p.idCatalogId)&&!CAST600[p.idCatalogId]){delete p.idCatalogId;delete p.variantImpostor}
@@ -832,6 +835,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  abuelo:['Eliseo Quintrel','losartan','SIMPLE','Visita sin receta.','Se le nota cansado, joven. Tome un dulce, que con algo rico se arregla el día.','male'],
  tarotera:['Clarisa Antilef','losartan','SIMPLE','Visita sin receta.','Tome, pa que sepa que hacer','female'],
  cifunando:['Cifunando Feruentes Crack','clonazepam2','RETENIDA','Receta válida de Clonazepam 2 mg; documentos en regla.','Buenas tardes, ¿cómo está? Vengo por mi clonazepam de 2 mg. Aquí tiene la receta y mi carnet.','male'],
+ veniai:['Veniai Rugoso','ozempic2','SIMPLE','Receta válida de Ozempic 2 mg/1,5 mL; DNI español en regla.','Buenas tardes, ¿qué tal? Vengo a por mi Ozempic de 2 mg/1,5 mL. Aquí tiene la receta y mi DNI, ¿vale?','male'],
  chemy:['Chemy Araucanía','fenbendazol25','SIMPLE','Receta válida de Fenbendazol 25 %.','Muuu... digo, buenas tardes. Vengo por mi fenbendazol al 25 %, aquí está la receta.','female'],
  aluminio:['Hernán Zúñiga','quetiapina50','SIMPLE','Paciente no porta documento de identidad.','estos weones quieren puro controlarnos','male'],
  tuguelFake:['Tuguel Pagaba','clonazepam2','RETENIDA','Documento de identificación falsificado.','¡Volví, papito! Ahora sí que está impecable el carnet.','male']
@@ -866,7 +870,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  // Si hay carnets falsos masculinos disponibles, parte de los casos de identidad falsa salen con ellos.
  const fakeSexes=kind==='fakeid'?Object.keys(FAKE_CARNETS).map(id=>CAST600[id].sex):[];
  const face=fakeSexes.length&&portraitSeed%2===0?(fakeSexes[Math.floor(portraitSeed/2)%fakeSexes.length]==='M'?'male':'female'):kind==='idBirthDateFraud'&&portraitSeed%2?'male':config[5];
- const patientName=['clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(kind)?config[0]:kind==='chinese'?'No-Meh Wei':variedPatientName(face,config[0],kind);
+ const patientName=['clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(kind)?config[0]:kind==='chinese'?'No-Meh Wei':variedPatientName(face,config[0],kind);
  const info=replacement||doctorInfo(prescriber);
  const p={kind,name:patientName,drug:drugId,rxType,issue:config[3],quote:config[4],face,rut:rutFmt(r),rxRut:typeof rr==='number'?rutFmt(rr):rr,rxDate,folio,gaveId,prescriber,prescriberRegistered:kind!=='fakeDoctor',prescriberRut:info.rut,qty:1,doctorVerified:false,done:false,portraitSeed,idPortraitSeed,idUndercover:Math.random()<0.02,signature:info.signature};
  if(rxRegWrong){p.rxReg=rxRegWrong;p.issue='Número de Registro del medicamento errado.'}
@@ -890,7 +894,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='clubNocturno'){p.rxType='NINGUNA';p.folio='';p.gaveId=false;p.note='Tarjeta del club nocturno';p.prescriber='—';p.prescriberRegistered=false;p.prescriberRut='—';Object.assign(p,{firstNames:'Príncipe',surnames:'Egg',idSex:'M',birthDate:'03/06/1998',registeredBirthDate:'03/06/1998',documentNumber:'03069845912',idIssued:'12/03/2023',idExpires:'12/03/2031',idDateSystem:2,noDocument:false});}
  // Aproximadamente 10% de atenciones ordinarias se presentan realmente sin identificación.
  // Se excluyen personajes especiales y casos de falsificación documental.
- p.noDocument=kind==='missingid'||kind==='aluminio'||(!isForgedIdentityCase(p)&&!['tuguelExpired','specialCarlos','chinese','clubNocturno','giftPaper','tarotera','abuelo','chemy','cifunando','bribe','tmFraud','podiatristRx'].includes(kind)&&Math.random()<0.10);
+ p.noDocument=kind==='missingid'||kind==='aluminio'||(!isForgedIdentityCase(p)&&!['tuguelExpired','specialCarlos','chinese','clubNocturno','giftPaper','tarotera','abuelo','chemy','cifunando','veniai','bribe','tmFraud','podiatristRx'].includes(kind)&&Math.random()<0.10);
  if(p.noDocument){p.gaveId=false;p.issue='Paciente no porta documento de identidad.';}
  if(kind==='rufus')Object.assign(p,{rut:'N.N',rxRut:'N.N',gaveId:true,noDocument:false,
   idUndercover:false,docAuthenticity:'forged-novelty-card'});
@@ -899,6 +903,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
    clinic:'Clinica Kerito',prescriberRegistered:false,prescriberRut:rutFmt(39900003),signature:'N. Bridges',idUndercover:false});
  }
  if(kind==='cifunando'){Object.assign(p,{firstNames:'Cifunando',surnames:'Feruentes Crack',birthDate:'14/05/2001',noDocument:false,gaveId:true,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
+ if(kind==='veniai'){Object.assign(p,{firstNames:'Veniai',surnames:'Rugoso',birthDate:'21/09/1988',documentNumber:'48217396Z',noDocument:false,gaveId:true,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
  if(kind==='chemy'){Object.assign(p,{firstNames:'Chemy',surnames:'Araucanía',birthDate:'12/03/2001',noDocument:false,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
  if(kind==='aluminio'){applyCatalogIdentity(p,CAST600[641]);p.gaveId=false;p.noDocument=true;p.idUndercover=false;p.issue=config[3];p.quote=config[4];}
  if(kind==='specialCarlos'){p.rut='00.000.001-Z';p.rxRut=p.rut;p.birthDate='14/08/2000';p.gaveId=false;p.prescriberRegistered=true;p.prescriberRut=doctorInfo('Dr. Ysela Creyó').rut;p.signature=doctorInfo('Dr. Ysela Creyó').signature;}
@@ -922,7 +927,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='lookHair'){p.appearanceStyle='cabello';p.gaveId=true;}
  if(kind==='lookClothes'){p.appearanceStyle='ropa';p.gaveId=true;}
  if(kind==='lookAge'){p.appearanceStyle='tiempo';p.gaveId=true;}
- p.nationalityCode=kind==='clubNocturno'?'NO':['specialCarlos','giftPaper','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(kind)?'CL':kind==='chinese'?'CN':chooseNationality(kind==='underage'?YOUNG_FOREIGN_NATIONALITY_WEIGHTS:undefined);
+ p.nationalityCode=kind==='clubNocturno'?'NO':['specialCarlos','giftPaper','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(kind)?'CL':kind==='veniai'?'ES':kind==='chinese'?'CN':chooseNationality(kind==='underage'?YOUNG_FOREIGN_NATIONALITY_WEIGHTS:undefined);
  if(p.nationalityCode!=='CL'&&kind!=='chinese'&&kind!=='specialCarlos'){
   const person=internationalName(p.nationalityCode,p.face,game.usedIdentityNames||[]);
   if(person){p.name=person.display;p.firstNames=person.first;p.surnames=person.last;}
@@ -946,7 +951,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.154) =====
+// ===== Diálogos personalizados (1.9.158) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1036,8 +1041,8 @@ function dlgBody(p){
  return dlgFixArt(dlgPick(pool,p,3),p).replace('{d}',d);
 }
 // Tipos que ya tienen líneas propias: solo se les antepone el humor si el paciente se ve enojado.
-const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
-const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
+const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
+const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
 const DLG_TAIL={"old":["Ojalá no se acabe el remedio, hijito, me cuesta venir hasta acá.","Mi nieta me acompaña, pero me dejó esperando afuera.","Hoy hace harto frío para andar en la calle.","Desde que enviudé me toca a mí hacer los trámites.","Esta farmacia siempre ha sido muy ordenada.","Ya me aprendí de memoria los nombres de los remedios.","Mi doctor dice que voy bien, ¡gracias a Dios!","Me vine temprano para no pillar la fila de la tarde."],"adult":["Salí del trabajo corriendo para llegar.","Ojalá me atiendan luego, tengo que ir a buscar a los niños.","Esta semana ha sido pesadísima.","Me encargaron que no se me olvidara retirar esto.","Con este tráfico casi no llego.","Me dijeron que acá atienden bien.","Qué fila más larga hoy, ¿no?","Mañana tengo que hacerme unos exámenes, ojalá salga todo bien."],"young":["Me escapé un ratito del trabajo para venir.","Mi mamá me encargó que no olvidara nada.","Tengo que volver a la u en media hora.","Esta fila no avanza nunca, ¿no?","Salí de turno y vine directo para acá.","Ojalá alcance a llegar al bus después de esto.","Mi papá estuvo pendiente toda la mañana de este remedio."]};
 function dlgTail(p){
  const evT=DAY_EVENTS[game?.dayEvent]?.tails;
@@ -1061,7 +1066,7 @@ function patientDialogueBase(p){
  return `${opener} ${dlgBody(p)}${tail?' '+tail:''}`;
 }
 // Frase que dice el paciente una vez tomada la decisión.
-const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-registry':'el número de registro de la receta está malo','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock'};
+const DLG_REASON_SAY={'id-expired':'tengo el carnet vencido','id-missing':'no traje el carnet','id-date':'la fecha del carnet salió mala','doctor-rut':'al doctor se le equivocó el RUT','doctor-missing':'a la receta le falta un dato del doctor','patient-rut':'los datos no calzan','foreign-label':'al RUT le falta la glosa','rx-expired':'la receta está vencida','rx-registry':'el número de registro de la receta está malo','rx-date':'la fecha de la receta salió mala','rx-cheque':'me hicieron la receta en el formato equivocado','underage':'soy menor de edad','stock':'no hay stock','fridge':'el refrigerador está descompuesto'};
 // Receta electrónica ya usada: al devolverla o destruirla el paciente se enoja siempre.
 function electronicAngerDialogue(p,choice){
  const cl=dlgIsCL(p);
@@ -1117,7 +1122,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.154) =====
+// ===== Habla de extranjeros (1.9.158) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1179,7 +1184,7 @@ function dlgOwn(p,key){return dlgPick(DLG_OWN_POOLS[key],p,8)}
 function baseDialogue(p){
  if(p.kind==='tuguelExpired')return '¡Qué pasa, papito! ¿Me da el medicamento? Traigo el carnet acá.';
  if(p.kind==='minorGuardian')return p.quote;
- if(p.kind==='cifunando')return p.quote;
+ if(p.kind==='cifunando'||p.kind==='veniai')return p.quote;
  if(p.kind==='chemy')return 'Muuu... digo, buenas tardes. Vengo por mi fenbendazol al 25 %, aquí está la receta.';
  if(p.kind==='tuguelFake')return '¡Ya po, papito! Ahora sí traje el documento renovado. ¿Estamos listos?';
  if(p.kind==='specialCarlos')return '¡Buenas! Tengo una receta de clotiazepam de 10. El carnet lo tengo aquí por si lo necesita.';
@@ -1329,7 +1334,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.154) =====
+// ===== Eventos del barrio (1.9.158) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -1399,6 +1404,8 @@ function prepareDay(){
   types.splice(Math.min(types.length,1+Math.floor(Math.random()*types.length)),0,changing[Math.floor(Math.random()*changing.length)]);
  }
  if(game.day>8&&Math.random()<0.25)types.splice(1,0,'fakeid');
+ // Cortina trabada: solo viene la mitad de los pacientes comunes (los personajes especiales sí llegan).
+ const shutterStuck=Boolean(game.repairs?.shutter&&!game.tutorial);
 
  game.specialEvents=game.specialEvents||{nomehWeiSeen:false,clubNocturnoSeen:false};
  // One-time NPCs. 1% per day until the guaranteed final day; no repeat afterward.
@@ -1409,6 +1416,7 @@ function prepareDay(){
  // Chemy: una vez por campaña, 12 % diario desde el día 3 y garantizada el día 12. Su receta siempre es válida.
  if(!game.specialEvents.cifunandoSeen&&Math.random()<CIFUNANDO_DAILY_CHANCE){types.splice(Math.floor(Math.random()*(types.length+1)),0,'cifunando');game.specialEvents.cifunandoSeen=true;}
  if(!game.specialEvents.chemySeen&&game.day>=3&&(game.day>=12||Math.random()<0.12)){types.push('chemy');game.specialEvents.chemySeen=true;}
+ if(game.day===11&&!game.specialEvents.veniaiSeen){types.splice(Math.min(2,types.length),0,'veniai');game.specialEvents.veniaiSeen=true;}
  if(!game.specialEvents.aluminioSeen&&game.day>=2&&(game.day===9||Math.random()<0.08)){types.push('aluminio');game.specialEvents.aluminioSeen=true;}
  // Independientes y diarios, desde la primera jornada.
  if(Math.random()<0.05)types.splice(Math.min(2,types.length),0,'fakeDoctor');
@@ -1429,6 +1437,12 @@ function prepareDay(){
  const evId=rollDayEvent();
  if(game.day===PHONE_BROKEN_DAY+1&&!game.phoneRestoredNotice){game.phoneRestoredNotice=true;addNotice('phone-restored','TELÉFONO NUEVO DISPONIBLE','Compraron un teléfono nuevo para la farmacia. Ya puedes volver a llamar a los médicos y consultar tus notificaciones.','sistema')}
  if(evId){for(const k of DAY_EVENTS[evId].extra)types.splice(Math.min(types.length,1+Math.floor(Math.random()*types.length)),0,k);addNotice('day-event-'+game.day,DAY_EVENTS[evId].title,DAY_EVENTS[evId].memo,'alerta')}
+ if(shutterStuck){
+  const SPECIAL=['specialCarlos','chinese','clubNocturno','tarotera','chemy','cifunando','aluminio','veniai','sicolasMuros','rufus','minorGuardian'];
+  const target=Math.max(1,Math.ceil(types.length/2));
+  while(types.length>target){const idx=types.map((t,i)=>SPECIAL.includes(t)?-1:i).filter(i=>i>=0);if(!idx.length)break;types.splice(idx[Math.floor(Math.random()*idx.length)],1)}
+  addNotice('shutter-'+game.day,'CORTINA TRABADA','Solo pudiste abrir media cortina: hoy llega la mitad de los pacientes. Repárala en casa.','alerta');
+ }
  game.patients=types.map((type,i)=>makePatient(type,i,tmTitle));
  if(game.dayEvent==='retiro')applyClotiazepamRecall();
  insertAbueloIfDue(Math.min(2,game.patients.length));
@@ -1757,14 +1771,15 @@ const RETURN_REASONS={
  'rx-cheque':'El medicamento exige receta cheque y se presenta receta blanca u otro formato',
  'rx-registry':'El Número de Registro del medicamento no coincide con el del registro',
  'underage':'Paciente menor de 18 años para un medicamento con control de stock',
- 'stock':'Stock insuficiente para dispensar'
+ 'stock':'Stock insuficiente para dispensar',
+ 'fridge':'Refrigerador descompuesto: no se pueden dispensar medicamentos refrigerados'
 };
 const RETURN_REASON_GROUPS=[
  ['Identificación',['id-expired','id-missing','id-date']],
  ['Datos del paciente',['patient-rut','foreign-label']],
  ['Prescriptor',['doctor-rut','doctor-missing']],
  ['Fecha y tipo de receta',['rx-expired','rx-date','rx-cheque','rx-registry']],
- ['Edad y stock',['underage','stock']]
+ ['Edad y stock',['underage','stock','fridge']]
 ];
 function returnReasonLabel(reason){
  if(reason==='id-discrepancy'||reason==='foreign-dni')return RETURN_REASONS['patient-rut'];
@@ -1808,6 +1823,7 @@ function flagElectronicPrescriptionFraud(p,issue){
 function validReturnReasons(p,docStatus,age,fieldReasons){
  if(!validPrescriptionSignature(p)||prescriberIdentityIsFalse(lookupPrescriber(p).status)||p.kind==='rufus'||p.callRejected||electronicValidationFailed(p)||electronicPrescriptionIntegrityIssue(p)||isStolenPrescription(p)||p.kind==='sicolasMuros'||unauthorizedPrescriberCase(p))return [];
  const reasons=[...fieldReasons];
+ if(fridgeBlocked(p))reasons.push('fridge');
  if(p.noDocument)reasons.push('id-missing');
  else{
   if(docStatus.status==='expired')reasons.push('id-expired');
@@ -1843,6 +1859,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
   ui.modal='qr-used';save();render();return;
  }
  if(decision==='dispense'&&(isPaperEvent(p)||!DRUGS[p.drug]))return;
+ if(decision==='dispense'&&fridgeBlocked(p)){toast('El refrigerador está descompuesto: hoy no se pueden dispensar medicamentos refrigerados. Devuelve al paciente.');return}
  const foreignIdIssue=foreignPrescriptionIssue(p);
  const electronicIssue=electronicPrescriptionIntegrityIssue(p);
  const sisStatus=isPaperEvent(p)||p.kind==='bribe'?'incomplete':lookupPrescriber(p).status;
@@ -1863,8 +1880,8 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
   if(alreadyUsed||p.qrValidation==='dispensed')outstandingChecks.push('rx-duplicate');
   else if(electronic&&(!game.qrChecked||p.qrValidation!=='valid')&&!electronicIssue&&!['invalid','expired'].includes(p.qrValidation))outstandingChecks.push('qr-unchecked');
  }
- let expected=['correct','carvedilol','controlled','missingid','electronic','check','retainedCommon','specialCarlos','chemy','cifunando','minorGuardian','idLastDay','lookHair','lookClothes','lookAge','correctedCheque','correctedPrescription'].includes(p.kind)?'dispense':stolenFolio?'seremi':isForgedIdentityCase(p)?'police':['wrongtype','wrongtypeRepeat','sicolasMuros'].includes(p.kind)?'seremi':['chinese','giftPaper','underage','fakeDoctor','different','expired','wrongtype','double','typo','idExpired','idFuture','idSexMismatch','tuguelExpired'].includes(p.kind)?'return':'return';
- let correct=(isPaperEvent(p)&&(decision==='keep-paper'||decision==='return')) || decision===expected || (isForgedIdentityCase(p)&&decision==='police') || (p.kind==='fakeid'&&decision==='return') || (['wrongtype','wrongtypeRepeat'].includes(p.kind)&&decision==='return') || (decision==='return' && DRUGS[p.drug]?.stockControl && game.stock[p.drug]<(p.qty||1));
+ let expected=['correct','carvedilol','controlled','missingid','electronic','check','retainedCommon','specialCarlos','chemy','cifunando','veniai','minorGuardian','idLastDay','lookHair','lookClothes','lookAge','correctedCheque','correctedPrescription'].includes(p.kind)?'dispense':stolenFolio?'seremi':isForgedIdentityCase(p)?'police':['wrongtype','wrongtypeRepeat','sicolasMuros'].includes(p.kind)?'seremi':['chinese','giftPaper','underage','fakeDoctor','different','expired','wrongtype','double','typo','idExpired','idFuture','idSexMismatch','tuguelExpired'].includes(p.kind)?'return':'return';
+ let correct=(isPaperEvent(p)&&(decision==='keep-paper'||decision==='return')) || decision===expected || (isForgedIdentityCase(p)&&decision==='police') || (p.kind==='fakeid'&&decision==='return') || (['wrongtype','wrongtypeRepeat'].includes(p.kind)&&decision==='return') || (decision==='return' && DRUGS[p.drug]?.stockControl && game.stock[p.drug]<(p.qty||1)) || (decision==='return'&&fridgeBlocked(p));
  if(p.noDocument){correct=decision==='return';expected='return';}
  if(p.qrValidation==='invalid'||foreignIdIssue){correct=decision==='return';expected='return';}
  if(!isPaperEvent(p)&&p.kind!=='bribe'&&(fieldReasons.includes('rx-expired')||fieldReasons.includes('rx-registry'))&&!reportCategory){correct=decision==='return';expected='return';}
@@ -2010,9 +2027,9 @@ function postMovements(day,kind,rectification=false){let lines=(kind==='dispatch
  if(!lines.length)return 0;
  let groups={};for(let line of lines){let key=line.drug;if(!groups[key])groups[key]=[];groups[key].push(line)}
  let rows=0;for(const [drug,entries] of Object.entries(groups)){
-  let total=entries.reduce((a,x)=>a+x.qty,0);let first=kind==='dispatch'?entries[0].folio:null;let last=kind==='dispatch'?entries[entries.length-1].folio:null;
+  let total=entries.reduce((a,x)=>a+x.qty,0);const fol=entries.filter(x=>x.folio!=null);let first=kind==='dispatch'&&fol.length?fol[0].folio:null;let last=kind==='dispatch'&&fol.length?fol[fol.length-1].folio:null;
   game.bookStock[drug]+=(kind==='dispatch'?-1:1)*total;
-  game.ledger.push({day:game.day,originalDay:day,drug,kind,rectification,folio:first===null?'—':first===last?String(first):`${first}–${last}`,recipes:kind==='dispatch'?entries.length:0,egress:kind==='dispatch'?total:0,ingress:kind==='receipt'?total:0,balance:game.bookStock[drug],ref:entries.map(x=>x.ref||x.rxFolio).join(', ')});
+  game.ledger.push({day:game.day,originalDay:day,drug,kind,rectification,folio:first===null?(entries.some(x=>x.merma)?'MERMA':'—'):first===last?String(first):`${first}–${last}`,recipes:kind==='dispatch'?entries.filter(x=>!x.merma).length:0,egress:kind==='dispatch'?total:0,ingress:kind==='receipt'?total:0,balance:game.bookStock[drug],ref:entries.map(x=>x.ref||x.rxFolio).join(', ')});
   for(const x of entries)x.posted=true;rows++;
  }
  record(`${rectification?'Rectificación':'Transcripción'} de ${kind==='dispatch'?'despachos':'ingresos'}: ${rows} presentación(es).`);save();return rows;
@@ -2335,7 +2352,9 @@ function closeDayGoHome(){
  game.dayExpenses=12000+game.dayTreatmentCost+(crisis?25000:0)+(game.day%20===0?200000:0)+game.dayHospitalCost;
  game.dayInsFee=insuranceFeeToday();game.dayExpenses+=game.dayInsFee;
  game.dayInterest=game.debt>0?Math.ceil(game.debt*DEBT_INTEREST):0;game.debt+=game.dayInterest;
- game.dayBills=game.day%20===0?monthlyBills():[];game.dayExpenses+=game.dayBills.reduce((t,x)=>t+x[1],0);
+ if(game.day%20===0){game.dayBills=game.billsNext||monthlyBills();game.billsNext=null}else game.dayBills=[];
+ if((game.day+1)%20===0&&!game.billsNext)game.billsNext=monthlyBills();
+ game.dayExpenses+=game.dayBills.reduce((t,x)=>t+x[1],0);
  game.dayExpenses+=game.dayPurchases||0;
  planRobbery();
  game.couponUsedOnDay=null;
@@ -2495,75 +2514,111 @@ function robberyHtml(){
 }
 
 // ---------- Economía: deuda, cuentas, caja fuerte y gastos sorpresa ----------
-const DEBT_INTEREST=0.03,SAFE_PRICE=60000,SAFE_CAP=250000,SURPRISE_CHANCE=0.08,SURPRISE_FIRST_DAY=4,SURPRISE_GAP=4;
+const DEBT_INTEREST=0.03,SAFE_PRICE=15000,SAFE_CAP=300000,SURPRISE_CHANCE=0.08,SURPRISE_FIRST_DAY=4,SURPRISE_GAP=4;
 const SURPRISES={
- phone:{title:'SE DESCOMPUSO EL TELÉFONO',text:'Amaneció sin tono: el teléfono de la farmacia quedó descompuesto. No podrás llamar a los médicos hasta repararlo en casa.',repair:12000,flag:'phone',label:'Teléfono'},
- pc:{title:'SE CAYÓ EL COMPUTADOR',text:'El computador se apagó y no vuelve a encender. Sin él no hay registro SIS hasta que lo repares en casa.',repair:18000,flag:'pc',label:'Computador'},
- fridge:{title:'FALLÓ EL REFRIGERADOR',text:'El refrigerador de los medicamentos dejó de enfriar. Hubo que llamar a un técnico de urgencia.',cost:25000},
- leak:{title:'GOTERA EN LA BODEGA',text:'Llovió toda la noche y apareció una gotera sobre la bodega. Hubo que arreglar el techo antes de que se mojaran las cajas.',cost:15000},
- shutter:{title:'SE TRABÓ LA CORTINA',text:'La cortina metálica se trabó y no abría. Hubo que pagar a un cerrajero para destrabarla.',cost:9000}
+ phone:{title:'SE DESCOMPUSO EL TELÉFONO',text:'Amaneció sin tono: el teléfono de la farmacia quedó descompuesto. No podrás llamar a los médicos hasta repararlo en casa.',repair:12000,label:'Teléfono',effect:'Sin teléfono no se puede llamar al médico.'},
+ pc:{title:'SE CAYÓ EL COMPUTADOR',text:'El computador se apagó y no vuelve a encender. Sin él no hay registro SIS hasta que lo repares en casa.',repair:18000,label:'Computador',effect:'Sin computador no hay registro SIS.'},
+ fridge:{title:'FALLÓ EL REFRIGERADOR',text:'El refrigerador de los medicamentos dejó de enfriar. Mientras siga descompuesto no podrás dispensar medicamentos refrigerados (como el Ozempic o las suspensiones de amoxicilina).',repair:25000,label:'Refrigerador',effect:'Sin refrigerador no se pueden dispensar medicamentos refrigerados.'},
+ leak:{title:'GOTERA EN LA BODEGA',text:'Llovió toda la noche y apareció una gotera sobre la bodega. Cada día que siga goteando se mojarán 1 o 2 cajas de algún medicamento. Hay que repararla en casa.',repair:15000,label:'Techo (gotera)',effect:'Mientras haya gotera se mojan cajas de medicamentos cada día.'},
+ shutter:{title:'SE TRABÓ LA CORTINA',text:'La cortina metálica se trabó y no pudiste abrirla completa. La gente cree que la farmacia está cerrada: hoy vendrá la mitad de los pacientes, y seguirá así hasta que la repares en casa.',repair:9000,label:'Cortina',effect:'Con la cortina trabada solo viene la mitad de los pacientes.'}
 };
 function monthlyBills(){
  const r=(lo,hi)=>Math.round((lo+Math.random()*(hi-lo))/500)*500;
  return [['Cuenta de luz',r(12000,22000)],['Cuenta de agua',r(6000,12000)],['Cuenta de gas',r(8000,16000)]];
 }
 function spendOrDebt(amount){const paid=Math.min(game.cash,amount);game.cash-=paid;game.debt+=amount-paid;return paid}
+function fridgeBlocked(p){return Boolean(game&&!game.tutorial&&game.repairs?.fridge&&p&&DRUGS[p.drug]?.refrigerated)}
+function leakDamage(){
+ const pool=CONTROLLED_IDS.filter(k=>(game.stock[k]||0)>0);
+ if(!pool.length)return [];
+ const k=pool[Math.floor(Math.random()*pool.length)],n=Math.min(game.stock[k],1+Math.floor(Math.random()*2));
+ game.stock[k]-=n;
+ // La pérdida física queda pendiente de anotarse en el libro de control al cierre del turno.
+ game.dispatches.push({day:game.day,drug:k,qty:n,folio:null,rxFolio:'MERMA',patient:'Merma por gotera',posted:false,merma:true});
+ record(`La gotera mojó ${n} caja(s) de ${drugName(k)}: quedaron inutilizables. Anótalo en el libro al cerrar el turno.`);
+ return [[k,n]];
+}
+function ongoingLeak(){
+ if(game.tutorial||!game.repairs?.leak)return;
+ const dmg=leakDamage();if(!dmg.length)return;
+ game.surprise={kind:'leak',day:game.day,ongoing:true,damage:dmg};
+ if(!ui.modal)ui.modal='surprise';else toast('La gotera sigue mojando cajas.');
+}
 function applySurprise(){
- game.surprise=null;
- if(game.tutorial||game.gameOver||game.day<SURPRISE_FIRST_DAY||game.robbery||game.day-(game.lastSurpriseDay||0)<SURPRISE_GAP||Math.random()>=SURPRISE_CHANCE)return;
- const pool=Object.keys(SURPRISES).filter(k=>{const e=SURPRISES[k];if(e.flag&&game.repairs?.[e.flag])return false;if(k==='phone'&&Math.abs(game.day-PHONE_BROKEN_DAY)<=1)return false;if(k==='pc'&&game.day<SIS_UNLOCK_DAY)return false;return true});
+ if(game.tutorial||game.gameOver||game.surprise||game.day<SURPRISE_FIRST_DAY||game.robbery||game.day-(game.lastSurpriseDay||0)<SURPRISE_GAP||Math.random()>=SURPRISE_CHANCE)return;
+ const pool=Object.keys(SURPRISES).filter(k=>{if(game.repairs?.[k])return false;if(k==='phone'&&Math.abs(game.day-PHONE_BROKEN_DAY)<=1)return false;if(k==='pc'&&game.day<SIS_UNLOCK_DAY)return false;return true});
  if(!pool.length)return;
  const kind=pool[Math.floor(Math.random()*pool.length)],e=SURPRISES[kind];
- game.lastSurpriseDay=game.day;
- if(e.flag){game.repairs[e.flag]=true;record(`${e.title}. Reparación: ${pesos(e.repair)}.`)}
- else{const paid=spendOrDebt(e.cost);record(`${e.title}: gasto de ${pesos(e.cost)}${paid<e.cost?` (${pesos(e.cost-paid)} quedó como deuda)`:''}.`)}
- game.surprise={kind,day:game.day};ui.modal='surprise';
+ game.lastSurpriseDay=game.day;game.repairs[kind]=true;
+ record(`${e.title}. Reparación: ${pesos(e.repair)}.`);
+ game.surprise={kind,day:game.day,damage:kind==='leak'?leakDamage():[]};
+ ui.modal='surprise';
 }
 function surpriseHtml(){
  const sp=game.surprise,e=sp&&SURPRISES[sp.kind];if(!e)return '';
- const line=e.flag?`<div class="money-line neg"><span>Reparación (en casa)</span><strong>${pesos(e.repair)}</strong></div>`:`<div class="money-line neg"><span>Gasto de urgencia</span><strong>−${pesos(e.cost)}</strong></div>`;
- return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${e.title}"><div class="modal"><div class="eyebrow">GASTO SORPRESA</div><h2>${e.title}</h2><p>${e.text}</p>${line}<p class="small">Dinero disponible: <b>${pesos(game.cash)}</b>${game.debt>0?` · Deuda: <b>${pesos(game.debt)}</b>`:''}</p><div class="btn-row">${btn('ENTENDIDO','close-modal','green')}</div></div></div>`;
+ const dmg=(sp.damage||[]).map(([k,n])=>`<div class="money-line neg"><span>Se mojaron ${n} caja(s) de ${escapeText(drugName(k))}</span><strong>pérdida</strong></div>`).join('');
+ const text=sp.ongoing?'La gotera de la bodega sigue sin repararse y esta noche volvió a mojar las cajas.':e.text;
+ const title=sp.ongoing?'LA GOTERA SIGUE':e.title;
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${title}"><div class="modal"><div class="eyebrow">GASTO SORPRESA</div><h2>${title}</h2><p>${text}</p>${dmg}<div class="money-line neg"><span>Reparación (en casa)</span><strong>${pesos(e.repair)}</strong></div>${dmg?'<p class="small">Las cajas mojadas se anotan como pérdida en el libro de control al cerrar el turno.</p>':''}<p class="small">Dinero disponible: <b>${pesos(game.cash)}</b></p><div class="btn-row">${btn('ENTENDIDO','close-modal','green')}</div></div></div>`;
 }
-function pendingRepairs(){return Object.keys(SURPRISES).filter(k=>SURPRISES[k].flag&&game.repairs?.[SURPRISES[k].flag])}
+function pendingRepairs(){return Object.keys(SURPRISES).filter(k=>game.repairs?.[k])}
 function repairButton(){const n=pendingRepairs().length;return n?[[`REPARACIONES (${n})`,'repairs','amber']]:[]}
 function repairItem(kind){
- const e=SURPRISES[kind];if(!e||!e.flag||!game.repairs?.[e.flag])return;
+ const e=SURPRISES[kind];if(!e||!game.repairs?.[kind])return;
  if(game.cash<e.repair){toast(`Necesitas ${pesos(e.repair)} para repararlo.`);return}
- game.cash-=e.repair;game.repairs[e.flag]=false;record(`Reparaste: ${e.label.toLowerCase()} (${pesos(e.repair)}).`);
+ game.cash-=e.repair;game.repairs[kind]=false;record(`Reparaste: ${e.label.toLowerCase()} (${pesos(e.repair)}).`);
  if(!pendingRepairs().length)ui.modal=null;save();render();toast(`${e.label} reparado`);
 }
 function repairsHtml(){
- const rows=pendingRepairs().map(k=>{const e=SURPRISES[k];return `<div class="paper ins-card"><h3>${e.label.toUpperCase()} DESCOMPUESTO</h3><p>${k==='phone'?'Sin teléfono no se puede llamar al médico.':'Sin computador no hay registro SIS.'}</p><div class="money-line"><span>Costo de reparación</span><strong>${pesos(e.repair)}</strong></div>${btn('REPARAR','repair','green',`data-kind="${k}"${game.cash<e.repair?' disabled':''}`)}</div>`}).join('');
- return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Reparaciones"><div class="modal ins-modal"><div class="section-head"><h2>🔧 REPARACIONES</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div><p class="small">Dinero disponible: <b>${pesos(game.cash)}</b>. El equipo seguirá descompuesto mañana si no lo reparas.</p>${rows||'<p>No hay nada que reparar.</p>'}<div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
+ const rows=pendingRepairs().map(k=>{const e=SURPRISES[k];return `<div class="paper ins-card"><h3>${e.label.toUpperCase()} · A REPARAR</h3><p>${e.effect}</p><div class="money-line"><span>Costo de reparación</span><strong>${pesos(e.repair)}</strong></div>${btn('REPARAR','repair','green',`data-kind="${k}"${game.cash<e.repair?' disabled':''}`)}</div>`}).join('');
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Reparaciones"><div class="modal ins-modal"><div class="section-head"><h2>🔧 REPARACIONES</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div><p class="small">Dinero disponible: <b>${pesos(game.cash)}</b>. Lo que no repares seguirá fallando mañana.</p>${rows||'<p>No hay nada que reparar.</p>'}<div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
 }
 function buySafe(){
  if(game.hasSafe||game.tutorial)return;
  if(game.cash<SAFE_PRICE){toast(`Necesitas ${pesos(SAFE_PRICE)} para comprar la caja fuerte.`);return}
  game.cash-=SAFE_PRICE;game.hasSafe=true;record(`Compraste una caja fuerte para la casa (${pesos(SAFE_PRICE)}).`);save();render();toast('Caja fuerte instalada');
 }
+function safeAmountFromInput(){
+ const raw=(typeof document!=='undefined'&&document.getElementById('safe-amount')?.value)??ui.safeAmount??'';
+ const n=parseInt(String(raw).replace(/[^0-9]/g,''),10);return Number.isFinite(n)?n:0;
+}
 function safeMove(dir,amount){
  if(!game.hasSafe)return;
- const a=amount==='all'?Infinity:Number(amount);if(!(a>0))return;
- if(dir==='dep'){const m=Math.min(a,game.cash,SAFE_CAP-(game.safe||0));if(m<=0){toast(game.cash<=0?'No tienes efectivo para guardar.':'La caja fuerte está llena.');return}game.cash-=m;game.safe=(game.safe||0)+m;toast(`Guardaste ${pesos(m)}`)}
- else if(dir==='wd'){const m=Math.min(a,game.safe||0);if(m<=0){toast('La caja fuerte está vacía.');return}game.safe-=m;game.cash+=m;toast(`Retiraste ${pesos(m)}`)}
- save();render();
+ let a=amount==='all'?'all':Number(amount);
+ if(a!=='all'&&!(a>0)){toast('Escribe un monto válido en pesos.');return}
+ const room=SAFE_CAP-(game.safe||0);
+ if(dir==='dep'){
+  if(a==='all')a=Math.min(game.cash,room);
+  if(a<=0){toast(game.cash<=0?'No tienes efectivo para guardar.':'La caja fuerte está llena.');return}
+  if(a>game.cash){toast(`Solo tienes ${pesos(game.cash)} en efectivo.`);return}
+  if(a>room){toast(`Solo caben ${pesos(room)} más en la caja fuerte.`);return}
+  game.cash-=a;game.safe=(game.safe||0)+a;toast(`Guardaste ${pesos(a)}`);
+ }else if(dir==='wd'){
+  if(a==='all')a=game.safe||0;
+  if(a<=0){toast('La caja fuerte está vacía.');return}
+  if(a>(game.safe||0)){toast(`En la caja fuerte solo hay ${pesos(game.safe||0)}.`);return}
+  game.safe-=a;game.cash+=a;toast(`Retiraste ${pesos(a)}`);
+ }else return;
+ ui.safeAmount='';save();render();
 }
 function safeHtml(){
  const head=`<div class="section-head"><h2>▣ CAJA FUERTE</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div>`;
  if(!game.hasSafe)return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Caja fuerte"><div class="modal ins-modal">${head}<p class="small">Lo que guardas en la caja fuerte de la casa no te lo pueden robar. Tiene capacidad para ${pesos(SAFE_CAP)}. Para pagar gastos hay que retirar el dinero antes.</p><div class="paper ins-card"><h3>CAJA FUERTE</h3><div class="money-line"><span>Precio único</span><strong>${pesos(SAFE_PRICE)}</strong></div>${btn('COMPRAR','safe-buy','green',game.cash<SAFE_PRICE?'disabled':'')}</div><p class="small">Dinero disponible: <b>${pesos(game.cash)}</b></p><div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
- const mv=(dir,label)=>[10000,50000,'all'].map(v=>btn(`${label} ${v==='all'?'TODO':pesos(v)}`,'safe-move',dir==='dep'?'green':'cream',`data-dir="${dir}" data-amount="${v}"`)).join('');
- return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Caja fuerte"><div class="modal ins-modal">${head}<div class="money-line"><span>En caja (se puede robar)</span><strong>${pesos(game.cash)}</strong></div><div class="money-line pos"><span>En la caja fuerte (protegido)</span><strong>${pesos(game.safe||0)} / ${pesos(SAFE_CAP)}</strong></div><h3>GUARDAR</h3><div class="btn-row">${mv('dep','+')}</div><h3>RETIRAR</h3><div class="btn-row">${mv('wd','−')}</div><p class="small">Los gastos del día se pagan con el efectivo en caja: retira antes de pagar si lo necesitas.</p><div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Caja fuerte"><div class="modal ins-modal">${head}<div class="money-line"><span>En caja (se puede robar)</span><strong>${pesos(game.cash)}</strong></div><div class="money-line pos"><span>En la caja fuerte (protegido)</span><strong>${pesos(game.safe||0)} / ${pesos(SAFE_CAP)}</strong></div><label class="small safe-label" for="safe-amount">Monto a guardar o retirar (pesos)</label><input id="safe-amount" class="safe-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Ej.: 25000" value="${escapeText(ui.safeAmount||'')}"><div class="btn-row">${btn('GUARDAR','safe-move','green','data-dir="dep"')}${btn('RETIRAR','safe-move','cream','data-dir="wd"')}</div><div class="btn-row">${btn('GUARDAR TODO','safe-move','green','data-dir="dep" data-amount="all"')}${btn('RETIRAR TODO','safe-move','cream','data-dir="wd" data-amount="all"')}</div><p class="small">Los gastos del día se pagan con el efectivo en caja: retira antes de pagar si lo necesitas.</p><div class="btn-row">${btn('VOLVER','close-modal','cream')}</div></div></div>`;
 }
 function moneyNoticeHtml(){
  const out=[];
- if((game.day+1)%20===0&&!game.daySummary)out.push(`<div class="notice warn"><h3>MAÑANA ES DÍA DE PAGO</h3><p>Se acumulan el arriendo ($200.000) y las cuentas de luz, agua y gas.${game.hasSafe&&game.safe>0?' Recuerda retirar dinero de la caja fuerte.':''}</p></div>`);
+ if((game.day+1)%20===0&&game.scene==='home'){
+  const bills=game.billsNext||[],sum=bills.reduce((t,x)=>t+x[1],0);
+  out.push(`<div class="notice warn"><h3>MAÑANA ES DÍA DE PAGO</h3><p>Arriendo ${pesos(200000)}${bills.map(b=>` · ${escapeText(b[0].replace('Cuenta de ','').replace(/^./,c=>c.toUpperCase()))} ${pesos(b[1])}`).join('')}.</p><p><b>Total de las cuentas: ${pesos(200000+sum)}</b> (arriendo + cuentas), sin contar los gastos de siempre.${game.hasSafe&&game.safe>0?' Recuerda retirar dinero de la caja fuerte.':''}</p></div>`);
+ }
  const rep=pendingRepairs();
- if(rep.length)out.push(`<div class="notice warn"><h3>EQUIPOS DESCOMPUESTOS</h3><p>${rep.map(k=>SURPRISES[k].label).join(' y ')} sin funcionar. Puedes repararlos en REPARACIONES.</p></div>`);
+ if(rep.length)out.push(`<div class="notice warn"><h3>ARREGLOS PENDIENTES</h3><p>${rep.map(k=>SURPRISES[k].label).join(', ')}. Puedes repararlos en REPARACIONES.</p></div>`);
  if(game.debt>0)out.push(`<div class="notice warn"><h3>DEUDA CON INTERESES</h3><p>La deuda crece 3 % por cada día que sigue pendiente (hoy: ${pesos(game.debt)}).</p></div>`);
  return out.join('');
 }
 
-function beginNextDay(){if(game.gameOver)return;game.day++;game.scene='briefing';prepareDay();applyRobbery();applySurprise();save();render()}
+function beginNextDay(){if(game.gameOver)return;game.day++;game.scene='briefing';game.surprise=null;applyRobbery();ongoingLeak();applySurprise();prepareDay();save();render()}
 const PROLOGUE_SCENES=[
  ['Tu oficio','Eres químico farmacéutico. Hoy abres tu propia farmacia. Ayer dejaste listo el mostrador. Esta mañana llegaste temprano para contar las cajas una vez más.'],
  ['Charlitos','Tienes un hijo, Charlitos. Vive con el síndrome de Ibanei y, entre sus controles y el colegio, en casa se organizan para acompañarlo cuando lo necesita. Esta mañana te pidió permiso para usar una de las cajas vacías. Tiene un proyecto y dice que todavía es secreto.'],
@@ -2841,7 +2896,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.154 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.158 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  practiceCoach(modal);
  if(!modal){
@@ -2882,7 +2937,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.154 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.158 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -2948,7 +3003,10 @@ const ALBUM=[
   odds:'100 % si devuelves a Benjamín · depende de que el menor llegue primero',about:'Papá de Benjamín. Llega con su carnet y la receta en regla para retirar el medicamento de su hijo. Siempre es el mismo hombre.'},
  {id:'carabineros',n:15,name:'Cabo Azucarinas y Cabo Carahue',kinds:['carabineros'],img:'assets/patients/carabineros.webp',rarity:'poco',
   where:'Una sola visita por partida, desde la jornada 7. No traen receta y no piden nada; te dejan un regalo.',
-  odds:'8 % por jornada desde el día 7, sin día límite · ≈ 49 % de verlos hasta el día 14 y ≈ 86 % hasta el día 30',about:'Carabineros de la comisaría del barrio. Azucarinas, el de barba, ama las papas fritas más que su placa; Carahue, el flaco, siempre sonríe, incluso cuando no entiende lo que pasa. Dicen que su patrulla da más vueltas a Nac Monals que al barrio, y que atrapan delincuentes por pura casualidad, casi siempre tropezándose con ellos. Nadie sabe cómo ascendieron a cabo. Pasan a saludar con su «Buenos días, buenas tardes» por si acaso y, si les caes bien, te regalan un Optimus Pan (dicen que vale $500.000; en realidad $5.000). Si te roban, ve a denunciar: no prometen nada, pero a veces resulta. Dicen que una vez persiguieron a un delincuente durante tres cuadras y terminaron invitándolo a comer. Es mentira, pero nadie se atrevió a desmentirlo.'}
+  odds:'8 % por jornada desde el día 7, sin día límite · ≈ 49 % de verlos hasta el día 14 y ≈ 86 % hasta el día 30',about:'Carabineros de la comisaría del barrio. Azucarinas, el de barba, ama las papas fritas más que su placa; Carahue, el flaco, siempre sonríe, incluso cuando no entiende lo que pasa. Dicen que su patrulla da más vueltas a Nac Monals que al barrio, y que atrapan delincuentes por pura casualidad, casi siempre tropezándose con ellos. Nadie sabe cómo ascendieron a cabo. Pasan a saludar con su «Buenos días, buenas tardes» por si acaso y, si les caes bien, te regalan un Optimus Pan (dicen que vale $500.000; en realidad $5.000). Si te roban, ve a denunciar: no prometen nada, pero a veces resulta. Dicen que una vez persiguieron a un delincuente durante tres cuadras y terminaron invitándolo a comer. Es mentira, pero nadie se atrevió a desmentirlo.'},
+ {id:'veniai',n:16,name:'Veniai Rugoso',kinds:['veniai'],img:'assets/patients/veniai.webp',rarity:'rara',
+  where:'Una sola visita por partida, en la jornada 11. Trae receta válida de Ozempic 2 mg/1,5 mL y su DNI español.',
+  odds:'Aparece siempre en la jornada 11 · es el único personaje de nacionalidad española del juego',about:'Viajero llegado desde Madrid con una mirada enorme, voz tranquila y un DNI impecable. Es el único español que ha pisado la farmacia. Dice «vale» cada tres palabras, pregunta si el jamón serrano viene en la sección de vitaminas y asegura que en España el Ozempic se vende «en cualquier esquina». Eso sí: viene con receta, y en regla.'}
 ];
 function albumIdForKind(kind){for(const a of ALBUM)if(a.kinds.includes(kind))return a.id;return null}
 function albumCount(){const m=meta();return ALBUM.filter(a=>m.album[a.id]).length}
@@ -3191,6 +3249,41 @@ function albumModalHtml(){
  ${got===total?'<p class="album-done">✦ ¡Álbum completo! Eres el químico más observador del barrio.</p>':''}
  </div></div>`;
 }
+// ---------- Carnet de cada personaje en el álbum ----------
+const ALBUM_ID_CARDS={
+ tuguel:{kind:'tuguelExpired',code:'CL',surname:'PAGABA',names:'TUGUEL',doc:'2018743602',sex:'M',birth:'14/07/1993',issued:'22/10/2018',expires:'22/10/2026',nat:'CHILENO',run:rutFmt(19876543),note:'Su cédula auténtica está vencida.'},
+ sicolas:{kind:'sicolasMuros',code:'CL',surname:'MUROS',names:'SICOLÁS',doc:'1987654321',sex:'M',birth:'05/06/1997',issued:'11/03/2022',expires:'11/03/2030',nat:'CHILENO',run:rutFmt(20115438)},
+ rufus:{special:'rufus'},
+ club:{kind:'clubNocturno',code:'NO',surname:'EGG',names:'PRÍNCIPE',doc:'03069845912',sex:'M',birth:'03.06.1998',issued:'12.03.2023',expires:'12.03.2031',nat:'NORSK'},
+ chemy:{kind:'chemy',code:'CL',surname:'ARAUCANÍA',names:'CHEMY',doc:'1654321987',sex:'F',birth:'12/03/2001',issued:'08/05/2022',expires:'08/05/2030',nat:'CHILENA',run:rutFmt(20654321)},
+ carlos:{kind:'specialCarlos',code:'CL',surname:'NEIRA IBACACHE',names:'CARLOS',doc:'1000000001',sex:'M',birth:'14/08/2000',issued:'20/01/2022',expires:'20/01/2030',nat:'CHILENO',run:'00.000.001-Z'},
+ cifunando:{kind:'cifunando',code:'CL',surname:'FERUENTES CRACK',names:'CIFUNANDO',doc:'1777888999',sex:'M',birth:'14/05/2001',issued:'03/09/2021',expires:'03/09/2029',nat:'CHILENO',run:rutFmt(20777888)},
+ veniai:{kind:'veniai',code:'ES',surname:'RUGOSO',names:'VENIAI',doc:'48217396Z',sex:'M',birth:'21/09/1988',issued:'07/12/2022',expires:'07/12/2030',nat:'ESPAÑOL'}
+};
+const ALBUM_NO_CARD={
+ 'don-victor':'Don Invictus no porta ningún documento. Nadie sabe de dónde viene.',
+ nomeh:'No-Meh Wei no trae carnet: solo entrega un papel escrito en chino.',
+ tarotera:'Clarisa Antilef no muestra documentos: solo deja una carta de tarot.',
+ aluminio:'Hernán Zúñiga se niega a mostrar su carnet.',
+ eliseo:'Eliseo Quintrel no trae carnet, solo dulces.',
+ benjamin:'Su carnet no tiene un diseño especial en el juego.',
+ oscar:'Su carnet no tiene un diseño especial en el juego.',
+ carabineros:'Los cabos no traen documentos: se identifican con su placa.'
+};
+function albumCardIdHtml(a){
+ const c=ALBUM_ID_CARDS[a.id];
+ if(!c){const t=ALBUM_NO_CARD[a.id];return t?`<div class="album-id"><b>CARNET</b><p class="album-id-none">${escapeText(t)}</p></div>`:''}
+ let inner='';
+ try{
+  if(c.special==='rufus')inner=rufusCardHtml(false);
+  else{
+   const p={kind:c.kind,face:c.sex==='F'?'female':'male',portraitSeed:4242,name:`${c.names} ${c.surname}`,firstNames:c.names,surnames:c.surname,documentNumber:c.doc,rut:c.run||c.doc};
+   inner=idTemplateHtml(p,c.code,{surname:c.surname,names:c.names,doc:c.doc,sex:c.sex,birth:c.birth,nat:c.nat,issued:c.issued,expires:c.expires,run:c.run||''})
+    .replace(/ draggable /,' ').replace(/data-drag="id"/,'').replace(/title="[^"]*"/,'').replace(/aria-label="[^"]*"/,`aria-label="Carnet de ${escapeText(a.name)}"`);
+  }
+ }catch(e){return ''}
+ return `<div class="album-id"><b>CARNET</b>${inner}${c.note?`<p class="album-id-note">${escapeText(c.note)}</p>`:''}</div>`;
+}
 function albumCardHtml(){
  const idx=Math.max(0,ALBUM.findIndex(a=>a.id===ui.albumCard)),a=ALBUM[idx],m=meta(),e=m.album[a.id];
  if(!e)return albumModalHtml();
@@ -3200,7 +3293,7 @@ function albumCardHtml(){
  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Ficha de ${escapeText(a.name)}"><div class="modal album-modal album-detail">
  <div class="section-head"><h2>▦ FICHA DE ESTAMPA</h2><button class="smallbtn" data-action="meta-close">✕ CERRAR</button></div>
  <div class="album-card-body">
-  <div class="album-card-art">${stickerHtml(a,'big')}</div>
+  <div class="album-card-art">${stickerHtml(a,'big')}${albumCardIdHtml(a)}</div>
   <div class="album-card-info">
    <h3>${escapeText(a.name)}</h3>
    <div class="album-data"><b>RAREZA</b><span class="rar-chip r-${a.rarity}">${RARITY_LABEL[a.rarity]}</span></div>
@@ -3245,7 +3338,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.154','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.158','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -3254,7 +3347,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.154 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.158 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -3333,7 +3426,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.154 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.158 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -3409,7 +3502,7 @@ function rufusCardHtml(draggable=false){
 }
 
 // Plantillas de carnet (1.9.88). Rectángulos en % de la imagen: [x,y,ancho,alto]. 
-const ID_TEMPLATES={"NO":{"src":"assets/idcards/no.webp","w":1570,"h":1001,"r":{"photo":[4.2,18.88,27.77,53.05],"names":[52.48,17.98,42.99,4.2],"surname":[52.42,25.07,43.06,4.3],"doc":[61.53,32.37,33.95,4.0],"sex":[46.05,40.16,8.98,4.2],"nat":[78.34,40.36,17.13,4.2],"birth":[59.75,47.75,35.73,3.7],"issued":[59.81,54.65,35.67,3.4],"expires":[59.75,61.14,35.73,3.7],"sign":[49.62,73.73,45.86,10.79]}},"HT":{"src":"assets/idcards/ht.webp","w":1480,"h":948,"r":{"photo":[4.53,24.79,29.39,56.33],"surname":[36.82,23.42,60.14,4.75],"names":[36.82,32.7,60.14,4.75],"doc":[36.82,42.19,33.65,4.75],"sex":[72.91,42.19,24.05,4.75],"birth":[36.69,51.79,26.76,4.54],"nat":[66.15,51.79,30.81,4.64],"place":[36.82,60.97,60.14,4.64],"issued":[36.69,70.36,27.03,4.75],"expires":[66.15,70.36,30.81,4.75],"sign":[36.82,80.38,60.0,9.7]}},"VE":{"src":"assets/idcards/ve.webp","w":1494,"h":953,"r":{"photo":[65.06,26.76,30.79,58.66],"surname":[4.15,27.28,58.37,5.67],"names":[4.15,38.41,58.37,5.67],"doc":[4.15,49.32,33.07,4.93],"sex":[38.82,49.32,23.76,4.93],"birth":[4.15,59.29,25.1,5.14],"civil":[32.2,59.29,28.38,5.14],"nat":[4.15,69.46,21.82,5.77],"issued":[28.25,69.46,16.53,5.77],"expires":[46.72,69.46,16.2,5.77],"sign":[4.15,80.8,58.23,8.18]}},"IT":{"src":"assets/idcards/it.webp","w":1545,"h":962,"r":{"photo":[3.3,20.37,25.05,57.8],"surname":[31.59,22.56,49.97,4.37],"names":[31.59,31.6,49.97,4.26],"doc":[31.59,40.44,49.97,4.37],"place":[31.59,49.69,32.3,4.37],"birth":[66.6,49.69,22.27,4.37],"sex":[31.59,58.94,18.45,4.37],"nat":[54.69,58.94,34.17,4.37],"issued":[31.59,68.19,24.47,4.37],"expires":[60.71,68.19,28.16,4.37],"sign":[31.59,78.07,54.69,8.52]}},"AR":{"src":"assets/idcards/ar.webp","w":1517,"h":955,"r":{"photo":[4.35,19.37,28.02,52.67],"surname":[34.67,21.99,60.65,5.24],"names":[34.67,33.09,60.65,5.24],"sex":[34.67,44.29,14.37,5.45],"nat":[51.62,44.29,43.7,5.45],"birth":[34.67,55.39,34.08,5.24],"issued":[34.67,66.28,32.43,5.34],"expires":[34.54,77.28,32.76,5.24],"doc":[3.56,78.32,28.81,7.96],"sign":[70.6,66.81,25.84,18.64]}},"DE":{"src":"assets/idcards/de.webp","w":1545,"h":944,"r":{"photo":[3.37,21.61,30.42,64.62],"surname":[35.73,22.56,60.52,4.98],"names":[35.73,32.2,60.52,4.98],"doc":[35.73,41.95,34.76,4.87],"birth":[35.73,51.48,25.7,4.87],"place":[63.56,51.48,33.14,4.87],"nat":[35.73,61.12,36.63,4.98],"sex":[74.95,61.12,21.81,4.98],"issued":[35.73,70.76,28.09,4.98],"expires":[66.93,70.76,29.84,4.98],"sign":[35.73,80.83,61.04,9.96]}},"PE":{"src":"assets/idcards/pe.webp","w":1517,"h":891,"r":{"photo":[2.97,24.35,25.71,57.46],"surname":[30.52,27.5,58.47,5.27],"names":[30.52,38.38,58.47,5.27],"doc":[30.52,49.61,27.03,5.27],"birth":[60.25,49.61,26.83,5.27],"nat":[30.52,60.61,19.25,5.39],"sex":[52.08,60.61,11.14,5.39],"civil":[65.39,60.61,19.05,5.39],"issued":[30.52,72.05,23.8,5.39],"expires":[56.36,72.05,24.92,5.39],"sign":[29.93,80.47,47.26,10.33]}},"BR":{"src":"assets/idcards/br.webp","w":1568,"h":1003,"r":{"photo":[3.7,25.42,22.9,51.15],"names":[28.7,23.73,67.41,5.18],"surname":[28.7,33.7,67.41,5.18],"doc":[28.7,43.57,40.69,4.79],"sex":[71.81,43.57,24.3,4.79],"nat":[28.7,53.14,67.41,4.39],"birth":[28.7,62.01,30.8,4.59],"issued":[62.18,62.01,33.93,4.59],"expires":[28.7,71.39,67.41,4.99],"sign":[12.12,85.54,75.89,6.68]}},"US":{"src":"assets/idcards/us.webp","w":1579,"h":996,"r":{"photo":[5.07,22.89,25.14,54.72],"names":[33.57,26.31,61.3,4.12],"surname":[33.57,35.64,61.3,4.32],"doc":[33.57,45.38,61.3,4.02],"sex":[33.57,54.52,18.56,4.22],"nat":[55.48,54.52,39.39,4.22],"birth":[33.57,63.86,61.3,4.02],"issued":[33.57,73.19,27.99,4.12],"expires":[64.85,73.19,30.02,4.12],"sign":[23.12,82.53,67.32,6.63]}},"CO":{"src":"assets/idcards/co.webp","w":1586,"h":992,"r":{"photo":[4.92,16.43,27.74,56.65],"names":[34.74,19.25,49.31,4.23],"surname":[34.74,28.73,49.31,4.33],"doc":[34.74,38.71,35.37,4.33],"sex":[73.27,38.71,15.13,4.33],"nat":[34.74,47.68,38.59,3.83],"birth":[34.74,56.15,38.59,3.93],"issued":[34.74,64.82,38.59,4.03],"expires":[34.74,73.59,38.59,3.83],"sign":[5.3,80.95,76.67,6.05]}},"EC":{"src":"assets/idcards/ec.webp","w":1598,"h":984,"r":{"photo":[4.26,18.8,24.66,47.56],"names":[31.1,20.63,45.87,4.88],"surname":[31.1,30.49,45.87,4.88],"doc":[31.1,40.55,43.37,4.78],"sex":[31.1,50.51,25.72,4.67],"nat":[60.39,50.51,29.1,4.67],"birth":[31.1,59.96,25.72,4.57],"issued":[60.39,59.96,29.1,4.57],"expires":[31.1,69.11,51.63,4.78],"sign":[27.53,81.3,45.06,6.71]}},"CL":{"src":"assets/idcards/cl.webp","w":1482,"h":898,"r":{"photo":[3.71,18.26,24.29,53.67],"surname":[30.77,21.05,52.29,5.79],"names":[30.77,32.74,52.16,5.79],"nat":[30.5,44.43,27.94,5.23],"sex":[60.8,44.43,23.75,5.23],"birth":[30.5,55.23,25.91,5.46],"doc":[59.11,55.23,26.45,5.46],"issued":[30.5,66.15,25.91,5.46],"expires":[59.11,66.15,26.45,5.46],"run":[3.58,78.95,24.97,8.69],"sign":[31.92,77.62,40.42,12.81]}},"BO":{"src":"assets/idcards/bo.webp","w":1551,"h":915,"r":{"photo":[3.42,19.45,26.31,56.83],"surname":[31.91,21.42,56.87,5.46],"names":[31.91,32.9,56.87,5.46],"doc":[31.91,43.93,39.91,5.36],"birth":[31.91,55.08,30.37,5.57],"nat":[64.35,55.08,32.43,5.57],"sex":[31.91,66.34,14.31,5.68],"issued":[48.23,66.34,23.4,5.68],"expires":[73.05,66.34,23.73,5.68],"sign":[45.2,75.74,50.16,13.99]}},"CN":{"src":"assets/idcards/cn.webp","w":1492,"h":976,"r":{"photo":[70.58,22.44,26.01,43.03],"surname":[3.69,26.02,63.94,5.12],"names":[3.69,36.27,63.94,5.12],"sex":[3.69,46.52,19.57,4.51],"nat":[26.94,46.52,40.68,4.51],"birth":[3.69,56.15,24.66,4.51],"place":[31.23,56.15,36.39,4.51],"doc":[3.69,65.98,63.94,4.41],"issued":[3.69,75.41,26.74,4.61],"expires":[34.12,75.41,33.51,4.61],"sign":[3.69,85.04,64.08,6.97]}}};
+const ID_TEMPLATES={"ES":{"src":"assets/idcards/es.webp","w":1585,"h":992,"r":{"photo":[4.04,25.91,27.76,56.85],"surname":[34.2,26.66,61.01,4.58],"names":[34.26,36.94,60.95,4.69],"sex":[34.13,48.03,10.28,4.58],"nat":[47.7,48.03,19.94,4.58],"birth":[71.29,48.03,24.04,4.58],"doc":[34.07,58.21,26.56,3.98],"issued":[34.13,67.49,26.5,4.08],"expires":[64.54,67.49,30.66,4.08],"sign":[33.94,76.51,61.45,8.67]}},"NO":{"src":"assets/idcards/no.webp","w":1570,"h":1001,"r":{"photo":[4.2,18.88,27.77,53.05],"names":[52.48,17.98,42.99,4.2],"surname":[52.42,25.07,43.06,4.3],"doc":[61.53,32.37,33.95,4.0],"sex":[46.05,40.16,8.98,4.2],"nat":[78.34,40.36,17.13,4.2],"birth":[59.75,47.75,35.73,3.7],"issued":[59.81,54.65,35.67,3.4],"expires":[59.75,61.14,35.73,3.7],"sign":[49.62,73.73,45.86,10.79]}},"HT":{"src":"assets/idcards/ht.webp","w":1480,"h":948,"r":{"photo":[4.53,24.79,29.39,56.33],"surname":[36.82,23.42,60.14,4.75],"names":[36.82,32.7,60.14,4.75],"doc":[36.82,42.19,33.65,4.75],"sex":[72.91,42.19,24.05,4.75],"birth":[36.69,51.79,26.76,4.54],"nat":[66.15,51.79,30.81,4.64],"place":[36.82,60.97,60.14,4.64],"issued":[36.69,70.36,27.03,4.75],"expires":[66.15,70.36,30.81,4.75],"sign":[36.82,80.38,60.0,9.7]}},"VE":{"src":"assets/idcards/ve.webp","w":1494,"h":953,"r":{"photo":[65.06,26.76,30.79,58.66],"surname":[4.15,27.28,58.37,5.67],"names":[4.15,38.41,58.37,5.67],"doc":[4.15,49.32,33.07,4.93],"sex":[38.82,49.32,23.76,4.93],"birth":[4.15,59.29,25.1,5.14],"civil":[32.2,59.29,28.38,5.14],"nat":[4.15,69.46,21.82,5.77],"issued":[28.25,69.46,16.53,5.77],"expires":[46.72,69.46,16.2,5.77],"sign":[4.15,80.8,58.23,8.18]}},"IT":{"src":"assets/idcards/it.webp","w":1545,"h":962,"r":{"photo":[3.3,20.37,25.05,57.8],"surname":[31.59,22.56,49.97,4.37],"names":[31.59,31.6,49.97,4.26],"doc":[31.59,40.44,49.97,4.37],"place":[31.59,49.69,32.3,4.37],"birth":[66.6,49.69,22.27,4.37],"sex":[31.59,58.94,18.45,4.37],"nat":[54.69,58.94,34.17,4.37],"issued":[31.59,68.19,24.47,4.37],"expires":[60.71,68.19,28.16,4.37],"sign":[31.59,78.07,54.69,8.52]}},"AR":{"src":"assets/idcards/ar.webp","w":1517,"h":955,"r":{"photo":[4.35,19.37,28.02,52.67],"surname":[34.67,21.99,60.65,5.24],"names":[34.67,33.09,60.65,5.24],"sex":[34.67,44.29,14.37,5.45],"nat":[51.62,44.29,43.7,5.45],"birth":[34.67,55.39,34.08,5.24],"issued":[34.67,66.28,32.43,5.34],"expires":[34.54,77.28,32.76,5.24],"doc":[3.56,78.32,28.81,7.96],"sign":[70.6,66.81,25.84,18.64]}},"DE":{"src":"assets/idcards/de.webp","w":1545,"h":944,"r":{"photo":[3.37,21.61,30.42,64.62],"surname":[35.73,22.56,60.52,4.98],"names":[35.73,32.2,60.52,4.98],"doc":[35.73,41.95,34.76,4.87],"birth":[35.73,51.48,25.7,4.87],"place":[63.56,51.48,33.14,4.87],"nat":[35.73,61.12,36.63,4.98],"sex":[74.95,61.12,21.81,4.98],"issued":[35.73,70.76,28.09,4.98],"expires":[66.93,70.76,29.84,4.98],"sign":[35.73,80.83,61.04,9.96]}},"PE":{"src":"assets/idcards/pe.webp","w":1517,"h":891,"r":{"photo":[2.97,24.35,25.71,57.46],"surname":[30.52,27.5,58.47,5.27],"names":[30.52,38.38,58.47,5.27],"doc":[30.52,49.61,27.03,5.27],"birth":[60.25,49.61,26.83,5.27],"nat":[30.52,60.61,19.25,5.39],"sex":[52.08,60.61,11.14,5.39],"civil":[65.39,60.61,19.05,5.39],"issued":[30.52,72.05,23.8,5.39],"expires":[56.36,72.05,24.92,5.39],"sign":[29.93,80.47,47.26,10.33]}},"BR":{"src":"assets/idcards/br.webp","w":1568,"h":1003,"r":{"photo":[3.7,25.42,22.9,51.15],"names":[28.7,23.73,67.41,5.18],"surname":[28.7,33.7,67.41,5.18],"doc":[28.7,43.57,40.69,4.79],"sex":[71.81,43.57,24.3,4.79],"nat":[28.7,53.14,67.41,4.39],"birth":[28.7,62.01,30.8,4.59],"issued":[62.18,62.01,33.93,4.59],"expires":[28.7,71.39,67.41,4.99],"sign":[12.12,85.54,75.89,6.68]}},"US":{"src":"assets/idcards/us.webp","w":1579,"h":996,"r":{"photo":[5.07,22.89,25.14,54.72],"names":[33.57,26.31,61.3,4.12],"surname":[33.57,35.64,61.3,4.32],"doc":[33.57,45.38,61.3,4.02],"sex":[33.57,54.52,18.56,4.22],"nat":[55.48,54.52,39.39,4.22],"birth":[33.57,63.86,61.3,4.02],"issued":[33.57,73.19,27.99,4.12],"expires":[64.85,73.19,30.02,4.12],"sign":[23.12,82.53,67.32,6.63]}},"CO":{"src":"assets/idcards/co.webp","w":1586,"h":992,"r":{"photo":[4.92,16.43,27.74,56.65],"names":[34.74,19.25,49.31,4.23],"surname":[34.74,28.73,49.31,4.33],"doc":[34.74,38.71,35.37,4.33],"sex":[73.27,38.71,15.13,4.33],"nat":[34.74,47.68,38.59,3.83],"birth":[34.74,56.15,38.59,3.93],"issued":[34.74,64.82,38.59,4.03],"expires":[34.74,73.59,38.59,3.83],"sign":[5.3,80.95,76.67,6.05]}},"EC":{"src":"assets/idcards/ec.webp","w":1598,"h":984,"r":{"photo":[4.26,18.8,24.66,47.56],"names":[31.1,20.63,45.87,4.88],"surname":[31.1,30.49,45.87,4.88],"doc":[31.1,40.55,43.37,4.78],"sex":[31.1,50.51,25.72,4.67],"nat":[60.39,50.51,29.1,4.67],"birth":[31.1,59.96,25.72,4.57],"issued":[60.39,59.96,29.1,4.57],"expires":[31.1,69.11,51.63,4.78],"sign":[27.53,81.3,45.06,6.71]}},"CL":{"src":"assets/idcards/cl.webp","w":1482,"h":898,"r":{"photo":[3.71,18.26,24.29,53.67],"surname":[30.77,21.05,52.29,5.79],"names":[30.77,32.74,52.16,5.79],"nat":[30.5,44.43,27.94,5.23],"sex":[60.8,44.43,23.75,5.23],"birth":[30.5,55.23,25.91,5.46],"doc":[59.11,55.23,26.45,5.46],"issued":[30.5,66.15,25.91,5.46],"expires":[59.11,66.15,26.45,5.46],"run":[3.58,78.95,24.97,8.69],"sign":[31.92,77.62,40.42,12.81]}},"BO":{"src":"assets/idcards/bo.webp","w":1551,"h":915,"r":{"photo":[3.42,19.45,26.31,56.83],"surname":[31.91,21.42,56.87,5.46],"names":[31.91,32.9,56.87,5.46],"doc":[31.91,43.93,39.91,5.36],"birth":[31.91,55.08,30.37,5.57],"nat":[64.35,55.08,32.43,5.57],"sex":[31.91,66.34,14.31,5.68],"issued":[48.23,66.34,23.4,5.68],"expires":[73.05,66.34,23.73,5.68],"sign":[45.2,75.74,50.16,13.99]}},"CN":{"src":"assets/idcards/cn.webp","w":1492,"h":976,"r":{"photo":[70.58,22.44,26.01,43.03],"surname":[3.69,26.02,63.94,5.12],"names":[3.69,36.27,63.94,5.12],"sex":[3.69,46.52,19.57,4.51],"nat":[26.94,46.52,40.68,4.51],"birth":[3.69,56.15,24.66,4.51],"place":[31.23,56.15,36.39,4.51],"doc":[3.69,65.98,63.94,4.41],"issued":[3.69,75.41,26.74,4.61],"expires":[34.12,75.41,33.51,4.61],"sign":[3.69,85.04,64.08,6.97]}}};
 const ID_BIRTHPLACES={CN:['上海市','北京市','广州市','成都市','武汉市','杭州市'],HT:['PORT-AU-PRINCE','CAP-HAÏTIEN','GONAÏVES','JACMEL','LES CAYES'],IT:['ROMA','MILANO','NAPOLI','TORINO','FIRENZE','BOLOGNA'],DE:['BERLIN','HAMBURG','MÜNCHEN','KÖLN','FRANKFURT','LEIPZIG']};
 function idCivilStatus(p,dates){
  const seed=(Number(p.portraitSeed)||0)>>>0,fem=p.idSex==='F';
@@ -3615,7 +3708,7 @@ function callPrescriptionOffice(p){
  p.callStatus=responder?'answered':'unanswered';
  p.callResponder=responder;
  p.callAttempts=1;
- p.callRejected=Boolean(responder&&p.kind!=='chemy'&&p.kind!=='cifunando'&&p.kind!=='minorGuardian'&&(prescriptionErrorForCall(p)||Math.random()<0.20));
+ p.callRejected=Boolean(responder&&p.kind!=='chemy'&&p.kind!=='cifunando'&&p.kind!=='veniai'&&p.kind!=='minorGuardian'&&(prescriptionErrorForCall(p)||Math.random()<0.20));
  game.patientVerified=Boolean(responder);p.doctorVerified=responder==='doctor';
  record(!responder?`Llamada sin respuesta · folio ${p.folio}.`:
   `${responder==='secretary'?'La secretaria':'El médico'} ${p.callRejected?'desconoció':'reconoció'} la receta · folio ${p.folio}.`);
@@ -3698,7 +3791,7 @@ function receiveHtml(){if(!game.delivery)game.delivery=makeDelivery();const d=ga
  let cards=shown?Array.from({length:Math.min(8,d.actual)},(_,i)=>{const item=d.packItems[i]||{drug:d.drug,laboratory:pickAltLaboratory(i),damaged:false};return `<button class="medicine-box-visual ${game.inspectedPacks.includes(i)?'examined':''}" style="--box-order:${i}" data-action="inspect-pack" data-pack="${i}" title="Examinar caja real">${medicineCartonSvg(item.drug,i,{damaged:item.damaged,laboratory:item.laboratory})}<span class="medbox-caption">CAJA ${i+1}${game.inspectedPacks.includes(i)?' · ✓ REVISADA':''}</span></button>`}).join(''):'';
  return `${stage('stockroom','RECEPCIÓN DE PEDIDOS',`Guía ${d.id} · Compara el contenido con el documento`)}<section class="content"><div class="content-grid"><div class="paper"><h2>GUÍA DE DESPACHO</h2><p class="mini">Guía de despacho · ${escapeText(d.id)}</p><hr><p><b>Proveedor:</b> ${escapeText(d.regular?d.name:'Entrega especial de rectificación')}</p><p><b>Fecha:</b> ${dateOf(game.day)}</p>${d.lines?`<p><b>DETALLE DE LA GUÍA</b></p>${d.lines.map(r=>`<p>• ${escapeText(drugName(r.drug))} · ${r.expected} caja(s)</p>`).join('')}`:`<p><b>Producto:</b> ${escapeText(drugName(d.drug))}</p><p><b>Presentación:</b> ${escapeText(DRUGS[d.drug].pack)}</p>`}<p><b>Envases admitidos:</b> Tulab / Laboratorio Chicle</p><h2 class="right">${d.expected} CAJAS</h2>${d.regular?`<p class="mini right">Factura: ${pesos(d.expected*BOX_PRICE)} (${pesos(BOX_PRICE)} por caja)</p>`:''}<p class="mini">${d.regular?'Verifica cantidad, concentración e integridad antes de aceptar.':'Entrega vinculada a una incidencia anterior: '+d.ref}</p></div><div class="dark-card"><h2>REVISIÓN FÍSICA</h2><div class="pkg-wrap">${!shown?`<button class="shipping-box shipping-sprite" data-action="open-box" aria-label="Abrir caja de cartón: Controlados, distribuido por Interfurry"><img class="shipping-icon" src="${assetUrl('assets/shipping_box.webp')}" alt="" width="720" height="517"><span class="shipping-cta">ABRIR CAJA DE CARTÓN</span></button>`:cards}</div>${shown?`<div class="notice">Envases revisados: ${game.inspectedPacks.length}/${Math.min(8,d.actual)}.</div>`:'<p class="small muted">Haz clic en la caja para abrirla. Luego revisa los envases.</p>'}</div></div>${shown?`<div class="count-board" style="margin-top:16px"><div class="count-grid"><div class="count-tile"><small>GUÍA DOCUMENTA</small><b>${d.expected}</b></div><div class="count-tile"><small>REVISADAS</small><b>${game.inspectedPacks.length}</b></div><div class="count-tile"><small>TOTAL EN LA CAJA</small><b>${d.actual}</b></div></div><p>Compara guía, contenido e integridad antes de decidir.</p></div>`:''}</section>${actionbar([['✓ INGRESAR PEDIDO','accept-order','green',shown?'':'disabled'],['! REPORTAR DIFERENCIA','report-order','red',shown?'':'disabled'],['▣ LIBRO DE CONTROL','book','cream'],['← VOLVER','back-receive','dark']])}`}
 function bookHtml(){let id=DRUGS[ui.selectedDrug]?.book?ui.selectedDrug:CONTROLLED_IDS[0];let d=DRUGS[id];return `${stage('book','LIBRO DE CONTROL',`Cada presentación posee folios y saldos independientes`)}<section class="content"><div class="section-head"><h2>REGISTROS FARMACÉUTICOS</h2><div class="btn-row">${btn('← VOLVER A LA PANTALLA ANTERIOR','book-counter','cream')}</div></div><div class="split"><div class="paper"><h2>LIBRO FÍSICO</h2><div class="form-line"><label>Seleccionar presentación</label><select class="field" id="drugSelector">${CONTROLLED_IDS.map(k=>`<option value="${k}" ${k===id?'selected':''}>${drugName(k)}</option>`).join('')}</select></div><p class="mini">${d.pack} · Folio correlativo actual: ${game.folios[id]}.</p><hr><div class="book-scroll"><table class="data-table"><thead><tr><th>Fecha</th><th>Folio</th><th>Recetas</th><th>Egresos</th><th>Ingresos</th><th>Cantidad</th></tr></thead><tbody>${game.ledger.filter(x=>x.drug===id).map(x=>`<tr><td>${dateOf(x.originalDay)}${x.rectification?' *':''}</td><td>${x.folio}</td><td>${x.recipes}</td><td>${x.egress}</td><td>${x.ingress}</td><td>${x.balance}</td></tr>`).join('')||'<tr><td colspan="6">Sin asientos.</td></tr>'}</tbody></table></div><p class="mini">* Entrada de rectificación con respaldo y sin eliminación del historial.</p></div><div class="dark-card"><h2>CONCILIACIÓN</h2><div class="money-line"><span>Stock digital</span><b>${game.stock[id]} cajas</b></div><div class="money-line"><span>Saldo en libro</span><b>${game.bookStock[id]} cajas</b></div><div class="money-line"><span>Diferencia</span><b class="${game.stock[id]===game.bookStock[id]?'good':'danger'}">${game.stock[id]-game.bookStock[id]}</b></div><hr><h3>Movimientos pendientes</h3><p>${game.dispatches.filter(x=>!x.posted&&x.drug===id).length} receta(s) por transcribir</p><p>${game.receipts.filter(x=>!x.posted&&x.drug===id).length} ingreso(s) por transcribir</p><p class="small muted">La transcripción automática se ejecuta desde el cierre de jornada. El libro se mantiene como registro aparte del sistema digital.</p><p class="small">Puedes regularizar despachos históricos como asientos nuevos, sin borrar datos anteriores.</p>${btn('RECTIFICAR ASIENTOS ATRASADOS','post-backlog','cream')}</div></div></section>`}
-function closeHtml(){const unpostedD=game.dispatches.filter(x=>x.day===game.day&&!x.posted),unpostedR=game.receipts.filter(x=>x.day===game.day&&!x.posted);return `${stage('stockroom','CIERRE DE JORNADA','Libro de control · Movimientos del día')}<section class="content"><div class="content-grid"><div class="paper"><h2>DESPACHOS DE HOY</h2><p>Recetas dispensadas: <b>${unpostedD.length}</b></p><p>Cajas despachadas pendientes: <b>${unpostedD.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${Object.keys(DRUGS).map(id=>{let ar=unpostedD.filter(x=>x.drug===id);return ar.length?`<p><b>${drugName(id)}:</b> folio ${ar[0].folio}${ar.length>1?'–'+ar[ar.length-1].folio:''} · ${ar.length} receta(s) · ${ar.reduce((a,b)=>a+b.qty,0)} caja(s)</p>`:''}).join('')||'<p>No hay recetas pendientes de hoy.</p>'}${btn('REGISTRAR DESPACHOS EN LIBRO','post-dispatch','green',unpostedD.length?'':'disabled')}</div><div class="paper"><h2>INGRESOS DE HOY</h2><p>Recepciones pendientes: <b>${unpostedR.length}</b></p><p>Cajas recibidas pendientes: <b>${unpostedR.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${unpostedR.map(r=>`<p>${drugName(r.drug)}: +${r.qty} caja(s), guía ${r.ref}</p>`).join('')||'<p>No hay ingresos pendientes de hoy.</p>'}${btn('REGISTRAR INGRESOS EN LIBRO','post-receipt','cream',unpostedR.length?'':'disabled')}</div></div><div class="content-grid" style="margin-top:14px"><div class="dark-card"><h3>ESTADO DE LA JORNADA</h3><p>Observaciones SEREMI: ${game.inspectionDone?1:0}</p><p>Multas de hoy: <b class="fine">${pesos(game.finesToday)}</b></p><p class="small">Los folios se numeran por presentación y no se reinician al día siguiente.</p></div><div class="dark-card"><h3>REGISTROS</h3><p>${game.ledger.length} asiento(s) acumulado(s).</p><p>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length} movimientos totales por regularizar.</p><div class="small muted">${game.tutorial?'Registra los despachos para completar este turno de práctica.':'Puedes cerrar aunque olvides el libro; una fiscalización posterior podrá descubrir la omisión.'}</div>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length>0?`<div class="notice warn" role="status"><b>REGISTROS PENDIENTES</b><p>Antes de salir, transcribe los movimientos de hoy o rectifica los atrasados. Cerrar sin registrarlos podría generar una observación posterior.</p></div>`:''}${btn('REGULARIZAR REGISTROS ATRASADOS','post-backlog','cream')}</div></div></section>${actionbar([['▤ REVISAR LIBRO','book','cream'],[game.tutorial?'TERMINAR PRÁCTICA':'COBRAR SUELDO Y REGRESAR A CASA →','go-home','green']])}`}
+function closeHtml(){const unpostedD=game.dispatches.filter(x=>x.day===game.day&&!x.posted),unpostedR=game.receipts.filter(x=>x.day===game.day&&!x.posted);return `${stage('stockroom','CIERRE DE JORNADA','Libro de control · Movimientos del día')}<section class="content"><div class="content-grid"><div class="paper"><h2>DESPACHOS DE HOY</h2><p>Recetas dispensadas: <b>${unpostedD.filter(x=>!x.merma).length}</b></p><p>Cajas despachadas pendientes: <b>${unpostedD.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${Object.keys(DRUGS).map(id=>{let ar=unpostedD.filter(x=>x.drug===id&&!x.merma);return ar.length?`<p><b>${drugName(id)}:</b> folio ${ar[0].folio}${ar.length>1?'–'+ar[ar.length-1].folio:''} · ${ar.length} receta(s) · ${ar.reduce((a,b)=>a+b.qty,0)} caja(s)</p>`:''}).join('')||(unpostedD.some(x=>x.merma)?'':'<p>No hay recetas pendientes de hoy.</p>')}${unpostedD.filter(x=>x.merma).map(m=>`<p class="fine"><b>MERMA POR GOTERA:</b> ${escapeText(drugName(m.drug))} · ${m.qty} caja(s) mojada(s). Se anota como egreso en el libro.</p>`).join('')}${btn('REGISTRAR DESPACHOS EN LIBRO','post-dispatch','green',unpostedD.length?'':'disabled')}</div><div class="paper"><h2>INGRESOS DE HOY</h2><p>Recepciones pendientes: <b>${unpostedR.length}</b></p><p>Cajas recibidas pendientes: <b>${unpostedR.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${unpostedR.map(r=>`<p>${drugName(r.drug)}: +${r.qty} caja(s), guía ${r.ref}</p>`).join('')||'<p>No hay ingresos pendientes de hoy.</p>'}${btn('REGISTRAR INGRESOS EN LIBRO','post-receipt','cream',unpostedR.length?'':'disabled')}</div></div><div class="content-grid" style="margin-top:14px"><div class="dark-card"><h3>ESTADO DE LA JORNADA</h3><p>Observaciones SEREMI: ${game.inspectionDone?1:0}</p><p>Multas de hoy: <b class="fine">${pesos(game.finesToday)}</b></p><p class="small">Los folios se numeran por presentación y no se reinician al día siguiente.</p></div><div class="dark-card"><h3>REGISTROS</h3><p>${game.ledger.length} asiento(s) acumulado(s).</p><p>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length} movimientos totales por regularizar.</p><div class="small muted">${game.tutorial?'Registra los despachos para completar este turno de práctica.':'Puedes cerrar aunque olvides el libro; una fiscalización posterior podrá descubrir la omisión.'}</div>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length>0?`<div class="notice warn" role="status"><b>REGISTROS PENDIENTES</b><p>Antes de salir, transcribe los movimientos de hoy o rectifica los atrasados. Cerrar sin registrarlos podría generar una observación posterior.</p></div>`:''}${btn('REGULARIZAR REGISTROS ATRASADOS','post-backlog','cream')}</div></div></section>${actionbar([['▤ REVISAR LIBRO','book','cream'],[game.tutorial?'TERMINAR PRÁCTICA':'COBRAR SUELDO Y REGRESAR A CASA →','go-home','green']])}`}
 function schoolClothHtml(){
  if(game.day!==8)return '';
  const choice=game.schoolClothChoice;
@@ -3722,7 +3815,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.154) =====
+// ===== Manual práctico (1.9.158) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -4113,7 +4206,7 @@ function modalHtml(){
    }).join('');
    return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Inventario de regalos"><div class="modal gifts-modal"><div class="section-head"><h2>♢ REGALOS DE PACIENTES</h2><button class="smallbtn" data-action="close-modal">✕ CERRAR</button></div><p class="small">Cada obsequio se puede usar una sola vez. Los dulces mejoran el ánimo, los cupones abaratan el tratamiento y los recuerdos pueden venderse o descartarse.</p><div class="mood-duo">${moodBar('QF',game.moodQf)}${moodBar('CHARLITOS',game.moodCarlitos)}</div><div class="gift-list">${items||'<p>Todavía no tienes regalos. Algunos pacientes dejan sorpresas después de atenderlos.</p>'}</div><div class="btn-row">${btn('VOLVER AL JUEGO','close-modal','cream')}</div></div></div>`;
  }
- if(m==='manual')return `<div class="overlay" role="dialog" aria-modal="true"><div class="modal"><div class="section-head"><h2>▤ MANUAL DEL FARMACÉUTICO</h2><button class="smallbtn" data-action="close-modal">✕</button></div>${!game.tutorial?btn('REPETIR TURNO DE PRÁCTICA · DÍA 0','practice-replay','green')+`<div class="btn-row prac-topics">${PRACTICE_TOPICS.map(([id,l])=>btn('Solo: '+l,'practice-replay','cream',`data-topic="${id}"`)).join('')}</div>`:''}<div class="tabs">${MANUAL_TABS.map(t=>`<button class="tab ${ui.manual===t?'active':''}" data-action="manual-tab" data-tab="${t}">${t}</button>`).join('')}</div><div class="paper">${manualTabHtml(ui.manual)}</div><p class="tiny muted">El marco normativo es intencionalmente simplificado para la ficción; no utilices este manual como instrucción profesional sanitaria.</p></div></div>`;
+ if(m==='manual')return `<div class="overlay" role="dialog" aria-modal="true"><div class="modal"><div class="section-head"><h2>▤ MANUAL DEL FARMACÉUTICO</h2><button class="smallbtn" data-action="close-modal">✕</button></div>${!game.tutorial?btn('REPETIR TURNO DE PRÁCTICA · DÍA 0','practice-replay','green'):''}<div class="tabs">${MANUAL_TABS.map(t=>`<button class="tab ${ui.manual===t?'active':''}" data-action="manual-tab" data-tab="${t}">${t}</button>`).join('')}</div><div class="paper">${manualTabHtml(ui.manual)}</div><p class="tiny muted">El marco normativo es intencionalmente simplificado para la ficción; no utilices este manual como instrucción profesional sanitaria.</p></div></div>`;
  if(m==='report')return `<div class="overlay" role="dialog" aria-modal="true"><div class="modal"><div class="section-head"><h2>! REPORTAR DIFERENCIA DE PEDIDO</h2><button class="smallbtn" data-action="close-modal">✕</button></div><div class="paper"><p>Guía <b>${game.delivery.id}</b> · ${game.delivery.lines?game.delivery.lines.map(x=>drugName(x.drug)).join(" / "):drugName(game.delivery.drug)}</p><p>Unidades documentadas: <b>${game.delivery.expected}</b></p><div class="form-line"><label for="actualCount">Cantidad físicamente recibida</label><input id="actualCount" class="field" type="number" min="0" max="40" value="${ui.reportCount}"></div><div class="form-line"><label for="reportKind">Tipo de incidencia</label><select id="reportKind" class="field"><option value="" selected>Seleccionar incidencia…</option><option value="missing" ${ui.reportType==='missing'?'selected':''}>Faltante</option><option value="surplus" ${ui.reportType==='surplus'?'selected':''}>Sobrante</option><option value="wrong" ${ui.reportType==='wrong'?'selected':''}>Principio activo / concentración incorrecta</option><option value="damaged" ${ui.reportType==='damaged'?'selected':''}>Caja dañada</option></select></div><p class="mini">Solo se ingresa al sistema stock apto; las unidades en cuarentena se mantienen separadas.</p></div><div class="btn-row">${btn('CONFIRMAR REPORTE','confirm-report','green')}${btn('CANCELAR','close-modal','dark')}</div></div></div>`;
  if(m==='notify'){
   const practicePolice=Boolean(game.tutorial&&practiceStep()?.key==='fakeid');
@@ -4157,7 +4250,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.154 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.158 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -4426,7 +4519,7 @@ function handleAction(action,target){if(action==='new'){startNew();return}
  if(action==='insurance'){ui.modal='insurance';render();return}
  if(action==='safe'){ui.modal='safe';render();return}
  if(action==='safe-buy'){buySafe();return}
- if(action==='safe-move'){safeMove(target.dataset.dir,target.dataset.amount);return}
+ if(action==='safe-move'){safeMove(target.dataset.dir,target.dataset.amount??safeAmountFromInput());return}
  if(action==='repairs'){ui.modal='repairs';render();return}
  if(action==='repair'){repairItem(target.dataset.kind);return}
  if(action==='ins-buy'){buyInsurance(target.dataset.kind);return}
@@ -4667,7 +4760,7 @@ app.addEventListener('click',e=>{let el=e.target.closest('[data-action]');if(!el
  try{handleAction(action,el);}finally{clickedAction=null;}
 });
 let volPreviewAt=0;
-app.addEventListener('input',e=>{
+app.addEventListener('input',e=>{if(e.target?.id==='safe-amount'){ui.safeAmount=e.target.value;return}
  const r=e.target?.closest?.('[data-volume]');if(!r)return;
  const kind=r.dataset.volume,v=Number(r.value);setAudioLevel(kind,v);
  const o=document.getElementById('vol-'+kind+'-out');if(o)o.textContent=v+' %';
