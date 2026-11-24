@@ -1044,3 +1044,5 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 
 /* Carabineros (1.9.146). */
 .stage-character.regular .carabineros-portrait{width:100%;height:100%;object-fit:contain;object-position:center bottom;image-rendering:pixelated}
+
+.robbery-modal .robbery-art{display:block;width:100%;height:auto;max-height:42vh;object-fit:cover;border:3px solid #b8a36e;margin:0 0 12px;image-rendering:pixelated}
