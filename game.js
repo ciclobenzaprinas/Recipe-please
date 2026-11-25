@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.180. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.181. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -69,7 +69,8 @@ const DOCTOR_REGISTRY={
  'Dr. Ysela Creyó':{rut:'36.789.012-3',signature:'Y. Creyo',title:'Médico Cirujano',canPrescribe:true},
  'TM. Mauricio Fuentes':{rut:'37.321.778-4',signature:'M. Fuentes',title:'Tecnólogo Médico',canPrescribe:false},
  'Pod. Camila Navarro':{rut:'38.610.216-5',signature:'C. Navarro',title:'Podóloga',canPrescribe:false},
- 'Dra. Fixa Pilar':{rut:'39.481.206-4',signature:'F. Pilar',title:'Médica Veterinaria',canPrescribe:true}
+ 'Dra. Fixa Pilar':{rut:'39.481.206-4',signature:'F. Pilar',title:'Médica Veterinaria',canPrescribe:true},
+ 'Dra. Alice Grooming':{rut:'41.205.318-4',signature:'A. Grooming',title:'Médica Cirujana'}
 };
 function normalizePrescriberRut(rut){
  return String(rut||'').trim().toUpperCase().replace(/[.\s-]/g,'');
@@ -86,6 +87,7 @@ function substituteTechnologist(day){
  };
 }
 function findPrescriberRecord(p){
+ if(p.prescriber==='Dra. Alice Grooming'&&typeof groomingBanned==='function'&&groomingBanned())return null;
  if(Object.prototype.hasOwnProperty.call(DOCTOR_REGISTRY,p.prescriber))return DOCTOR_REGISTRY[p.prescriber];
  if(p.kind!=='tmFraud'||!Number.isInteger(p.tmIssuerDay))return null;
  const entry=substituteTechnologist(p.tmIssuerDay);
@@ -116,7 +118,7 @@ function fictionalSignature(p){return doctorInfo(p?.prescriber).signature}
 const SIGNATURE_IDS={
  'Dra. Francisca Lagos':0,'Dr. Héctor Silva':1,'Dra. Verónica Cruz':2,
  'Dr. Nicolás Paredes':3,'Dra. Elisa Molina':4,'Dr. Ernesto Valdés':5,
- 'Dr. Ysela Creyó':6,'TM. Mauricio Fuentes':7,'Dr. Simón Araya':8,'Dra. Fixa Pilar':9
+ 'Dr. Ysela Creyó':6,'TM. Mauricio Fuentes':7,'Dr. Simón Araya':8,'Dra. Fixa Pilar':9,'Dra. Alice Grooming':10
 };
 function signatureArtwork(name,altered=false){
  const id=SIGNATURE_IDS[name];
@@ -351,6 +353,7 @@ function subjectPortrait(p,mode='stage'){
   if(p?.kind==='donVictor')return `<img class="patient-portrait don-victor-portrait" src="${assetUrl('assets/patients/don-victor.webp')}" alt="Don Invictus" draggable="false">`;
   if(p?.kind==='tuguelExpired'||p?.kind==='tuguelFake'){const asset=mode==='id'?'assets/patients/tuguel_id.webp':'assets/patients/tuguel_lacras.webp';return `<img class="patient-portrait tuguel-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Retrato de Tuguel Pagaba" draggable="false">`;}
   if(p?.kind==='cifunando'){const asset=mode==='id'?'assets/patients/cifunando_id.webp':'assets/patients/cifunando.webp';return `<img class="patient-portrait chemy-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Cifunando Feruentes Crack" draggable="false">`;}
+  if(p?.kind==='gordon'){const st=Math.max(1,Math.min(7,Number(p.gordonVisit)||1));const asset=mode==='id'?'assets/patients/gordon_id.webp':`assets/patients/gordon_${st}.webp`;return `<img class="patient-portrait gordon-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Gordon Degadillo Barriga" draggable="false">`;}
   if(p?.kind==='veniai'){const asset=mode==='id'?'assets/patients/veniai_id.webp':'assets/patients/veniai.webp';return `<img class="patient-portrait veniai-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Veniai Rugoso" draggable="false">`;}
   if(p?.kind==='chemy'){const asset=mode==='id'?'assets/patients/chemy_id.webp':'assets/patients/chemy.webp';return `<img class="patient-portrait chemy-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Chemy Araucanía" draggable="false">`;}
   if(p?.kind==='clubNocturno'){const asset=mode==='id'?'assets/patients/principe_egg_id.webp':'assets/patients/principe_egg.webp';return `<img class="patient-portrait special-club-portrait ${mode==='id'?'id-photo-pixel':''}" src="${assetUrl(asset)}" alt="Príncipe Egg" draggable="false">`;}
@@ -391,7 +394,7 @@ function assignPatientModel(p){
  game.usedIdentityNames=game.usedIdentityNames||[];
  game.usedExtraPortraits=game.usedExtraPortraits||[];
  game.usedCatalogIds=game.usedCatalogIds||[];
- if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(p.kind)){
+ if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai','gordon'].includes(p.kind)){
   if(!Number.isInteger(p.catalogId)){
    const rec=pickCatalogEntry(p,game.usedCatalogIds);
    if(rec)applyCatalogIdentity(p,rec);
@@ -746,7 +749,7 @@ d.returnedElectronicPrescriptions=d.returnedElectronicPrescriptions||[];d.destro
    const basePool=p.face==='male'?MALE_BASES:FEMALE_BASES;
    if(p.portraitModel===undefined){const seed=(p.portraitSeed>>>0)||i+1;const slot=seed%160;p.portraitModel=basePool[Math.floor(slot/20)]*20+(slot%20)}
    if(p.idPortraitModel===undefined){const bad=p.kind==='fakeid'||p.idPortraitSeed!==p.portraitSeed;const base=basePool.indexOf(Math.floor(p.portraitModel/20));p.idPortraitModel=bad?basePool[(base+3+basePool.length)%basePool.length]*20+(p.portraitModel%20):p.portraitModel}
-   if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(p.kind)){
+   if(!['specialCarlos','chinese','clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai','gordon'].includes(p.kind)){
     // Guardados antiguos: si el personaje del catálogo ya no existe, se reasigna uno equivalente (mismo sexo y nacionalidad) sin cambiar el nombre.
     if(Number.isInteger(p.catalogId)&&p.catalogId>=NEW_CAST_START&&!CAST600[p.catalogId]){delete p.catalogId;delete p.idCatalogId;delete p.variantImpostor}
     if(Number.isInteger(p.idCatalogId)&&!CAST600[p.idCatalogId]){delete p.idCatalogId;delete p.variantImpostor}
@@ -838,6 +841,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  abuelo:['Eliseo Quintrel','losartan','SIMPLE','Visita sin receta.','Se le nota cansado, joven. Tome un dulce, que con algo rico se arregla el día.','male'],
  tarotera:['Clarisa Antilef','losartan','SIMPLE','Visita sin receta.','Tome, pa que sepa que hacer','female'],
  cifunando:['Cifunando Feruentes Crack','clonazepam2','RETENIDA','Receta válida de Clonazepam 2 mg; documentos en regla.','Buenas tardes, ¿cómo está? Vengo por mi clonazepam de 2 mg. Aquí tiene la receta y mi carnet.','male'],
+ gordon:['Gordon Degadillo Barriga','fentermina1875','CHEQUE','Receta cheque válida de la Dra. Alice Grooming; la consulta la confirma siempre. La huella coincide con el carnet.','Buenas tardes. Vengo por mi fentermina. Aquí está la receta de la doctora Grooming y mi carnet.','male'],
  veniai:['Veniai Rugoso','ozempic2','SIMPLE','Receta válida de semaglutida 2 mg/1,5 mL; DNI español en regla.','Buenas tardes, ¿qué tal? Vengo a por mi semaglutida de 2 mg/1,5 mL. Aquí tiene la receta y mi DNI, ¿vale?','male'],
  chemy:['Chemy Araucanía','fenbendazol25','SIMPLE','Receta válida de Fenbendazol 25 %.','Muuu... digo, buenas tardes. Vengo por mi fenbendazol al 25 %, aquí está la receta.','female'],
  aluminio:['Hernán Zúñiga','quetiapina50','SIMPLE','Paciente no porta documento de identidad.','estos weones quieren puro controlarnos','male'],
@@ -868,12 +872,12 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  const doctors=['Dra. Francisca Lagos','Dr. Héctor Silva','Dra. Verónica Cruz','Dr. Nicolás Paredes','Dra. Elisa Molina'];
  const portraitSeed=Math.floor(Math.random()*2147483647),idPortraitSeed=kind==='fakeid'?portraitSeed+917245:portraitSeed;
  const replacement=kind==='tmFraud'&&game.specialEvents.tmDetained?substituteTechnologist(game.day):null;
- const prescriber=replacement?.name||(kind==='podiatristRx'?'Pod. Camila Navarro':kind==='sicolasMuros'?'Dr. Nere Bridges':kind==='stolen'?'Dr. Ernesto Valdés':kind==='fakeDoctor'?'Dr. Simón Araya':kind==='specialCarlos'?'Dr. Ysela Creyó':kind==='tmFraud'?'TM. Mauricio Fuentes':kind==='chemy'?'Dra. Fixa Pilar':doctors[(game.day+n)%doctors.length]);
- const gaveId=kind==='missingid'||kind==='aluminio'||kind==='tarotera'||kind==='abuelo'||kind==='specialCarlos'||kind==='chinese'||kind==='giftPaper'?false:['fakeid','idBirthDateFraud'].includes(kind)||Math.random()<0.65;
+ const prescriber=replacement?.name||(kind==='podiatristRx'?'Pod. Camila Navarro':kind==='sicolasMuros'?'Dr. Nere Bridges':kind==='gordon'?'Dra. Alice Grooming':kind==='stolen'?'Dr. Ernesto Valdés':kind==='fakeDoctor'?'Dr. Simón Araya':kind==='specialCarlos'?'Dr. Ysela Creyó':kind==='tmFraud'?'TM. Mauricio Fuentes':kind==='chemy'?'Dra. Fixa Pilar':doctors[(game.day+n)%doctors.length]);
+ const gaveId=kind==='gordon'?true:kind==='missingid'||kind==='aluminio'||kind==='tarotera'||kind==='abuelo'||kind==='specialCarlos'||kind==='chinese'||kind==='giftPaper'?false:['fakeid','idBirthDateFraud'].includes(kind)||Math.random()<0.65;
  // Si hay carnets falsos masculinos disponibles, parte de los casos de identidad falsa salen con ellos.
  const fakeSexes=kind==='fakeid'?Object.keys(FAKE_CARNETS).map(id=>CAST600[id].sex):[];
  const face=fakeSexes.length&&portraitSeed%2===0?(fakeSexes[Math.floor(portraitSeed/2)%fakeSexes.length]==='M'?'male':'female'):kind==='idBirthDateFraud'&&portraitSeed%2?'male':config[5];
- const patientName=['clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai'].includes(kind)?config[0]:kind==='chinese'?'No-Meh Wei':variedPatientName(face,config[0],kind);
+ const patientName=['clubNocturno','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando','veniai','gordon'].includes(kind)?config[0]:kind==='chinese'?'No-Meh Wei':variedPatientName(face,config[0],kind);
  const info=replacement||doctorInfo(prescriber);
  const p={kind,name:patientName,drug:drugId,rxType,issue:config[3],quote:config[4],face,rut:rutFmt(r),rxRut:typeof rr==='number'?rutFmt(rr):rr,rxDate,folio,gaveId,prescriber,prescriberRegistered:kind!=='fakeDoctor',prescriberRut:info.rut,qty:1,doctorVerified:false,done:false,portraitSeed,idPortraitSeed,idUndercover:Math.random()<0.02,signature:info.signature};
  if(rxRegWrong){p.rxReg=rxRegWrong;p.issue='Número de Registro del medicamento errado.'}
@@ -897,7 +901,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='clubNocturno'){p.rxType='NINGUNA';p.folio='';p.gaveId=false;p.note='Tarjeta del club nocturno';p.prescriber='—';p.prescriberRegistered=false;p.prescriberRut='—';Object.assign(p,{firstNames:'Príncipe',surnames:'Egg',idSex:'M',birthDate:'03/06/1998',registeredBirthDate:'03/06/1998',documentNumber:'03069845912',idIssued:'12/03/2023',idExpires:'12/03/2031',idDateSystem:2,noDocument:false});}
  // Aproximadamente 10% de atenciones ordinarias se presentan realmente sin identificación.
  // Se excluyen personajes especiales y casos de falsificación documental.
- p.noDocument=kind==='missingid'||kind==='aluminio'||(!isForgedIdentityCase(p)&&!['tuguelExpired','specialCarlos','chinese','clubNocturno','giftPaper','tarotera','abuelo','chemy','cifunando','veniai','bribe','tmFraud','podiatristRx'].includes(kind)&&Math.random()<0.10);
+ p.noDocument=kind==='missingid'||kind==='aluminio'||(!isForgedIdentityCase(p)&&!['tuguelExpired','specialCarlos','chinese','clubNocturno','giftPaper','tarotera','abuelo','chemy','cifunando','veniai','gordon','bribe','tmFraud','podiatristRx'].includes(kind)&&Math.random()<0.10);
  if(p.noDocument){p.gaveId=false;p.issue='Paciente no porta documento de identidad.';}
  if(kind==='rufus')Object.assign(p,{rut:'N.N',rxRut:'N.N',gaveId:true,noDocument:false,
   idUndercover:false,docAuthenticity:'forged-novelty-card'});
@@ -907,6 +911,15 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  }
  if(kind==='cifunando'){Object.assign(p,{firstNames:'Cifunando',surnames:'Feruentes Crack',birthDate:'14/05/2001',noDocument:false,gaveId:true,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
  if(kind==='veniai'){Object.assign(p,{firstNames:'Veniai',surnames:'Rugoso',birthDate:'21/09/1988',documentNumber:'48217396Z',noDocument:false,gaveId:true,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
+ if(kind==='gordon'){
+  // Siempre el mismo carnet (foto de su primera versión, la más pesada). La huella es siempre válida.
+  const visit=Math.max(1,Math.min(GORDON_VISITS,game.specialEvents?.gordonVisits||1));
+  Object.assign(p,{firstNames:'Gordon',surnames:'Degadillo Barriga',birthDate:'14/03/1990',registeredBirthDate:'14/03/1990',documentNumber:'532018744',
+   idIssued:'10/05/2022',idExpires:'10/05/2030',idValidityYears:8,idDateSystem:2,idSex:'M',confirmedIdSex:'M',
+   noDocument:false,gaveId:true,idUndercover:false,prescriberRegistered:true,gordonVisit:visit,
+   drug:visit<=GORDON_SWITCH_AFTER?'fentermina1875':'fentermina375',rxType:'CHEQUE',qty:1,
+   issue:config[3],quote:GORDON_LINES[visit-1]||config[4]});
+ }
  if(kind==='chemy'){Object.assign(p,{firstNames:'Chemy',surnames:'Araucanía',birthDate:'12/03/2001',noDocument:false,idUndercover:false,prescriberRegistered:true,issue:config[3],quote:config[4]});}
  if(kind==='aluminio'){applyCatalogIdentity(p,CAST600[641]);p.gaveId=false;p.noDocument=true;p.idUndercover=false;p.issue=config[3];p.quote=config[4];}
  if(kind==='specialCarlos'){p.rut='00.000.001-Z';p.rxRut=p.rut;p.birthDate='14/08/2000';p.gaveId=false;p.prescriberRegistered=true;p.prescriberRut=doctorInfo('Dr. Ysela Creyó').rut;p.signature=doctorInfo('Dr. Ysela Creyó').signature;}
@@ -930,8 +943,8 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='lookHair'){p.appearanceStyle='cabello';p.gaveId=true;}
  if(kind==='lookClothes'){p.appearanceStyle='ropa';p.gaveId=true;}
  if(kind==='lookAge'){p.appearanceStyle='tiempo';p.gaveId=true;}
- p.nationalityCode=kind==='clubNocturno'?'NO':['specialCarlos','giftPaper','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(kind)?'CL':kind==='veniai'?'ES':kind==='chinese'?'CN':chooseNationality(kind==='underage'?YOUNG_FOREIGN_NATIONALITY_WEIGHTS:undefined);
- if(p.nationalityCode!=='CL'&&kind!=='chinese'&&kind!=='specialCarlos'){
+ p.nationalityCode=kind==='clubNocturno'?'NO':['specialCarlos','giftPaper','tuguelExpired','tuguelFake','sicolasMuros','rufus','aluminio','tarotera','abuelo','chemy','cifunando'].includes(kind)?'CL':kind==='veniai'?'ES':kind==='gordon'?'US':kind==='chinese'?'CN':chooseNationality(kind==='underage'?YOUNG_FOREIGN_NATIONALITY_WEIGHTS:undefined);
+ if(p.nationalityCode!=='CL'&&kind!=='chinese'&&kind!=='specialCarlos'&&kind!=='gordon'){
   const person=internationalName(p.nationalityCode,p.face,game.usedIdentityNames||[]);
   if(person){p.name=person.display;p.firstNames=person.first;p.surnames=person.last;}
  }else if(kind==='chinese'){
@@ -954,7 +967,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.180) =====
+// ===== Diálogos personalizados (1.9.181) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1044,8 +1057,8 @@ function dlgBody(p){
  return dlgFixArt(dlgPick(pool,p,3),p).replace('{d}',d);
 }
 // Tipos que ya tienen líneas propias: solo se les antepone el humor si el paciente se ve enojado.
-const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
-const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
+const DLG_OWN_LINES=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','gordon','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','tmFraud','underage','stolen','idBirthDateFraud','fakeid','aluminio','lookHair','lookClothes','lookAge','sicolasMuros','rufus','podiatristRx','fakeDoctor'];
+const DLG_KEEP_PLAIN=['tuguelExpired','tuguelFake','minorGuardian','chemy','cifunando','veniai','gordon','specialCarlos','chinese','clubNocturno','tarotera','abuelo','giftPaper','aluminio','sicolasMuros','rufus','podiatristRx','idBirthDateFraud'];
 const DLG_TAIL={"old":["Ojalá no se acabe el remedio, hijito, me cuesta venir hasta acá.","Mi nieta me acompaña, pero me dejó esperando afuera.","Hoy hace harto frío para andar en la calle.","Desde que enviudé me toca a mí hacer los trámites.","Esta farmacia siempre ha sido muy ordenada.","Ya me aprendí de memoria los nombres de los remedios.","Mi doctor dice que voy bien, ¡gracias a Dios!","Me vine temprano para no pillar la fila de la tarde."],"adult":["Salí del trabajo corriendo para llegar.","Ojalá me atiendan luego, tengo que ir a buscar a los niños.","Esta semana ha sido pesadísima.","Me encargaron que no se me olvidara retirar esto.","Con este tráfico casi no llego.","Me dijeron que acá atienden bien.","Qué fila más larga hoy, ¿no?","Mañana tengo que hacerme unos exámenes, ojalá salga todo bien."],"young":["Me escapé un ratito del trabajo para venir.","Mi mamá me encargó que no olvidara nada.","Tengo que volver a la u en media hora.","Esta fila no avanza nunca, ¿no?","Salí de turno y vine directo para acá.","Ojalá alcance a llegar al bus después de esto.","Mi papá estuvo pendiente toda la mañana de este remedio."]};
 function dlgTail(p){
  const evT=DAY_EVENTS[game?.dayEvent]?.tails;
@@ -1125,7 +1138,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.180) =====
+// ===== Habla de extranjeros (1.9.181) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1187,7 +1200,7 @@ function dlgOwn(p,key){return dlgPick(DLG_OWN_POOLS[key],p,8)}
 function baseDialogue(p){
  if(p.kind==='tuguelExpired')return '¡Qué pasa, papito! ¿Me da el medicamento? Traigo el carnet acá.';
  if(p.kind==='minorGuardian')return p.quote;
- if(p.kind==='cifunando'||p.kind==='veniai')return p.quote;
+ if(p.kind==='cifunando'||p.kind==='veniai'||p.kind==='gordon')return p.quote;
  if(p.kind==='chemy')return 'Muuu... digo, buenas tardes. Vengo por mi fenbendazol al 25 %, aquí está la receta.';
  if(p.kind==='tuguelFake')return '¡Ya po, papito! Ahora sí traje el documento renovado. ¿Estamos listos?';
  if(p.kind==='specialCarlos')return '¡Buenas! Tengo una receta de clotiazepam de 10. El carnet lo tengo aquí por si lo necesita.';
@@ -1338,7 +1351,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.180) =====
+// ===== Eventos del barrio (1.9.181) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -1392,6 +1405,51 @@ const PHONE_BROKEN_DAY=13;
 const CLOVER_MULT=1.5,CLOVER_DAYS=3;
 function cloverOn(){return Boolean(game&&!game.tutorial&&game.cloverFrom&&game.day>=game.cloverFrom&&game.day<=game.cloverUntil)}
 const cloverP=base=>base*(cloverOn()?CLOVER_MULT:1);
+// Gordon Degadillo Barriga: 7 visitas, una cada 3 jornadas desde la jornada 14. Receta cheque siempre válida (Dra. Alice Grooming),
+// confirmada siempre por teléfono, mismo carnet con la foto de su primera versión y huella siempre coincidente.
+const GORDON_VISITS=7,GORDON_START_DAY=14,GORDON_GAP=3,GORDON_SWITCH_AFTER=3;
+const GORDON_LINES=[
+ 'Buenas tardes. Vengo por mi fentermina de 18,75 mg. Aquí está la receta de la doctora Grooming y mi carnet.',
+ 'Hola de nuevo. La doctora dice que voy bien: sigo con la de 18,75 mg.',
+ 'Buenas. Ya ve que no me parezco tanto a la foto del carnet... la huella sí es mía, la puede comprobar.',
+ 'Mi doctora me subió la dosis: ahora la de 37,5 mg. Aquí tiene la receta nueva y mi carnet.',
+ 'Vengo por la de 37,5 mg. La secretaria de la doctora le confirma la receta, si quiere llamar.',
+ 'Me dicen que la ropa me queda grande. Mi carnet es el mismo de siempre, y la huella también.',
+ 'Aquí estoy otra vez, con mi receta y mi carnet. Dígame si hay algún problema.'
+];
+// Tras la última visita de Gordon, la Dra. Alice Grooming queda detenida: desde la jornada siguiente TODA receta suya se rechaza (para siempre).
+const GROOMING_NAME='Dra. Alice Grooming',GROOMING_BAN_P=0.22;
+function groomingBanned(){
+ const se=game?.specialEvents;
+ return Boolean(game&&!game.tutorial&&se&&(se.gordonVisits||0)>=GORDON_VISITS&&game.day>(se.gordonLastDay||0));
+}
+function ensureGroomingPatient(){
+ if(!game||game.tutorial||game.gameOver||!groomingBanned())return;
+ if(!['briefing','counter','inspect'].includes(game.scene))return;
+ const se=game.specialEvents;
+ if(se.groomingRolledDay===game.day)return;
+ se.groomingRolledDay=game.day;
+ if(Math.random()>=GROOMING_BAN_P)return;
+ const p=makePatient('fakeDoctor',70+(game.day%7));
+ const info=doctorInfo(GROOMING_NAME);
+ Object.assign(p,{groomingBan:true,prescriber:GROOMING_NAME,prescriberRut:info.rut,signature:info.signature,prescriberRegistered:false,
+  drug:Math.random()<0.5?'fentermina1875':'fentermina375',rxType:'CHEQUE',qty:1,gaveId:true,noDocument:false,idUndercover:false,
+  issue:'Receta de la Dra. Alice Grooming, detenida e inhabilitada: debe rechazarse.',
+  quote:'Buenas tardes. Vengo por mi fentermina; la receta es de la doctora Grooming, mi médica de siempre.'});
+ initializeIdentityDocument(p,game.day);
+ initializeForeignPrescriptionId(p);
+ const at=Math.min(game.patients.length,1+Math.floor(Math.random()*Math.max(1,game.patients.length)));
+ game.patients.splice(at,0,p);
+ save();
+}
+function gordonDue(){
+ if(!game||game.tutorial||game.gameOver)return false;
+ const se=game.specialEvents||(game.specialEvents={}),n=se.gordonVisits||0;
+ if(n>=GORDON_VISITS)return false;
+ if(game.force?.gordon)return true;
+ if(game.day<GORDON_START_DAY)return false;
+ return n===0||game.day-(se.gordonLastDay||0)>=GORDON_GAP;
+}
 const CIFUNANDO_DAILY_CHANCE=0.00001/14;
 const PUDU_CARD='Carta Bolsillomón: Pudú Brasa',PUDU_EVENT='pago-bolsillomon';
 const OPTIMUS_PAN='Optimus Pan',OPTIMUS_EVENT='regalo-cabos',OPTIMUS_RUMOR_PRICE=500000;
@@ -1430,6 +1488,7 @@ if(game.force&&!game.tutorial){
   if(game.force.carlos){if(!types.includes('specialCarlos'))types.splice(Math.min(2,types.length),0,'specialCarlos');game.force.carlos=false}
  }
  if(!game.specialEvents.chemySeen&&game.day>=3&&(game.day>=12||Math.random()<cloverP(0.12))){types.push('chemy');game.specialEvents.chemySeen=true;}
+ if(gordonDue()){types.splice(Math.min(1,types.length),0,'gordon');game.specialEvents.gordonVisits=(game.specialEvents.gordonVisits||0)+1;game.specialEvents.gordonLastDay=game.day;if(game.force)game.force.gordon=false}
  if(game.day===11&&!game.specialEvents.veniaiSeen){types.splice(Math.min(2,types.length),0,'veniai');game.specialEvents.veniaiSeen=true;}
  if(!game.specialEvents.aluminioSeen&&game.day>=2&&(game.day===9||Math.random()<cloverP(0.08))){types.push('aluminio');game.specialEvents.aluminioSeen=true;}
  // Independientes y diarios, desde la primera jornada.
@@ -1452,7 +1511,7 @@ if(game.force&&!game.tutorial){
  if(game.day===PHONE_BROKEN_DAY+1&&!game.phoneRestoredNotice){game.phoneRestoredNotice=true;addNotice('phone-restored','TELÉFONO NUEVO DISPONIBLE','Compraron un teléfono nuevo para la farmacia. Ya puedes volver a llamar a los médicos y consultar tus notificaciones.','sistema')}
  if(evId){for(const k of DAY_EVENTS[evId].extra)types.splice(Math.min(types.length,1+Math.floor(Math.random()*types.length)),0,k);addNotice('day-event-'+game.day,DAY_EVENTS[evId].title,DAY_EVENTS[evId].memo,'alerta')}
  if(shutterStuck){
-  const SPECIAL=['specialCarlos','chinese','clubNocturno','tarotera','chemy','cifunando','aluminio','veniai','sicolasMuros','rufus','minorGuardian'];
+  const SPECIAL=['specialCarlos','chinese','clubNocturno','tarotera','chemy','cifunando','aluminio','veniai','gordon','sicolasMuros','rufus','minorGuardian'];
   // La mitad se aplica a los pacientes comunes; los especiales de la jornada se suman encima (6 comunes → 3, + 2 especiales = 5).
   const target=Math.max(1,Math.ceil(types.filter(t=>!SPECIAL.includes(t)).length/2));
   while(types.filter(t=>!SPECIAL.includes(t)).length>target){const idx=types.map((t,i)=>SPECIAL.includes(t)?-1:i).filter(i=>i>=0);types.splice(idx[Math.floor(Math.random()*idx.length)],1)}
@@ -1514,6 +1573,8 @@ if(game.force&&!game.tutorial){
  }
  ensureDaySevenPatient();
  ensureTragicPatient();
+ ensureGroomingPatient();
+ if(groomingBanned())addNotice('grooming-ban','ALERTA SEREMI: RECETAS DE LA DRA. ALICE GROOMING','El paciente Gordon Degadillo Barriga falleció por desnutrición. La Dra. Alice Grooming fue detenida y no puede emitir más recetas. Desde ahora debes RECHAZAR toda receta firmada por ella, siempre.','alerta');
  game.dayStats=newDayStats();game.patientIndex=0;game.patientResult=null;game.patientVerified=false;game.idRequested=false;game.qrChecked=false;game.deliveryDone=false;game.delivery=null;game.boxOpened=false;game.inspectedPacks=[];game.inspectionDone=false;game.inspectionIssue=null;game.inspectionResolutionLocked=false;game.finesToday=0;game.dayIncome=0;game.dayPurchases=0;game.dayCommission=0;game.dayCommissionPaid=0;game.dayBonus=0;game.dayExpenses=0;game.dayPay=false;game.daySummary=null;game.illegalToday=0;
  if(game.day>=18&&game.day<=20)addNotice('interfurry-fin','INTERFURRY: ÚLTIMO DESPACHO','Interfurry avisa que el despacho de la jornada 19 será el último. Después de eso, los pedidos se hacen por MercaFarma.cl.','pedido');
  ensureTrackedStock();
@@ -1903,7 +1964,7 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
   if(alreadyUsed||p.qrValidation==='dispensed')outstandingChecks.push('rx-duplicate');
   else if(electronic&&(!game.qrChecked||p.qrValidation!=='valid')&&!electronicIssue&&!['invalid','expired'].includes(p.qrValidation))outstandingChecks.push('qr-unchecked');
  }
- let expected=['correct','carvedilol','controlled','missingid','electronic','check','retainedCommon','specialCarlos','chemy','cifunando','veniai','minorGuardian','idLastDay','lookHair','lookClothes','lookAge','correctedCheque','correctedPrescription'].includes(p.kind)?'dispense':stolenFolio?'seremi':isForgedIdentityCase(p)?'police':['wrongtype','wrongtypeRepeat','sicolasMuros'].includes(p.kind)?'seremi':['chinese','giftPaper','underage','fakeDoctor','different','expired','wrongtype','double','typo','idExpired','idFuture','idSexMismatch','tuguelExpired'].includes(p.kind)?'return':'return';
+ let expected=['correct','carvedilol','controlled','missingid','electronic','check','retainedCommon','specialCarlos','chemy','cifunando','veniai','gordon','minorGuardian','idLastDay','lookHair','lookClothes','lookAge','correctedCheque','correctedPrescription'].includes(p.kind)?'dispense':stolenFolio?'seremi':isForgedIdentityCase(p)?'police':['wrongtype','wrongtypeRepeat','sicolasMuros'].includes(p.kind)?'seremi':['chinese','giftPaper','underage','fakeDoctor','different','expired','wrongtype','double','typo','idExpired','idFuture','idSexMismatch','tuguelExpired'].includes(p.kind)?'return':'return';
  let correct=(isPaperEvent(p)&&(decision==='keep-paper'||decision==='return')) || decision===expected || (isForgedIdentityCase(p)&&decision==='police') || (p.kind==='fakeid'&&decision==='return') || (['wrongtype','wrongtypeRepeat'].includes(p.kind)&&decision==='return') || (decision==='return' && tracked(p.drug) && game.stock[p.drug]<(p.qty||1)) || (decision==='return'&&fridgeBlocked(p));
  const baseExpected=expected;
  if(p.noDocument){correct=decision==='return';expected='return';}
@@ -2432,6 +2493,7 @@ const INTROS={
  tienda:{day:11,scenes:['home'],icon:'🛒',title:'NUEVO: TIENDA EN LÍNEA',body:'<p>Tu sobrino instaló internet en la casa y dejó abierta una página: <b>MercaFarma.cl</b>, «hasta lo que no sabías que necesitabas». El repartidor llega al instante, nadie pregunta cómo.</p><p>Desde la casa, <b>TIENDA EN LÍNEA</b> vende <b>mejoras</b> que hacen mucho menos probables las fallas (computador, techo, cortina, teléfono, refrigerador; cada una aparece después de que esa falla te ocurra por primera vez) y <b>objetos</b> como dulces y telas limpias. Se paga con el efectivo de la farmacia.</p>'},
  pago:{img:'assets/intros/pago.webp',day:19,scenes:['home'],icon:'$',title:'MAÑANA ES DÍA DE PAGO',body:'<p>Doña Gladys, la casera, dejó una nota bajo la puerta: «Mañana paso por el arriendo. Llevo galletas, pero no son para usted».</p><p>Cada 20 jornadas se pagan el <b>arriendo</b> y las <b>cuentas</b> de luz, agua y gas. Revisa el aviso de la casa. Si no alcanza, la diferencia queda como deuda; puedes retirar de la <b>CAJA FUERTE</b> antes de cerrar.</p>'}
  ,mercafarma:{img:'assets/intros/mercafarma.webp',day:19,scenes:['home'],icon:'📦',title:'INTERFURRY SE DESPIDE',body:'<p>Llegó un correo de <b>Interfurry</b>: «Estimada farmacia: por reestructuración estratégica (ahora vendemos bolsos de cuero), el despacho de hoy fue el último. Les deseamos éxito en sus futuras gestiones. Atte., el departamento de cobranzas».</p><p>Desde mañana la reposición se pide en <b>MercaFarma.cl</b>. Para hacer tu primer pedido, esta misma noche: <b>1)</b> abre <b>TIENDA EN LÍNEA</b> → pestaña <b>PEDIDOS</b>; <b>2)</b> mira la lista <b>RECOMENDADOS</b> y pulsa <b>AGREGAR LO QUE FALTA</b>; <b>3)</b> revisa el total y pulsa <b>PAGAR Y PEDIR</b>.</p><p>La caja llega a la <b>jornada siguiente</b>, con una guía por producto, y puede venir con errores: revisa antes de ingresar.</p>'},
+ grooming:{day:33,scenes:['briefing','counter'],when:()=>groomingBanned(),icon:'⛔',title:'ALERTA SEREMI · DRA. ALICE GROOMING',body:'<p>Esta mañana SEREMI informa que el paciente <b>Gordon Degadillo Barriga</b> falleció por desnutrición. La <b>Dra. Alice Grooming</b> fue detenida y no puede emitir más recetas.</p><p><b>Desde hoy y para siempre, rechaza toda receta firmada por ella.</b> Si llega una, consulta el Registro SIS y notifica a SEREMI por receta no válida.</p><p class="mini">Situación ficticia con fines narrativos.</p>'},
  comision:{day:20,scenes:['briefing','counter'],icon:'💼',title:'NUEVO CONTRATO Y STOCK PROPIO',body:'<p>Don Wilfredo, el dueño del local, dejó una carta: «Desde hoy ganas un <b>sueldo base de $32.000</b> más una <b>comisión por cada despacho correcto</b>: $1.000 un genérico, $2.000 uno común, $4.000 uno de alto costo, $6.500 un controlado y $8.000 uno refrigerado especial. Si devuelves o denuncias bien una receta mala, igual te pago $500. Despachar mal no paga nada».</p><p>Además, desde hoy <b>todos los medicamentos tienen stock</b> (se repartió un inventario inicial). Si un paciente con la receta <b>en regla</b> se va sin su remedio por falta de stock, es un <b>strike</b>: <b>4 strikes en 4 jornadas y la SEREMI clausura la farmacia</b>. Revisa el stock y pide a tiempo.</p>'}
 };
 function maybeShowIntro(){
@@ -2440,6 +2502,7 @@ function maybeShowIntro(){
  for(const [k,it] of Object.entries(INTROS)){
   if(game.introsSeen[k]||game.day<it.day||!it.scenes.includes(game.scene))continue;
   if(k==='pago'&&(game.day+1)%20!==0)continue;
+  if(it.when&&!it.when())continue;
   game.introsSeen[k]=true;ui.modal='intro:'+k;save();return true;
  }
  return false;
@@ -2936,6 +2999,7 @@ const CHEATS={
  SINDEUDA:{info:'La deuda queda en $0.',run(){game.debt=0}},
  TALLERMECANICO:{info:'Todo lo descompuesto queda reparado.',run(){for(const k of Object.keys(game.repairs||{}))game.repairs[k]=false}},
  VIVALAGRIPE:{info:'Brote de gripe al día siguiente.',run(){game.force=game.force||{};game.force.event='gripe'}},
+ GORDONYA:{info:'Gordon llega en la próxima jornada (visita siguiente).',run(){game.force=game.force||{};game.force.gordon=true;game.stock.fentermina1875=Math.max(1,game.stock.fentermina1875||0);game.stock.fentermina375=Math.max(1,game.stock.fentermina375||0)}},
  VENIAIVUELVE:{info:'Veniai Rugoso vuelve al día siguiente.',run(){game.force=game.force||{};game.force.veniai=true;game.stock.ozempic2=Math.max(1,game.stock.ozempic2||0)}},
  CHARLITOSFELIZ:{info:'Ánimo de Charlitos al máximo.',run(){game.moodCarlitos=100}},
  SINMULTAS:{info:'Las faltas vuelven a 0.',run(){game.infractions=0}},
@@ -3278,7 +3342,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.180 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.181 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  practiceCoach(modal);
  if(!modal){
@@ -3319,7 +3383,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.180 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.181 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -3401,6 +3465,9 @@ const ALBUM=[
  {id:'trag-mesa',n:20,name:'Matías Orellana',kinds:[],img:'assets/cast600/cast_1181_stage.webp',rarity:'rara',
   where:'Desde la jornada 9, por sorteo diario. Trae una receta de un talonario robado.',
   odds:'≈ 6 % por jornada, más si descuidas las recetas · llegan los 4 en una partida larga',about:'Joven de ojeras profundas y ropa arrugada, con una mano en el bolsillo y la vista siempre en otra parte. Su receta viene de folios robados; el medicamento no debe salir de la farmacia.'},
+ {id:'gordon',n:21,name:'Gordon Degadillo Barriga',kinds:['gordon'],img:'assets/patients/gordon_1.webp',rarity:'rara',
+  where:'Desde la jornada 14: llega una vez cada 3 jornadas, 7 visitas en total. Siempre trae receta cheque válida de la Dra. Alice Grooming.',
+  odds:'100 % · garantizado (7 visitas)',about:'Estadounidense, hijo de padres chilenos; llegó a Chile a los 17 años. Toma fentermina 18,75 mg y, a mitad de camino, sube a 37,5 mg. Su receta es siempre auténtica y la consulta la confirma por teléfono. Con cada visita se ve distinto, pero trae siempre el mismo carnet, con la foto de su primera versión: la huella siempre coincide.'},
 ];
 function albumIdForKind(kind){for(const a of ALBUM)if(a.kinds.includes(kind))return a.id;return null}
 function albumCount(){const m=meta();return ALBUM.filter(a=>m.album[a.id]).length}
@@ -3660,7 +3727,8 @@ const ALBUM_ID_CARDS={
  'trag-casa':{kind:'stolen',cat:1178,code:'CL',surname:'CÁRCAMO NÚÑEZ',names:'RIGOBERTO',doc:'1318420577',sex:'M',birth:'17/06/1985',issued:'14/02/2022',expires:'14/02/2030',nat:'CHILENO',run:rutFmt(14820533)},
  'trag-cuarto':{kind:'fakeDoctor',cat:1179,code:'CL',surname:'PEÑAILILLO VARGAS',names:'MARCELA',doc:'1420663188',sex:'F',birth:'02/09/1987',issued:'09/06/2021',expires:'09/06/2029',nat:'CHILENA',run:rutFmt(15733044)},
  'trag-pasillo':{kind:'fakeDoctor',cat:1180,code:'CL',surname:'LEIVA CONTRERAS',names:'HORTENSIA',doc:'1099317420',sex:'F',birth:'21/03/1955',issued:'03/11/2018',expires:'03/11/2026',nat:'CHILENA',run:rutFmt(6330941)},
- 'trag-mesa':{kind:'stolen',cat:1181,code:'CL',surname:'ORELLANA BUSTOS',names:'MATÍAS',doc:'1521774309',sex:'M',birth:'08/11/1997',issued:'21/09/2023',expires:'21/09/2031',nat:'CHILENO',run:rutFmt(20118475)}
+ 'trag-mesa':{kind:'stolen',cat:1181,code:'CL',surname:'ORELLANA BUSTOS',names:'MATÍAS',doc:'1521774309',sex:'M',birth:'08/11/1997',issued:'21/09/2023',expires:'21/09/2031',nat:'CHILENO',run:rutFmt(20118475)},
+ gordon:{kind:'gordon',code:'US',surname:'DEGADILLO BARRIGA',names:'GORDON',doc:'532018744',sex:'M',birth:'14/03/1990',issued:'10/05/2022',expires:'10/05/2030',nat:'ESTADOUNIDENSE',note:'Siempre trae este carnet, con la foto de su primera versión.'}
 };
 const ALBUM_NO_CARD={
  'don-victor':'Don Invictus no porta ningún documento. Nadie sabe de dónde viene.',
@@ -3740,7 +3808,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.180','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.181','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -3749,7 +3817,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.180 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.181 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -3828,7 +3896,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.180 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.181 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -4069,7 +4137,7 @@ function sisResultHtml(p){
   typo:['⚠ RUT DEL PRESCRIPTOR MAL ESCRITO','El prescriptor existe en el registro. El RUT de la receta tiene un carácter errado. '+(p.rxType==='ELECTRÓNICA'
    ?'Comprueba la discrepancia en el verificador de recetas electrónicas.'
    :'Devuelve la receta y solicita que se emita nuevamente con el RUT correcto.')],
-  unknown:['⚠ SIN COINCIDENCIA EN EL REGISTRO · RECETA FALSA','El prescriptor indicado no existe en el registro del juego. Notifica a SEREMI por falsificación de receta.'],
+  unknown:p.prescriber===GROOMING_NAME?['⛔ PRESCRIPTORA INHABILITADA · RECETA NO VÁLIDA','La Dra. Alice Grooming fue detenida y ya no puede emitir recetas. Rechaza toda receta suya y notifica a SEREMI.']:['⚠ SIN COINCIDENCIA EN EL REGISTRO · RECETA FALSA','El prescriptor indicado no existe en el registro del juego. Notifica a SEREMI por falsificación de receta.'],
   mismatch:['⚠ NOMBRE Y RUT NO COINCIDEN · RECETA FALSA','El RUT de la receta no corresponde al profesional indicado. Notifica a SEREMI por falsificación de receta.'],
   incomplete:['⚠ DATOS DEL PRESCRIPTOR INCOMPLETOS','Falta un dato necesario para verificar al profesional. '+(p.rxType==='ELECTRÓNICA'
    ?'Consulta el verificador de recetas electrónicas.'
@@ -4106,11 +4174,11 @@ function callPrescriptionOffice(p){
  if(p.callStatus)return;
  if(unauthorizedPrescriberCase(p)){toast('Quien firma no es médico: no corresponde llamar a consulta.');return}
  const roll=Math.random();
- const responder=roll<0.15&&p.prescriberRegistered!==false?'doctor':roll>=0.15&&roll<0.25?'secretary':null;
+ const responder=p.kind==='gordon'?(roll<0.5?'doctor':'secretary'):roll<0.15&&p.prescriberRegistered!==false?'doctor':roll>=0.15&&roll<0.25?'secretary':null;
  p.callStatus=responder?'answered':'unanswered';
  p.callResponder=responder;
  p.callAttempts=1;
- p.callRejected=Boolean(responder&&p.kind!=='chemy'&&p.kind!=='cifunando'&&p.kind!=='veniai'&&p.kind!=='minorGuardian'&&(prescriptionErrorForCall(p)||Math.random()<0.20));
+ p.callRejected=Boolean(responder&&p.kind!=='chemy'&&p.kind!=='cifunando'&&p.kind!=='veniai'&&p.kind!=='gordon'&&p.kind!=='minorGuardian'&&(prescriptionErrorForCall(p)||Math.random()<0.20));
  game.patientVerified=Boolean(responder);p.doctorVerified=responder==='doctor';
  record(!responder?`Llamada sin respuesta · folio ${p.folio}.`:
   `${responder==='secretary'?'La secretaria':'El médico'} ${p.callRejected?'desconoció':'reconoció'} la receta · folio ${p.folio}.`);
@@ -4217,7 +4285,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='tragedia')return tragedyEndingHtml();if(game.gameOverReason==='clausura-stock')return stockClosureHtml();if(game.gameOverReason==='quiebra')return bankruptcyHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.180) =====
+// ===== Manual práctico (1.9.181) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','ECONOMÍA','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -4687,7 +4755,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.180 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.181 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
