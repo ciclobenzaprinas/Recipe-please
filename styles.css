@@ -1079,3 +1079,5 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .mf-cart{position:sticky;bottom:0;margin-top:10px;box-shadow:0 -4px 10px rgba(0,0,0,.35)}.mf-cart h3,.mf-pending h3{margin:0 0 6px}
 .mf-row .shop-info h3{font-size:14px}
 .mf-cart .btn,.mf-pending .btn{text-shadow:none!important;color:#f8ead1}.mf-cart .btn.cream{color:#2b2418}
+.mf-low{border-color:#b86a2a!important;box-shadow:0 0 0 2px rgba(184,106,42,.35)}.mf-row .shop-info{min-width:0}
+.mf-cart{position:static!important;box-shadow:none!important}.mf-bar{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;padding:8px 10px;background:#1b2a22;border:2px solid #7c7358;box-shadow:0 -6px 12px rgba(0,0,0,.45);z-index:3}.mf-bar-btns{display:flex;gap:8px}.mf-bar .btn{text-shadow:none!important;color:#f8ead1;padding:8px 12px}.mf-bar .btn.cream{color:#2b2418}
