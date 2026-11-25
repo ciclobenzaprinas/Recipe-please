@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.176. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.177. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -954,7 +954,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.176) =====
+// ===== Diálogos personalizados (1.9.177) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1125,7 +1125,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Habla de extranjeros (1.9.176) =====
+// ===== Habla de extranjeros (1.9.177) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1338,7 +1338,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Eventos del barrio (1.9.176) =====
+// ===== Eventos del barrio (1.9.177) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y remedios para el pecho; la fila será más larga.',
@@ -1514,6 +1514,7 @@ if(game.force&&!game.tutorial){
  }
  ensureDaySevenPatient();
  game.dayStats=newDayStats();game.patientIndex=0;game.patientResult=null;game.patientVerified=false;game.idRequested=false;game.qrChecked=false;game.deliveryDone=false;game.delivery=null;game.boxOpened=false;game.inspectedPacks=[];game.inspectionDone=false;game.inspectionIssue=null;game.inspectionResolutionLocked=false;game.finesToday=0;game.dayIncome=0;game.dayBonus=0;game.dayExpenses=0;game.dayPay=false;game.daySummary=null;game.illegalToday=0;
+ if(game.day>=18&&game.day<=20)addNotice('interfurry-fin','INTERFURRY: ÚLTIMO DESPACHO','Interfurry avisa que el despacho de la jornada 19 será el último. Después de eso, los pedidos se hacen por MercaFarma.cl.','pedido');
  if(game.day>=3)addNotice('stolen-3472','ALERTA · TALONARIO ROBADO',STOLEN_FOLIO_ALERT,'alerta');
  if(sisAvailable()){
   const {key,title,body,type}=SIS_UNLOCK_NOTICE;
@@ -1562,6 +1563,8 @@ function makeDelivery(){if(game.pendingCorrections.some(x=>x.due<=game.day)){
    const r=game.pendingCorrections.find(x=>x.due<=game.day);
    return withPackItems({id:'C-'+r.id,regular:false,name:r.mode==='pickup'?'Retiro de excedentes':'Pedido rectificatorio',drug:r.drug,expected:r.amount,actual:r.amount,kind:r.mode==='pickup'?'pickup':'corrected',laboratory:'Mixto',reported:false,ref:r.id,boxes:r.amount});
  }
+ // Desde la jornada 20 Interfurry ya no repone: solo llegan los pedidos hechos en MercaFarma.cl.
+ if(unlocked('mercafarma'))return mfNextDelivery();
  if(game.day>=6){
   const essentials=['clonazepam2','clotiazepam10','methylphenidate'];
   const needs=essentials.filter(id=>(game.stock[id]||0)<=4).sort((a,b)=>game.stock[a]-game.stock[b]);
@@ -1726,6 +1729,7 @@ function giftSprite(g){
  'Tarjeta publicitaria':'tarjeta-publicitaria',
  'Cupón farmacia':'coupon',
  'Sopaipillas caseras':'sopaipillas',
+ 'Trébol de 4 hojas':'trebol',
  [OPTIMUS_PAN]:'optimus-pan'
  }[g?.item]||'advert';
  return `<img class="gift-sprite" src="${assetUrl('assets/gifts/'+icon+'.png')}" alt="${escapeText(g?.item||'regalo')}" draggable="false">`;
@@ -2411,6 +2415,7 @@ const INTROS={
  refri:{img:'assets/intros/refri.webp',day:16,scenes:['briefing','counter'],icon:'❄',title:'NUEVA FALLA: REFRIGERADOR',body:'<p>El refrigerador empezó a hacer un ruido como de ballena varada. El técnico dice que es «una fase» y que se le pasa, o no.</p><p>Si se echa a perder, <b>no podrás dispensar medicamentos refrigerados</b>: insulinas, semaglutida, liraglutida y suspensiones de amoxicilina. Devuelve al paciente hasta repararlo.</p>'},
  tienda:{day:11,scenes:['home'],icon:'🛒',title:'NUEVO: TIENDA EN LÍNEA',body:'<p>Tu sobrino instaló internet en la casa y dejó abierta una página: <b>MercaFarma.cl</b>, «hasta lo que no sabías que necesitabas». El repartidor llega al instante, nadie pregunta cómo.</p><p>Desde la casa, <b>TIENDA EN LÍNEA</b> vende <b>mejoras</b> que hacen mucho menos probables las fallas (computador, techo, cortina, teléfono, refrigerador; cada una aparece después de que esa falla te ocurra por primera vez) y <b>objetos</b> como dulces y telas limpias. Se paga con el efectivo de la farmacia.</p>'},
  pago:{img:'assets/intros/pago.webp',day:19,scenes:['home'],icon:'$',title:'MAÑANA ES DÍA DE PAGO',body:'<p>Doña Gladys, la casera, dejó una nota bajo la puerta: «Mañana paso por el arriendo. Llevo galletas, pero no son para usted».</p><p>Cada 20 jornadas se pagan el <b>arriendo</b> y las <b>cuentas</b> de luz, agua y gas. Revisa el aviso de la casa. Si no alcanza, la diferencia queda como deuda; puedes retirar de la <b>CAJA FUERTE</b> antes de cerrar.</p>'}
+ ,mercafarma:{img:'assets/intros/mercafarma.webp',day:19,scenes:['home'],icon:'📦',title:'INTERFURRY SE DESPIDE',body:'<p>Llegó un correo de <b>Interfurry</b>: «Estimada farmacia: por reestructuración estratégica (ahora vendemos bolsos de cuero), el despacho de hoy fue el último. Les deseamos éxito en sus futuras gestiones. Atte., el departamento de cobranzas».</p><p>Desde mañana la reposición se pide en <b>MercaFarma.cl</b>: en la casa abre <b>TIENDA EN LÍNEA</b> → pestaña <b>PEDIDOS</b>, arma tu carrito y paga. La caja llega a la <b>jornada siguiente</b>, con una guía por producto. Como siempre, puede venir con errores: revisa antes de ingresar.</p>'}
 };
 function maybeShowIntro(){
  if(!game||game.tutorial||game.gameOver||ui.modal)return false;
@@ -2562,7 +2567,7 @@ function robberyHtml(){
 
 // ---------- Economía: deuda, cuentas, caja fuerte y gastos sorpresa ----------
 // Curva de aprendizaje: cada mecánica económica entra en una jornada distinta.
-const UNLOCK={shop:11,reposicion:5,safe:6,interest:7,insurance:8,robbery:9,pc:10,leak:12,shutter:14,phone:15,fridge:16};
+const UNLOCK={shop:11,reposicion:5,safe:6,interest:7,insurance:8,robbery:9,pc:10,leak:12,shutter:14,phone:15,fridge:16,mercafarma:20};
 const unlocked=k=>Boolean(game&&!game.tutorial&&game.day>=UNLOCK[k]);
 const DEBT_INTEREST=0.03,SAFE_PRICE=15000,SAFE_CAP=300000,SURPRISE_CHANCE=0.08,SURPRISE_FIRST_DAY=10,SURPRISE_GAP=4;
 const SURPRISES={
@@ -2641,11 +2646,11 @@ function dniGalleryHtml(){
 }
 // ---------- Tienda en línea (MercaFarma.cl) ----------
 const SHOP_UPGRADES=[
- {id:'pc',name:'Computador nuevo',price:50000,desc:'Equipo más robusto: la falla del computador es 75 % menos probable. Si hoy está roto, queda instalado el nuevo.'},
- {id:'leak',name:'Techo reforzado',price:45000,desc:'Impermeabilizan la bodega: las goteras son 75 % menos probables (el pato se queda sin charco, casi siempre).'},
- {id:'shutter',name:'Cortina nueva',price:30000,desc:'Cortina metálica engrasada: se traba 75 % menos.'},
- {id:'phone',name:'Teléfono antigolpes',price:25000,desc:'Resiste gatos, tazas y golpes: se descompone 75 % menos.'},
- {id:'fridge',name:'Refrigerador industrial',price:60000,desc:'Sin ruido de ballena: el refrigerador falla 75 % menos.'}
+ {id:'pc',img:'assets/shop/pc.webp',name:'Computador nuevo',price:50000,desc:'Equipo más robusto: la falla del computador es 75 % menos probable. Si hoy está roto, queda instalado el nuevo.'},
+ {id:'leak',img:'assets/shop/leak.webp',name:'Techo reforzado',price:45000,desc:'Impermeabilizan la bodega: las goteras son 75 % menos probables (el pato se queda sin charco, casi siempre).'},
+ {id:'shutter',img:'assets/shop/shutter.webp',name:'Cortina nueva',price:30000,desc:'Cortina metálica engrasada: se traba 75 % menos.'},
+ {id:'phone',img:'assets/shop/phone.webp',name:'Teléfono antigolpes',price:25000,desc:'Resiste gatos, tazas y golpes: se descompone 75 % menos.'},
+ {id:'fridge',img:'assets/shop/fridge.webp',name:'Refrigerador industrial',price:60000,desc:'Sin ruido de ballena: el refrigerador falla 75 % menos.'}
 ];
 const SHOP_ITEMS=[
  {id:'caramelo',item:'Caramelo 1/4 hora',effect:'sweet',price:60,desc:'QF +4 / Charlitos +5'},
@@ -2681,11 +2686,70 @@ function shopBuy(kind,id){
  save();render();
 }
 function shopHtml(){
- const tab=ui.shopTab==='obj'?'obj':'up';
+ const tab=ui.shopTab==='obj'?'obj':(ui.shopTab==='ped'&&mfOrdering()?'ped':'up');
  const bought=(game.shopBought?.day===game.day?game.shopBought:{});
- const ups=SHOP_UPGRADES.filter(u=>(unlocked(u.id)&&failureSeen(u.id))||game.upgrades?.[u.id]).map(u=>{const own=game.upgrades?.[u.id];return `<div class="paper shop-card"><div class="shop-info"><h3>${escapeText(u.name)}</h3><p class="small">${escapeText(u.desc)}</p></div><div class="shop-buy"><strong>${pesos(u.price)}</strong>${own?'<span class="tag-ok">COMPRADO</span>':btn('COMPRAR','shop-buy','green',`data-kind="up" data-id="${u.id}"${game.cash<u.price?' disabled':''}`)}</div></div>`}).join('')||'<p class="small">Por ahora no hay mejoras para tu farmacia. Cuando algo se descomponga por primera vez, aparecerá aquí su mejora.</p>';
- const objs=SHOP_ITEMS.map(it=>{const n=bought[it.id]||0;return `<div class="paper shop-card"><div class="shop-info"><h3>${escapeText(it.item)}</h3><p class="small">${escapeText(it.desc)} · hoy ${n}/${it.max||SHOP_DAILY_MAX}</p></div><div class="shop-buy"><strong>${pesos(it.price)}</strong>${btn('COMPRAR','shop-buy','green',`data-kind="obj" data-id="${it.id}"${game.cash<it.price||n>=(it.max||SHOP_DAILY_MAX)?' disabled':''}`)}</div></div>`}).join('');
- return `<div class="overlay" role="dialog" aria-modal="true" aria-label="MercaFarma.cl"><div class="modal shop-modal"><div class="shop-bar"><span class="shop-dots">● ● ●</span><span class="shop-url">🔒 https://www.mercafarma.cl</span><button class="smallbtn" data-action="close-modal">✕</button></div><div class="shop-head"><h2>MERCAFARMA.CL</h2><p class="tiny muted">«Hasta lo que no sabías que necesitabas». Despacho inmediato (el repartidor es el sobrino de alguien).</p></div><div class="money-line"><span>Efectivo disponible</span><strong>${pesos(game.cash)}</strong></div><div class="tabs"><button class="tab ${tab==='up'?'active':''}" data-action="shop-tab" data-tab="up">MEJORAS</button><button class="tab ${tab==='obj'?'active':''}" data-action="shop-tab" data-tab="obj">OBJETOS</button></div>${tab==='up'?ups:objs}<div class="btn-row">${btn('SALIR DE LA TIENDA','close-modal','cream')}</div></div></div>`;
+ const ups=SHOP_UPGRADES.filter(u=>(unlocked(u.id)&&failureSeen(u.id))||game.upgrades?.[u.id]).map(u=>{const own=game.upgrades?.[u.id];return `<div class="paper shop-card">${u.img?`<img class="shop-pic" src="${assetUrl(u.img)}" alt="" draggable="false">`:''}<div class="shop-info"><h3>${escapeText(u.name)}</h3><p class="small">${escapeText(u.desc)}</p></div><div class="shop-buy"><strong>${pesos(u.price)}</strong>${own?'<span class="tag-ok">COMPRADO</span>':btn('COMPRAR','shop-buy','green',`data-kind="up" data-id="${u.id}"${game.cash<u.price?' disabled':''}`)}</div></div>`}).join('')||'<p class="small">Por ahora no hay mejoras para tu farmacia. Cuando algo se descomponga por primera vez, aparecerá aquí su mejora.</p>';
+ const objs=SHOP_ITEMS.map(it=>{const n=bought[it.id]||0;return `<div class="paper shop-card">${giftSprite(it).replace('gift-sprite','gift-sprite shop-pic')}<div class="shop-info"><h3>${escapeText(it.item)}</h3><p class="small">${escapeText(it.desc)} · hoy ${n}/${it.max||SHOP_DAILY_MAX}</p></div><div class="shop-buy"><strong>${pesos(it.price)}</strong>${btn('COMPRAR','shop-buy','green',`data-kind="obj" data-id="${it.id}"${game.cash<it.price||n>=(it.max||SHOP_DAILY_MAX)?' disabled':''}`)}</div></div>`}).join('');
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="MercaFarma.cl"><div class="modal shop-modal"><div class="shop-bar"><span class="shop-dots">● ● ●</span><span class="shop-url">🔒 https://www.mercafarma.cl</span><button class="smallbtn" data-action="close-modal">✕</button></div><div class="shop-head"><img class="shop-banner" src="${assetUrl('assets/shop/banner.webp')}" alt="MercaFarma.cl · Hasta lo que no sabías que necesitabas"><p class="tiny muted">Objetos y mejoras: despacho inmediato (el repartidor es el sobrino de alguien).${mfOrdering()?' Medicamentos: llegan a la jornada siguiente.':''}</p></div><div class="money-line"><span>Efectivo disponible</span><strong>${pesos(game.cash)}</strong></div><div class="tabs"><button class="tab ${tab==='up'?'active':''}" data-action="shop-tab" data-tab="up">MEJORAS</button><button class="tab ${tab==='obj'?'active':''}" data-action="shop-tab" data-tab="obj">OBJETOS</button>${mfOrdering()?`<button class="tab ${tab==='ped'?'active':''}" data-action="shop-tab" data-tab="ped">PEDIDOS${(game.orders||[]).length?' ('+(game.orders||[]).length+')':''}</button>`:''}</div>${tab==='up'?ups:tab==='obj'?objs:mfHtml()}<div class="btn-row">${btn('SALIR DE LA TIENDA','close-modal','cream')}</div></div></div>`;
+}
+// ---------- Pedidos de medicamentos por MercaFarma.cl ----------
+const MF_ORDER_FROM=19,MF_SHIPPING=1500,MF_ERROR_P=0.25,MF_MAX_QTY=10,MF_MAX_LINES=6,MF_LIST_MAX=30;
+const mfOrdering=()=>Boolean(game&&!game.tutorial&&game.day>=MF_ORDER_FROM);
+const mfNorm=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function mfPrice(k){const d=DRUGS[k];return d.refrigerated?6000:d.book?3500:1800}
+function mfCartLines(){return Object.entries(game.mfCart||{}).filter(([k,q])=>DRUGS[k]&&q>0)}
+function mfCartTotal(){const l=mfCartLines();return l.length?MF_SHIPPING+l.reduce((a,[k,q])=>a+mfPrice(k)*q,0):0}
+function mfAdd(k,n){
+ if(!mfOrdering()||!DRUGS[k])return;
+ game.mfCart=game.mfCart||{};
+ const cur=game.mfCart[k]||0;
+ if(!cur&&n>0&&mfCartLines().length>=MF_MAX_LINES){toast(`Máximo ${MF_MAX_LINES} productos distintos por pedido.`);return}
+ const nx=Math.max(0,Math.min(MF_MAX_QTY,cur+n));
+ if(nx)game.mfCart[k]=nx;else delete game.mfCart[k];
+ save();
+}
+function mfCheckout(){
+ if(!mfOrdering())return;
+ const lines=mfCartLines();
+ if(!lines.length){toast('El carrito está vacío.');return}
+ const total=mfCartTotal();
+ if(game.cash<total){toast(`Necesitas ${pesos(total)}.`);return}
+ game.cash-=total;
+ game.orderSeq=(game.orderSeq||0)+1;
+ const id='MF-'+(1000+game.orderSeq);
+ game.orders=game.orders||[];
+ game.orders.push({id,due:game.day+1,total,lines:lines.map(([drug,qty])=>({drug,qty}))});
+ game.mfCart={};
+ record(`Pedido ${id} en MercaFarma.cl: ${lines.length} producto(s), ${pesos(total)}. Llega en la jornada siguiente.`);
+ toast(`Pedido ${id} realizado. Llega mañana.`);
+ save();render();
+}
+// Toma una línea del pedido más antiguo que ya debe llegar y arma su caja (con posibilidad de error).
+function mfNextDelivery(){
+ const o=(game.orders||[]).find(x=>x.due<=game.day&&x.lines.length);
+ if(!o)return null;
+ const row=o.lines.shift();
+ if(!o.lines.length)game.orders=game.orders.filter(x=>x!==o);
+ const q=row.qty;let kind='correct',actual=q;
+ if(Math.random()<MF_ERROR_P){
+  const kinds=q>=2?['missing','surplus','wrong','damaged']:['surplus','wrong','damaged'];
+  kind=kinds[Math.floor(Math.random()*kinds.length)];
+  if(kind==='missing')actual=q-1-(q>=4&&Math.random()<0.4?1:0);
+  else if(kind==='surplus')actual=q+1;
+ }
+ o.seq=(o.seq||0)+1;
+ return withPackItems({id:`${o.id}-${o.seq}`,regular:false,mf:true,name:'MercaFarma.cl',drug:row.drug,expected:q,actual,kind,laboratory:'Mixto',reported:false,boxes:actual});
+}
+function mfHtml(){
+ const q=mfNorm(ui.mfQuery).trim(),g=ui.mfGroup||'';
+ const groups=[...new Set(Object.values(DRUGS).map(d=>d.group))].sort();
+ const keys=Object.keys(DRUGS).filter(k=>{const d=DRUGS[k];if(g&&d.group!==g)return false;return !q||mfNorm(drugName(k)+' '+d.pack).includes(q)}).sort((a,b)=>mfNorm(drugName(a)).localeCompare(mfNorm(drugName(b))));
+ const shown=keys.slice(0,MF_LIST_MAX);
+ const cart=game.mfCart||{};
+ const rows=shown.map(k=>{const d=DRUGS[k],n=cart[k]||0,ctl=d.book||d.stockControl||d.exclusive;return `<div class="paper shop-card mf-row"><div class="shop-info"><h3>${escapeText(drugName(k))}</h3><p class="small">${escapeText(d.pack)} · ${ctl?`en stock: <b>${game.stock[k]||0}</b>`:'sin control de stock'}${d.refrigerated?' · ❄ refrigerado':''}${d.book?' · controlado':''} · ${pesos(mfPrice(k))}/caja</p></div><div class="mf-qty"><button class="smallbtn" data-action="mf-sub" data-id="${k}" ${n?'':'disabled'} aria-label="Quitar una caja">−</button><b>${n}</b><button class="smallbtn" data-action="mf-add" data-id="${k}" ${n>=MF_MAX_QTY?'disabled':''} aria-label="Agregar una caja">+</button></div></div>`}).join('')||'<p class="small">No hay medicamentos que coincidan con la búsqueda.</p>';
+ const lines=mfCartLines(),total=mfCartTotal();
+ const pend=(game.orders||[]).map(o=>`<p class="small">📦 <b>${escapeText(o.id)}</b> · llega en la jornada ${o.due} · ${o.lines.map(l=>`${escapeText(drugName(l.drug))} ×${l.qty}`).join(', ')}</p>`).join('');
+ return `<p class="small">Pides hoy y la caja llega a la <b>jornada siguiente</b>, con una guía por producto (puede traer errores: revisa antes de ingresar). Despacho: ${pesos(MF_SHIPPING)} por pedido.</p>${pend?`<div class="paper mf-pending"><h3>EN CAMINO</h3>${pend}</div>`:''}<div class="mf-search"><input class="field" id="mf-search" type="search" placeholder="Buscar medicamento…" value="${escapeText(ui.mfQuery||'')}" aria-label="Buscar medicamento">${btn('BUSCAR','mf-search','cream')}</div><div class="mf-chips"><button class="tab ${g?'':'active'}" data-action="mf-group" data-g="">TODOS</button>${groups.map((x,i)=>`<button class="tab ${g===x?'active':''}" data-action="mf-group" data-g="${i}">${escapeText(x)}</button>`).join('')}</div>${rows}${keys.length>MF_LIST_MAX?`<p class="tiny muted">Mostrando ${MF_LIST_MAX} de ${keys.length}. Afina la búsqueda o elige un grupo.</p>`:''}<div class="paper mf-cart"><h3>🛒 TU PEDIDO</h3>${lines.length?lines.map(([k,n])=>`<p class="small">${escapeText(drugName(k))} ×${n} · ${pesos(mfPrice(k)*n)}</p>`).join('')+`<p class="small">Despacho · ${pesos(MF_SHIPPING)}</p><div class="money-line"><span>Total</span><strong>${pesos(total)}</strong></div>`:'<p class="small">Aún no agregas nada.</p>'}<div class="btn-row">${btn('VACIAR','mf-clear','cream',lines.length?'':'disabled')}${btn('PAGAR Y PEDIR','mf-checkout','green',lines.length&&game.cash>=total?'':'disabled')}</div></div>`;
 }
 // ---------- Trucos (secreto) ----------
 const CHEAT_CLICKS=30;
@@ -3039,7 +3103,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.176 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.177 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  practiceCoach(modal);
  if(!modal){
@@ -3080,7 +3144,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.176 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.177 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -3483,7 +3547,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.176','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.177','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -3492,7 +3556,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.176 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.177 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -3571,7 +3635,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.176 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.177 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -3932,9 +3996,9 @@ function medicineCartonSvg(drugId,number,{damaged=false,wrong=false,laboratory='
   ${damaged?'<path d="M320 83 L315 111 L340 132 L327 168 L351 198" fill="none" stroke="#80282d" stroke-width="5" stroke-linecap="square"/>':''}
  </svg>`;
 }
-function receiveHtml(){if(!game.delivery)game.delivery=makeDelivery();const d=game.delivery,plan=receivePlan(d);if(!Array.isArray(d.packItems)||d.packItems.length!==d.actual)d.packItems=buildDeliveryPackItems(d);let shown=game.boxOpened;
+function receiveHtml(){if(!game.delivery)game.delivery=makeDelivery();if(!game.delivery)return `${stage('stockroom','RECEPCIÓN DE PEDIDOS','Hoy no llegó ninguna entrega')}<section class="content"><div class="paper"><h2>SIN ENTREGAS HOY</h2><p>Interfurry ya no repone. Los medicamentos se piden en <b>MercaFarma.cl</b> (TIENDA EN LÍNEA, en la casa) y la caja llega a la jornada siguiente.</p></div></section>${actionbar([['CONTINUAR','no-delivery','green']])}`;const d=game.delivery,plan=receivePlan(d);if(!Array.isArray(d.packItems)||d.packItems.length!==d.actual)d.packItems=buildDeliveryPackItems(d);let shown=game.boxOpened;
  let cards=shown?Array.from({length:Math.min(8,d.actual)},(_,i)=>{const item=d.packItems[i]||{drug:d.drug,laboratory:pickAltLaboratory(i),damaged:false};return `<button class="medicine-box-visual ${game.inspectedPacks.includes(i)?'examined':''}" style="--box-order:${i}" data-action="inspect-pack" data-pack="${i}" title="Examinar caja real">${medicineCartonSvg(item.drug,i,{damaged:item.damaged,laboratory:item.laboratory})}<span class="medbox-caption">CAJA ${i+1}${game.inspectedPacks.includes(i)?' · ✓ REVISADA':''}</span></button>`}).join(''):'';
- return `${stage('stockroom','RECEPCIÓN DE PEDIDOS',`Guía ${d.id} · Compara el contenido con el documento`)}<section class="content"><div class="content-grid"><div class="paper"><h2>GUÍA DE DESPACHO</h2><p class="mini">Guía de despacho · ${escapeText(d.id)}</p><hr><p><b>Proveedor:</b> ${escapeText(d.regular?d.name:'Entrega especial de rectificación')}</p><p><b>Fecha:</b> ${dateOf(game.day)}</p>${d.lines?`<p><b>DETALLE DE LA GUÍA</b></p>${d.lines.map(r=>`<p>• ${escapeText(drugName(r.drug))} · ${r.expected} caja(s)</p>`).join('')}`:`<p><b>Producto:</b> ${escapeText(drugName(d.drug))}</p><p><b>Presentación:</b> ${escapeText(DRUGS[d.drug].pack)}</p>`}<p><b>Envases admitidos:</b> Tulab / Laboratorio Chicle</p><h2 class="right">${d.expected} CAJAS</h2>${d.regular?`<p class="mini right">Factura: ${pesos(d.expected*BOX_PRICE)} (${pesos(BOX_PRICE)} por caja)</p>`:''}<p class="mini">${d.regular?'Verifica cantidad, concentración e integridad antes de aceptar.':'Entrega vinculada a una incidencia anterior: '+d.ref}</p></div><div class="dark-card"><h2>REVISIÓN FÍSICA</h2><div class="pkg-wrap">${!shown?`<button class="shipping-box shipping-sprite" data-action="open-box" aria-label="Abrir caja de cartón: Controlados, distribuido por Interfurry"><img class="shipping-icon" src="${assetUrl('assets/shipping_box.webp')}" alt="" width="720" height="517"><span class="shipping-cta">ABRIR CAJA DE CARTÓN</span></button>`:cards}</div>${shown?`<div class="notice">Envases revisados: ${game.inspectedPacks.length}/${Math.min(8,d.actual)}.</div>`:'<p class="small muted">Haz clic en la caja para abrirla. Luego revisa los envases.</p>'}</div></div>${shown?`<div class="count-board" style="margin-top:16px"><div class="count-grid"><div class="count-tile"><small>GUÍA DOCUMENTA</small><b>${d.expected}</b></div><div class="count-tile"><small>REVISADAS</small><b>${game.inspectedPacks.length}</b></div><div class="count-tile"><small>TOTAL EN LA CAJA</small><b>${d.actual}</b></div></div><p>Compara guía, contenido e integridad antes de decidir.</p></div>`:''}</section>${actionbar([['✓ INGRESAR PEDIDO','accept-order','green',shown?'':'disabled'],['! REPORTAR DIFERENCIA','report-order','red',shown?'':'disabled'],['▣ LIBRO DE CONTROL','book','cream'],['← VOLVER','back-receive','dark']])}`}
+ return `${stage('stockroom','RECEPCIÓN DE PEDIDOS',`Guía ${d.id} · Compara el contenido con el documento`)}<section class="content"><div class="content-grid"><div class="paper"><h2>GUÍA DE DESPACHO</h2><p class="mini">Guía de despacho · ${escapeText(d.id)}</p><hr><p><b>Proveedor:</b> ${escapeText(d.regular||d.mf?d.name:'Entrega especial de rectificación')}</p><p><b>Fecha:</b> ${dateOf(game.day)}</p>${d.lines?`<p><b>DETALLE DE LA GUÍA</b></p>${d.lines.map(r=>`<p>• ${escapeText(drugName(r.drug))} · ${r.expected} caja(s)</p>`).join('')}`:`<p><b>Producto:</b> ${escapeText(drugName(d.drug))}</p><p><b>Presentación:</b> ${escapeText(DRUGS[d.drug].pack)}</p>`}<p><b>Envases admitidos:</b> Tulab / Laboratorio Chicle</p><h2 class="right">${d.expected} CAJAS</h2>${d.mf?'<p class="mini right">Pagado en línea · MercaFarma.cl</p>':''}${d.regular?`<p class="mini right">Factura: ${pesos(d.expected*BOX_PRICE)} (${pesos(BOX_PRICE)} por caja)</p>`:''}<p class="mini">${d.regular||d.mf?'Verifica cantidad, concentración e integridad antes de aceptar.':'Entrega vinculada a una incidencia anterior: '+d.ref}</p></div><div class="dark-card"><h2>REVISIÓN FÍSICA</h2><div class="pkg-wrap">${!shown?`<button class="shipping-box shipping-sprite" data-action="open-box" aria-label="${d.mf?'Abrir caja de cartón de MercaFarma.cl':'Abrir caja de cartón: Controlados, distribuido por Interfurry'}"><img class="shipping-icon" src="${assetUrl(d.mf?'assets/shipping_box_mf.webp':'assets/shipping_box.webp')}" alt="" width="720" height="517"><span class="shipping-cta">ABRIR CAJA DE CARTÓN</span></button>`:cards}</div>${shown?`<div class="notice">Envases revisados: ${game.inspectedPacks.length}/${Math.min(8,d.actual)}.</div>`:'<p class="small muted">Haz clic en la caja para abrirla. Luego revisa los envases.</p>'}</div></div>${shown?`<div class="count-board" style="margin-top:16px"><div class="count-grid"><div class="count-tile"><small>GUÍA DOCUMENTA</small><b>${d.expected}</b></div><div class="count-tile"><small>REVISADAS</small><b>${game.inspectedPacks.length}</b></div><div class="count-tile"><small>TOTAL EN LA CAJA</small><b>${d.actual}</b></div></div><p>Compara guía, contenido e integridad antes de decidir.</p></div>`:''}</section>${actionbar([['✓ INGRESAR PEDIDO','accept-order','green',shown?'':'disabled'],['! REPORTAR DIFERENCIA','report-order','red',shown?'':'disabled'],['▣ LIBRO DE CONTROL','book','cream'],['← VOLVER','back-receive','dark']])}`}
 function bookHtml(){let id=DRUGS[ui.selectedDrug]?.book?ui.selectedDrug:CONTROLLED_IDS[0];let d=DRUGS[id];return `${stage('book','LIBRO DE CONTROL',`Cada presentación posee folios y saldos independientes`)}<section class="content"><div class="section-head"><h2>REGISTROS FARMACÉUTICOS</h2><div class="btn-row">${btn('← VOLVER A LA PANTALLA ANTERIOR','book-counter','cream')}</div></div><div class="split"><div class="paper"><h2>LIBRO FÍSICO</h2><div class="form-line"><label>Seleccionar presentación</label><select class="field" id="drugSelector">${CONTROLLED_IDS.map(k=>`<option value="${k}" ${k===id?'selected':''}>${drugName(k)}</option>`).join('')}</select></div><p class="mini">${d.pack} · Folio correlativo actual: ${game.folios[id]}.</p><hr><div class="book-scroll"><table class="data-table"><thead><tr><th>Fecha</th><th>Folio</th><th>Recetas</th><th>Egresos</th><th>Ingresos</th><th>Cantidad</th></tr></thead><tbody>${game.ledger.filter(x=>x.drug===id).map(x=>`<tr><td>${dateOf(x.originalDay)}${x.rectification?' *':''}</td><td>${x.folio}</td><td>${x.recipes}</td><td>${x.egress}</td><td>${x.ingress}</td><td>${x.balance}</td></tr>`).join('')||'<tr><td colspan="6">Sin asientos.</td></tr>'}</tbody></table></div><p class="mini">* Entrada de rectificación con respaldo y sin eliminación del historial.</p></div><div class="dark-card"><h2>CONCILIACIÓN</h2><div class="money-line"><span>Stock digital</span><b>${game.stock[id]} cajas</b></div><div class="money-line"><span>Saldo en libro</span><b>${game.bookStock[id]} cajas</b></div><div class="money-line"><span>Diferencia</span><b class="${game.stock[id]===game.bookStock[id]?'good':'danger'}">${game.stock[id]-game.bookStock[id]}</b></div><hr><h3>Movimientos pendientes</h3><p>${game.dispatches.filter(x=>!x.posted&&x.drug===id).length} receta(s) por transcribir</p><p>${game.receipts.filter(x=>!x.posted&&x.drug===id).length} ingreso(s) por transcribir</p><p class="small muted">La transcripción automática se ejecuta desde el cierre de jornada. El libro se mantiene como registro aparte del sistema digital.</p><p class="small">Puedes regularizar despachos históricos como asientos nuevos, sin borrar datos anteriores.</p>${btn('RECTIFICAR ASIENTOS ATRASADOS','post-backlog','cream')}</div></div></section>`}
 function closeHtml(){const unpostedD=game.dispatches.filter(x=>x.day===game.day&&!x.posted),unpostedR=game.receipts.filter(x=>x.day===game.day&&!x.posted);return `${stage('stockroom','CIERRE DE JORNADA','Libro de control · Movimientos del día')}<section class="content"><div class="content-grid"><div class="paper"><h2>DESPACHOS DE HOY</h2><p>Recetas dispensadas: <b>${unpostedD.filter(x=>!x.merma).length}</b></p><p>Cajas despachadas pendientes: <b>${unpostedD.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${Object.keys(DRUGS).map(id=>{let ar=unpostedD.filter(x=>x.drug===id&&!x.merma);return ar.length?`<p><b>${drugName(id)}:</b> folio ${ar[0].folio}${ar.length>1?'–'+ar[ar.length-1].folio:''} · ${ar.length} receta(s) · ${ar.reduce((a,b)=>a+b.qty,0)} caja(s)</p>`:''}).join('')||(unpostedD.some(x=>x.merma)?'':'<p>No hay recetas pendientes de hoy.</p>')}${unpostedD.filter(x=>x.merma).map(m=>`<p class="fine"><b>MERMA POR GOTERA:</b> ${escapeText(drugName(m.drug))} · ${m.qty} caja(s) mojada(s). Se anota como egreso en el libro.</p>`).join('')}${btn('REGISTRAR DESPACHOS EN LIBRO','post-dispatch','green',unpostedD.length?'':'disabled')}</div><div class="paper"><h2>INGRESOS DE HOY</h2><p>Recepciones pendientes: <b>${unpostedR.length}</b></p><p>Cajas recibidas pendientes: <b>${unpostedR.reduce((a,b)=>a+b.qty,0)}</b></p><hr>${unpostedR.map(r=>`<p>${drugName(r.drug)}: +${r.qty} caja(s), guía ${r.ref}</p>`).join('')||'<p>No hay ingresos pendientes de hoy.</p>'}${btn('REGISTRAR INGRESOS EN LIBRO','post-receipt','cream',unpostedR.length?'':'disabled')}</div></div><div class="content-grid" style="margin-top:14px"><div class="dark-card"><h3>ESTADO DE LA JORNADA</h3><p>Observaciones SEREMI: ${game.inspectionDone?1:0}</p><p>Multas de hoy: <b class="fine">${pesos(game.finesToday)}</b></p><p class="small">Los folios se numeran por presentación y no se reinician al día siguiente.</p></div><div class="dark-card"><h3>REGISTROS</h3><p>${game.ledger.length} asiento(s) acumulado(s).</p><p>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length} movimientos totales por regularizar.</p><div class="small muted">${game.tutorial?'Registra los despachos para completar este turno de práctica.':'Puedes cerrar aunque olvides el libro; una fiscalización posterior podrá descubrir la omisión.'}</div>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length>0?`<div class="notice warn" role="status"><b>REGISTROS PENDIENTES</b><p>Antes de salir, transcribe los movimientos de hoy o rectifica los atrasados. Cerrar sin registrarlos podría generar una observación posterior.</p></div>`:''}${btn('REGULARIZAR REGISTROS ATRASADOS','post-backlog','cream')}</div></div></section>${actionbar([['▤ REVISAR LIBRO','book','cream'],[game.tutorial?'TERMINAR PRÁCTICA':'COBRAR SUELDO Y REGRESAR A CASA →','go-home','green']])}`}
 function schoolClothHtml(){
@@ -3960,7 +4024,7 @@ function homeHtml(){
 }
 
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='reincidencia-cheque')return `${stage('inspection','FIN DE LA PARTIDA · REINCIDENCIA DOCUMENTAL','Final alternativo')}<section class="content"><div class="paper center"><h2>SEGUNDA ADVERTENCIA · CASO POLICIAL</h2><p>La persona volvió con otra receta blanca para un medicamento que requería cheque. Tras dos denuncias comprobadas, el paciente termina detenido y el caso queda cerrado.</p><p>FIN</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.176) =====
+// ===== Manual práctico (1.9.177) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','ECONOMÍA','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -4153,6 +4217,7 @@ function manualTabInner(tab){
   <p>Con el refrigerador descompuesto, devuelve la receta con el motivo «Refrigerador descompuesto» (en «Edad y stock»). No es un error tuyo: <b>el paciente vuelve al día siguiente con la misma receta</b>, y seguirá volviendo cada día hasta que puedas despacharle el medicamento.</p>
   <h3>Reposición</h3>
   <p>Desde la jornada 5, cuando Interfurry da por terminado el periodo de gracia, cada caja de reposición cuesta $1.500. La factura se descuenta con los gastos del día.</p>
+  <p><b>Desde la jornada 20 Interfurry ya no repone.</b> Los medicamentos se piden en ${mb('TIENDA EN LÍNEA','blue')} → pestaña <b>PEDIDOS</b> (disponible desde la noche de la jornada 19): busca el medicamento, arma el carrito (hasta 6 productos y 10 cajas de cada uno) y paga al tiro, con $1.500 de despacho por pedido. La caja llega a la <b>jornada siguiente</b> con una guía por producto. Puede venir con errores (faltan cajas, sobran, llegó otro producto o una viene dañada): se revisa y se reporta igual que antes. Si no pides nada, ese día no llega ninguna entrega.</p>
   <p class="tiny muted">Montos y probabilidades de esta ficción; no reflejan costos reales.</p>`,
  CONTROLES:()=>`<h3>Controles del juego</h3>
   <table class="data-table mtable"><thead><tr><th>Acción</th><th>Qué hace</th></tr></thead><tbody>
@@ -4421,7 +4486,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.176 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.177 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -4447,6 +4512,7 @@ const BOX_PRICE=1500;
 function afterReceiving(){const d0=game.delivery;let bill=game.pendingBill;game.pendingBill=null;
  if(bill==null&&d0?.regular)bill=unlocked('reposicion')?(d0.expected||0)*BOX_PRICE:0;
  if(!game.tutorial&&bill>0){game.dayPurchases=(game.dayPurchases||0)+bill;record(`Factura del proveedor ${d0.id}: ${pesos(bill)} (se paga con los gastos del día).`)}
+ if(unlocked('mercafarma')){const nx=makeDelivery();if(nx){game.delivery=nx;game.inspectedPacks=[];game.boxOpened=false;game.scene='receive';save();render();return}}
  game.deliveryDone=true;game.delivery=null;game.inspectedPacks=[];game.boxOpened=false;
  if(eligibleInspection()){game.scene='inspector';game.inspectionIssue=getInspectionIssue();game.inspectionDone=false;game.inspectionResolutionLocked=false}else game.scene='close';save();render();}
 function acceptDelivery(){let d=game.delivery;if(!d||!game.boxOpened)return;
@@ -4501,7 +4567,7 @@ function reportDelivery(actual,type){let d=game.delivery;if(!d||!game.boxOpened)
  ui.modal=null;toast('Reporte enviado. Stock actualizado solo con producto aceptado.');afterReceiving();
 }
 function nextPatient(){if(game.tutorial){advancePractice();return;}if(offerNeighborsOnce())return;game.patientIndex++;game.patientResult=null;game.patientVerified=false;game.idRequested=false;game.qrChecked=false;ui.inspectZoom=100;
- if(game.patientIndex>=game.patients.length){game.scene='receive';game.delivery=makeDelivery()}else game.scene='counter';save();render()}
+ if(game.patientIndex>=game.patients.length){game.delivery=makeDelivery();if(!game.delivery){afterReceiving();return}game.scene='receive'}else game.scene='counter';save();render()}
 function openReport(){let d=game.delivery;if(!d||!game.boxOpened)return;ui.modal='report';ui.reportCount=d.actual;ui.reportType='';render()}
 function chooseDonVictor(donate){
  const patient=game.patients[game.patientIndex];
@@ -4730,6 +4796,12 @@ function handleAction(action,target){if(action==='new'){startNew();return}
   render();return}
  if(action==='shop'){if(unlocked('shop')){ui.shopTab='up';ui.modal='shop';render()}return}
  if(action==='shop-tab'){ui.shopTab=target.dataset.tab;render();return}
+ if(action==='mf-add'||action==='mf-sub'){const sc=()=>typeof document!=='undefined'?document.querySelector('.shop-modal'):null;const top=sc()?.scrollTop||0,ov=sc()?.closest('.overlay'),otop=ov?.scrollTop||0;mfAdd(target.dataset.id,action==='mf-add'?1:-1);render();const m=sc();if(m){m.scrollTop=top;const o2=m.closest('.overlay');if(o2)o2.scrollTop=otop}return}
+ if(action==='mf-group'){const gs=[...new Set(Object.values(DRUGS).map(d=>d.group))].sort();ui.mfGroup=target.dataset.g===''?'':(gs[Number(target.dataset.g)]||'');render();return}
+ if(action==='mf-search'){const v=typeof document!=='undefined'?document.getElementById('mf-search')?.value:null;if(v!=null)ui.mfQuery=v;render();return}
+ if(action==='mf-clear'){game.mfCart={};save();render();return}
+ if(action==='mf-checkout'){mfCheckout();return}
+ if(action==='no-delivery'){afterReceiving();return}
  if(action==='shop-buy'){shopBuy(target.dataset.kind,target.dataset.id);return}
  if(action==='dni-open'){ui.dniIndex=0;ui.modal='dni-gallery';render();return}
  if(action==='dni-close'){ui.modal='manual';render();return}
@@ -4944,6 +5016,7 @@ app.addEventListener('click',e=>{let el=e.target.closest('[data-action]');if(!el
 let volPreviewAt=0;
 app.addEventListener('input',e=>{if(e.target?.id==='safe-amount'){ui.safeAmount=e.target.value;return}
  if(e.target?.id==='cheat-code'){ui.cheatInput=e.target.value;return}
+ if(e.target?.id==='mf-search'){ui.mfQuery=e.target.value;return}
  const r=e.target?.closest?.('[data-volume]');if(!r)return;
  const kind=r.dataset.volume,v=Number(r.value);setAudioLevel(kind,v);
  const o=document.getElementById('vol-'+kind+'-out');if(o)o.textContent=v+' %';
@@ -4982,6 +5055,7 @@ document.addEventListener('focusin',event=>{
 });
 document.addEventListener('keydown',event=>{
  if(game&&ui.modal==='dni-gallery'&&(event.key==='ArrowLeft'||event.key==='ArrowRight'||event.key==='Escape')){event.preventDefault();if(event.key==='Escape')ui.modal='manual';else ui.dniIndex=(ui.dniIndex||0)+(event.key==='ArrowRight'?1:-1);render();return}
+ if(game&&ui.modal==='shop'&&event.key==='Enter'&&event.target?.id==='mf-search'){event.preventDefault();handleAction('mf-search',{dataset:{}});return}
  if(game&&ui.modal==='cheats'&&event.key==='Enter'&&event.target?.id==='cheat-code'){event.preventDefault();handleAction('cheat-submit',{dataset:{}});return}
  if(!game){if(event.key==='Escape'&&META_MODALS.includes(ui.modal)){event.preventDefault();ui.modal=null;menuHtml();}return;}
  if(event.key==='Tab'&&renderedModal){trapModalTab(event);return;}

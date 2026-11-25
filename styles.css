@@ -1072,3 +1072,10 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .shop-head h2{margin:4px 0}.shop-card{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0}.shop-info{flex:1;min-width:0}.shop-info h3{margin:0 0 4px}.shop-info p{margin:0}.shop-buy{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}.tag-ok{font-size:11px;font-weight:900;color:#2f6b3f}
 .shop-card .btn{text-shadow:none!important;color:#f8ead1}.shop-card .btn:disabled{opacity:.5}
 .ins-card .btn{text-shadow:none!important;color:#f8ead1}.ins-card .btn.cream,.ins-card .btn.amber{color:#17221b}
+
+.shop-pic{width:76px;height:76px;object-fit:contain;flex:none;image-rendering:pixelated}.shop-banner{display:block;width:100%;height:auto;image-rendering:pixelated;margin:0 0 4px}
+.mf-qty{display:flex;align-items:center;gap:8px;flex:none}.mf-qty b{min-width:22px;text-align:center}.mf-qty .smallbtn{min-width:34px}
+.mf-search{display:flex;gap:8px;margin:8px 0}.mf-search .field{flex:1;min-width:0}.mf-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.mf-cart{position:sticky;bottom:0;margin-top:10px;box-shadow:0 -4px 10px rgba(0,0,0,.35)}.mf-cart h3,.mf-pending h3{margin:0 0 6px}
+.mf-row .shop-info h3{font-size:14px}
+.mf-cart .btn,.mf-pending .btn{text-shadow:none!important;color:#f8ead1}.mf-cart .btn.cream{color:#2b2418}
