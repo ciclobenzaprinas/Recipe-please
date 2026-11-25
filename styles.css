@@ -1081,3 +1081,7 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .mf-cart .btn,.mf-pending .btn{text-shadow:none!important;color:#f8ead1}.mf-cart .btn.cream{color:#2b2418}
 .mf-low{border-color:#b86a2a!important;box-shadow:0 0 0 2px rgba(184,106,42,.35)}.mf-row .shop-info{min-width:0}
 .mf-cart{position:static!important;box-shadow:none!important}.mf-bar{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;padding:8px 10px;background:#1b2a22;border:2px solid #7c7358;box-shadow:0 -6px 12px rgba(0,0,0,.45);z-index:3}.mf-bar-btns{display:flex;gap:8px}.mf-bar .btn{text-shadow:none!important;color:#f8ead1;padding:8px 12px}.mf-bar .btn.cream{color:#2b2418}
+
+/* 1.9.179 · imágenes de finales */
+.ending-pic{margin:0 0 20px;border:3px solid #a89970;overflow:hidden;background:#19251f}
+.ending-pic img{display:block;width:100%;height:auto;image-rendering:pixelated}
