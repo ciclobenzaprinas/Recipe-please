@@ -1087,3 +1087,53 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .ending-pic img{display:block;width:100%;height:auto;image-rendering:pixelated}
 .stage-character.regular .gordon-portrait{width:100%;height:100%;object-fit:contain;object-position:center bottom;image-rendering:pixelated}
 .id-photo-pixel.gordon-portrait{display:block;width:100%;height:100%;object-fit:cover;object-position:center 12%;image-rendering:pixelated}
+
+/* Aviso de strike por falta de stock (1.9.187): signo de peligro grande */
+.strike-modal{text-align:center;border-color:#d9534f}
+.strike-modal .strike-icon{width:76px;height:76px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:54px;line-height:1;color:#2b1a00;background:#f2c230;border:4px solid #2b1a00;clip-path:polygon(50% 0,100% 100%,0 100%);padding-top:20px;box-sizing:border-box;animation:strikePulse 1.2s ease-in-out infinite}
+.strike-modal h2{color:#ffb3a8}
+@keyframes strikePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.strike-modal .strike-icon{animation:none}}
+
+/* Tutorial guiado de pedidos (1.9.189) */
+.mf-guide{border:3px solid #f2c230;background:#2b2a14;color:#fff3c4;position:sticky;top:0;z-index:3}
+.mf-guide .btn-row{margin-top:6px}
+
+.strike-modal .bird-img{display:block;width:100%;height:auto;margin:0 0 10px;border:3px solid #2b1a00;image-rendering:pixelated;box-sizing:border-box}
+
+/* ===== Efectos de feedback, fundido de escenas y ánimo de pacientes (1.9.196) ===== */
+.shell.fx-ok{animation:fxOk .6s ease-out}
+@keyframes fxOk{0%{box-shadow:inset 0 0 0 0 rgba(120,230,150,0)}25%{box-shadow:inset 0 0 70px 6px rgba(120,230,150,.45)}100%{box-shadow:inset 0 0 0 0 rgba(120,230,150,0)}}
+.shell.fx-bad{animation:fxBad .55s ease-in-out}
+@keyframes fxBad{0%,100%{transform:translateX(0);box-shadow:inset 0 0 0 0 rgba(230,80,70,0)}15%{transform:translateX(-7px);box-shadow:inset 0 0 70px 6px rgba(230,80,70,.5)}35%{transform:translateX(6px)}55%{transform:translateX(-4px)}75%{transform:translateX(3px)}}
+.coin-burst{position:fixed;left:0;right:0;bottom:22%;height:0;z-index:9998;pointer-events:none}
+.coin-burst i{position:absolute;bottom:0;font-style:normal;font-size:28px;opacity:0;animation:coinUp 1.2s ease-out forwards}
+@keyframes coinUp{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-190px) rotate(300deg) scale(1.1)}}
+.scene-fade{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#0d1a14;color:#f3e7b9;font-family:inherit;letter-spacing:.12em;animation:sceneFade 1.2s ease-in-out forwards}
+.scene-fade b{font-size:54px;line-height:1;font-weight:400}
+.scene-fade span{font-size:20px}
+.scene-fade small{font-size:13px;opacity:.7}
+@keyframes sceneFade{0%{opacity:0}28%{opacity:1}62%{opacity:1}100%{opacity:0}}
+.ending-pic{position:relative}
+@media(max-width:560px){.scene-fade b{font-size:44px}}
+@media(prefers-reduced-motion:reduce){.shell.fx-ok,.shell.fx-bad,.coin-burst i,.scene-fade{animation:none!important}.scene-fade,.coin-burst{display:none}}
+
+.mood-danger{color:#ffb4a8;font-weight:700;border-left:4px solid #c0392b;padding-left:8px;margin:8px 0}
+
+/* Barra superior: alertas y cambios de valor (1.9.202) */
+.game-top .hud-stat.hud-debt strong{color:#ff9d8f}
+.game-top .hud-stat.hud-warn{border-color:#d9a441}
+.game-top .hud-stat.hud-warn strong{color:#ffd279}
+.mood-track.mini-mood{position:relative}
+.mood-track.crit{border-color:#c0392b;animation:moodCrit 1.1s ease-in-out infinite}
+.mood-track.crit .mood-track-head b{color:#ff9d8f}
+@keyframes moodCrit{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}50%{box-shadow:0 0 10px 2px rgba(192,57,43,.65)}}
+.hud-delta{position:absolute;right:4px;bottom:1px;z-index:6;padding:0 5px;font-size:12px;line-height:1.3;border:2px solid #2b1a00;border-radius:4px;pointer-events:none;animation:hudDelta 1.6s ease-out forwards}
+.hud-delta.up{background:#c7e8b0;color:#1f4d1a}.hud-delta.down{background:#f2a39a;color:#6b1209}
+@keyframes hudDelta{0%{opacity:0;transform:translateY(10px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.1)}70%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+@media(prefers-reduced-motion:reduce){.mood-track.crit,.hud-delta{animation:none!important}}
+
+.game-top .mood-track.mini-mood{width:132px;min-width:132px}.game-top .mini-mood .mood-track-head{font-size:9px;white-space:nowrap;gap:3px}
+@media(max-width:650px){.game-top .mood-track.mini-mood{width:calc(50% - 4px);min-width:0;flex:1 1 130px}}
+
+.event-img{display:block;width:100%;max-width:420px;margin:10px 0;border:3px solid #3a2a1a;image-rendering:pixelated}
