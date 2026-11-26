@@ -1,4 +1,4 @@
-/* RECIPE, PLEASE — Edición 1.9.208. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
+/* RECIPE, PLEASE — Edición 1.9.209. Veintitrés pacientes chilenos más (48 en total); carnets de pelo rubio y rojo válidos, carnet falso de pelo negro, caso sin carnet con quetiapina 50 mg, menor de 17; carnet con pelo azul válido; carnets pendientes sin accesorio; mecanismo de carnet falso. */
 'use strict';
 const TUGUEL_FIRST_VISIT_INDEX=2;
 const SIS_UNLOCK_DAY=2;
@@ -967,7 +967,7 @@ function makePatient(kind,n=0,tmTitle='Médico Cirujano'){let config={
  if(kind==='tuguelExpired'){p.idIssued='22/10/2018';p.idExpires='22/10/2026';p.idValidityYears=8;p.idDateSystem=2;}if(kind==='tuguelFake'){p.idIssued='16/11/2026';p.idExpires='16/11/2034';p.idDateSystem=2;}p.quote=patientDialogue(p);return p;
 }
 
-// ===== Diálogos personalizados (1.9.208) =====
+// ===== Diálogos personalizados (1.9.209) =====
 // Estado de ánimo según la cara del sprite. Para sprites nuevos: mirar la hoja de contactos
 // (gen/contact_sheet.py) y añadir el id aquí; lo que no esté listado se considera neutro.
 const CAST_MOODS={752:'happy',756:'happy',757:'happy',759:'happy',772:'happy',776:'happy',777:'happy',781:'happy',786:'happy',789:'happy',797:'happy',806:'happy',
@@ -1139,7 +1139,7 @@ function outcomeDialogueBase(p,decision,reportCategory,returnReason,correct){
 }
 
 
-// ===== Diálogos ampliados (1.9.208) =====
+// ===== Diálogos ampliados (1.9.209) =====
 // Más variedad al llegar (saludos, motivos y colas) y reacciones activas cuando se denuncia o retiene una receta.
 // Las frases se combinan por paciente de forma determinista (dlgSeed), así que cada partida suena distinta.
 (function extendDialogues(){
@@ -1236,7 +1236,7 @@ function codaOutcomeDialogue(p,decision,correct,base){
 }
 
 
-// ===== Habla de extranjeros (1.9.208) =====
+// ===== Habla de extranjeros (1.9.209) =====
 // Los pacientes de países que no hablan español lo intentan con dificultad, mezclando su idioma;
 // los hispanohablantes conservan su giro regional. Es determinista por paciente (dlgSeed).
 const DLG_LANG_SWAPS={
@@ -1455,7 +1455,7 @@ function addCorrectedPrescriptionVisits(){
  game.patients.splice(Math.min(2,game.patients.length),0,...visitors);
 }
 
-// ===== Vecinos recurrentes y dilema de la receta vencida por poco (1.9.208) =====
+// ===== Vecinos recurrentes y dilema de la receta vencida por poco (1.9.209) =====
 // Tres vecinos con historia escrita vuelven varias veces y un puñado de pacientes comunes te "recuerdan":
 // su trato depende de cómo los atendiste. Además, de vez en cuando llega alguien con la receta vencida por 1–3 días.
 const NEIGHBOR_START_DAY=10,NEIGHBOR_GAP=4,NEIGHBOR_MEMORY_MAX=4;
@@ -1593,7 +1593,7 @@ function makeMoralExpired(i=0){
 
 // Portadas de eventos: agrega aquí el id del evento cuando exista assets/eventos/<id>.webp
 const EVENT_IMAGES=['gripe','cronicos','temporal','retiro','alerta','calor','paro','corteluz','finmes','escolar','feriado','renovacion','estudiantes','robo','club'];
-// ===== Eventos del barrio (1.9.208) =====
+// ===== Eventos del barrio (1.9.209) =====
 // Algunos días ocurre un suceso que cambia la composición de la fila, las recetas y lo que dicen los pacientes.
 const DAY_EVENTS={
  gripe:{title:'BROTE DE GRIPE EN EL BARRIO',memo:'Hay un brote de gripe e infecciones respiratorias. Espere más recetas de antibióticos, antiinflamatorios y medicamentos para el pecho; la fila será más larga.',
@@ -2402,20 +2402,22 @@ function finalizePatient(decision,reportCategory=null,returnReason=null){const p
  save();render();
 }
 function unpostedBookCount(){return [...(game.dispatches||[]),...(game.receipts||[])].filter(x=>!x.posted&&DRUGS[x.drug]?.book).length}
-// El pajarito de la ventana avisa del Libro hasta la jornada 4; el día 5 muere y desde entonces nadie lo recuerda.
+// El pajarito de la ventana se presenta el día 2 (aunque el Libro esté al día) y avisa del Libro hasta la jornada 4; el día 5 muere y desde entonces nadie lo recuerda.
 function bookBirdDue(){
  if(game.tutorial||game.mfTutorial||game.birdDead)return false;
  if(game.day===5)return true;
+ if(game.day===2&&!game.birdMet)return true;
  return game.day<5&&unpostedBookCount()>0;
 }
 function bookWarningHtml(){
- const n=unpostedBookCount(),dead=game.day>=5;
+ const n=unpostedBookCount(),dead=game.day>=5,intro=game.day===2&&n===0;
  const pend=n>0?`<p>Tienes <b>${n} movimiento${n===1?'':'s'}</b> sin registrar en el Libro de control.</p>`:'';
  const msg=dead
   ?`<p>Esta noche encontraron al pajarito sin vida junto a la ventana. Era quien te recordaba el Libro de control al cerrar.</p><p><b>Desde ahora nadie te lo va a recordar: es responsabilidad tuya.</b> El fiscalizador de SEREMI multa en cada visita los movimientos sin transcribir.</p>${pend}`
+  :intro?`<p>Un pajarito se posó en la ventana de la farmacia y te mira con la cabeza ladeada. ¡Pío, pío!</p><p>Parece que se quedó a vivir aquí. <b>Será quien te recuerde el Libro de control al cerrar</b>, mientras esté cerca.</p><p class="small">Los movimientos sin transcribir se multan en cada visita del fiscalizador de SEREMI. Cuídalo.</p>`
   :`<p>¡Pío, pío! El pajarito de la ventana te avisa:</p>${pend}<p>Si el fiscalizador de SEREMI llega, <b>los movimientos sin transcribir se multan en cada visita</b>.</p><p class="small">Registrarlos antes de cerrar también te da el bono de $4.000 cuando corresponde.</p>`;
  const buttons=n>0?btn('IR AL LIBRO','book-warn-go','green')+btn('CERRAR IGUAL','book-warn-close','cream'):btn('CONTINUAR','book-warn-close','green');
- return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${dead?'El pajarito murió':'Libro de control pendiente'}"><div class="modal ins-modal strike-modal"><div class="strike-icon" aria-hidden="true">⚠</div><img class="bird-img" alt="" src="assets/${dead?'pajarito_muerto':'pajarito_vivo'}.webp"><h2>${dead?'EL PAJARITO MURIÓ':'LIBRO DE CONTROL PENDIENTE'}</h2>${msg}<div class="btn-row">${buttons}</div></div></div>`;
+ return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${dead?'El pajarito murió':intro?'Un pajarito en la ventana':'Libro de control pendiente'}"><div class="modal ins-modal strike-modal">${intro?'':'<div class="strike-icon" aria-hidden="true">⚠</div>'}<img class="bird-img" alt="" src="assets/${dead?'pajarito_muerto':'pajarito_vivo'}.webp"><h2>${dead?'EL PAJARITO MURIÓ':intro?'UN VISITANTE EN LA VENTANA':'LIBRO DE CONTROL PENDIENTE'}</h2>${msg}<div class="btn-row">${buttons}</div></div></div>`;
 }
 function postMovements(day,kind,rectification=false){let lines=(kind==='dispatch'?game.dispatches:game.receipts).filter(x=>x.day===day&&!x.posted&&DRUGS[x.drug]?.book);
  if(!lines.length)return 0;
@@ -3742,7 +3744,7 @@ function wrap(body){
   toastEl.classList.remove('show');
  }
  const returning=modal?null:modalOpener;
- app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.208 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
+ app.innerHTML=`<main class="shell" data-practice-step="${game.tutorial?practiceKey():''}"${modal?' inert aria-hidden="true"':''}>${['welcome','prologue'].includes(game.scene)||game.gameOverReason==='day-seven-false-prescription'?'':header()}${body}</main><div class="footer">RECIPE, PLEASE · Edición 1.9.209 · Una obra de ficción. Simulación farmacéutica simplificada, no una guía clínica ni normativa.</div>${modal}`;
  bindDrag();
  playFx();
  practiceCoach(modal);
@@ -3784,7 +3786,7 @@ function trapModalTab(event){
 }
 function btn(text,act,cls='dark',extra=''){return `<button class="btn ${cls}" data-action="${act}" ${extra}>${text}</button>`}
 function actionbar(items){return `<div class="actionbar">${items.map(x=>btn(...x)).join('')}</div>`}
-// ===== 1.9.208 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
+// ===== 1.9.209 · Meta-progreso (álbum de pacientes y logros) y resumen de jornada =====
 // El progreso del álbum y de los logros vive en una clave aparte: sobrevive a "Nueva partida".
 const META_KEY='recipe_please_meta_v1';
 let metaCache=null,metaMemory=null;
@@ -4212,7 +4214,7 @@ function metaMenuModal(){return META_MODALS.includes(ui.modal)?metaModalHtml():'
 
 function menuHtml(){clearModalRendering();if(TACA_PREVIEW){
  app.innerHTML='<main class="shell"><section class="menu-options"><h1>¡Campeones de taca-taca!</h1><div class="btn-row"><a class="btn cream" href="./?escenas=carlitos">Volver a probar las escenas</a><a class="btn green" href="./">Jugar la versión completa</a></div></section></main>';return;
- }if(!ui.modal&&!meta().noticeSeen)ui.modal='notice';let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.208','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}${btn('ⓘ AVISO Y CRÉDITOS','about','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
+ }if(!ui.modal&&!meta().noticeSeen)ui.modal='notice';let saved=load();app.innerHTML=`<main class="shell">${stage('menu','EDICIÓN JUGABLE · VERSIÓN 1.9.209','Su receta, por favor · una decisión, una consecuencia')}<section class="menu-options textured-menu"><div class="menu-audio" role="group" aria-label="Sonido y música"><button class="smallbtn audio-toggle" data-action="audio" aria-haspopup="dialog" title="Audio: activar, desactivar y regular el volumen">${ui.soundEnabled||ui.musicEnabled?'♫ AUDIO':'♪ AUDIO: NO'}</button></div><h1>UNA RECETA.<br>UNA DECISIÓN.<br>UNA CONSECUENCIA.</h1><p>Eres el químico farmacéutico de una farmacia de barrio. Revisa documentos, recibe pedidos, controla medicamentos y cuida de tu familia. Las decisiones no siempre son fáciles.</p><div class="btn-row">${btn('▶ NUEVA PARTIDA','new','green')}${saved?btn('▣ CONTINUAR PARTIDA','continue','cream'):''}${btn('▦ ÁLBUM ('+albumCount()+'/'+ALBUM.length+')','album','dark')}${btn('★ LOGROS ('+achCount()+'/'+ACHIEVEMENTS.length+')','achievements','dark')}${btn('ⓘ AVISO Y CRÉDITOS','about','dark')}</div><div class="difficulty"><b>Esta versión ya permite:</b><p class="small">Pacientes sin repetición durante la campaña · firmas caligráficas · regalos animados · documentos con texturas · documentos arrastrables · atención y validación de recetas · comparación ampliada · recepción física de pedidos · reportes · libros correlativos · fiscalizaciones y rectificaciones · remuneración · familia y Charlitos · eventos clandestinos.</p><p class="tiny muted">Contiene una campaña de demostración con jornadas repetibles. El arte es un prototipo derivado de los bocetos aprobados; las reglas de juego no sustituyen procedimientos sanitarios reales.</p></div></section></main>${metaMenuModal()}`}
 function briefingHtml(){return `${stage('pharmacy',`MEMORÁNDUM · DÍA ${z(game.day)}`,'Inicio del turno farmacéutico')}<section class="content"><div class="content-grid"><div class="paper"><h2>CIRCULAR INTERNA</h2><p><b>Fecha:</b> ${dateOf(game.day)}</p><p><b>Jornada:</b> ${z(game.day)} / Simulación</p><hr><p>${game.day===1?'Revise identidad, tipo de receta y condiciones de dispensación. Un documento vencido debe devolverse sin denuncia automática.':game.day===2?'Desde hoy puede recibir una fiscalización. Mantenga al día el Libro y valide el código de barras de cada receta electrónica antes de dispensar.':'Las alertas de talonarios robados y las discrepancias de inventario pueden relacionarse con casos anteriores. Revisa el teléfono ☎ en la barra superior.'}</p>${game.day>=3?'<p class="pill bad">ALERTA: FOLIOS 003450–003499</p>':''}${game.day===PHONE_BROKEN_DAY+1?'<p class="pill bad">TELÉFONO NUEVO DISPONIBLE</p><p>Compraron un teléfono nuevo para la farmacia: ya puedes volver a llamar a los médicos.</p>':''}${game.dayEvent&&DAY_EVENTS[game.dayEvent]?`<p class="pill bad">${escapeText(DAY_EVENTS[game.dayEvent].title)}</p><p>${escapeText(DAY_EVENTS[game.dayEvent].memo)}</p>${EVENT_IMAGES.includes(game.dayEvent)?`<img class="event-img" src="assets/eventos/${game.dayEvent}.webp" alt="" onerror="this.remove()">`:''}`:''}<p class="mini">Catálogo ampliado por principio activo y concentración. Recetas simples sin libro especial de control. Todos los pacientes son ficticios.</p></div><div class="dark-card"><h2>ESTADO DE LA FARMACIA</h2><div class="money-line"><span>Pacientes programados</span><strong>${game.patients.length}</strong></div><div class="money-line"><span>Pedidos por recibir</span><strong>1</strong></div><div class="money-line"><span>Asientos pendientes</span><strong>${game.dispatches.filter(x=>!x.posted).length+game.receipts.filter(x=>!x.posted).length}</strong></div><div class="money-line"><span>Dinero familiar</span><strong>${pesos(game.cash)}</strong></div><div class="notice ${game.day>=3?'warn':''}">El hijo del protagonista se llama <b>Charlitos</b> y padece el síndrome ficticio de Ibanei.</div></div></div></section>${actionbar([['▶ COMENZAR ATENCIÓN','go-counter','green'],['▤ CONSULTAR LIBRO','book','cream'],['? VER MANUAL','manual','dark']])}`}
 function declaresTechnologistTitle(p){
  return p.kind==='tmFraud'&&p.claimedTitle==='Tecnólogo Médico';
@@ -4221,7 +4223,7 @@ function prescriberNameOnPrescription(p){
  return p.claimedTitle?p.prescriber.replace(/^(?:TM|Pod)\.\s*/,''):p.prescriber;
 }
 // Recetas con plantilla ilustrada: la imagen es el fondo y los datos se escriben sobre sus espacios en blanco (coordenadas en píxeles de la imagen).
-// 1.9.208 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
+// 1.9.209 · Domicilios estables por persona; el del paciente nunca coincide con el del consultorio.
 function rxHash(str){let h=2166136261;for(const c of String(str)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 const RX_HOME_STREETS=['Los Aromos','Pasaje Las Lilas','Calle Los Nogales','Av. Santa Rosa','Los Copihues','Pasaje El Roble','Av. La Florida','Calle Maipú','Los Alerces','Av. Vicuña Mackenna','Pasaje Los Olmos','Calle San Martín','Av. Gran Avenida','Los Peumos','Pasaje Las Violetas','Calle O\'Higgins','Av. Pedro Aguirre Cerda','Los Boldos','Pasaje Arrayán','Calle Esmeralda'];
 const RX_HOME_COMUNAS=['Santiago','Ñuñoa','La Florida','Maipú','Puente Alto','San Miguel','Quilicura','Peñalolén','La Cisterna','Independencia'];
@@ -4300,7 +4302,7 @@ function rxTemplateHtml(p){
  }
  return `<div class="paper doc draggable rx-tpl rx-tpl-${key} ${documentWearClass(p,'rx')}" data-drag="rx" title="${title}" aria-label="${labelTxt}" style="--tpl-img:url('${assetUrl(t.img)}');--tpl-ink:${t.ink};aspect-ratio:${t.w}/${t.h}">${f}</div>`;
 }
-// 1.9.208 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
+// 1.9.209 · Recetas simples/retenidas/controladas: 20 diseños, todos con la misma probabilidad.
 // [x,y,w,h de la insignia FOLIO, y de cada fila de datos] medidos por diseño
 const RX_SIMPLE_LAYOUT=[[816,92,187,93,276,344,411,477,543],[820,93,181,91,276,345,412,478,544],[818,93,186,91,276,344,411,478,543],[819,92,187,94,276,344,411,477,544],[818,93,186,90,275,344,411,477,543],[812,90,201,96,276,345,411,477,544],[816,110,181,91,287,347,407,468,528],[819,92,186,92,275,341,406,470,533],[818,89,184,96,277,344,411,477,543],[818,93,185,91,275,344,411,477,544],[818,92,185,92,274,343,411,478,544],[817,92,189,94,276,345,412,478,544],[810,109,182,87,276,342,407,471,536],[819,92,185,93,276,345,412,477,543],[819,91,186,95,275,344,411,477,543],[817,125,182,89,296,360,422,483,546],[820,92,186,93,276,345,412,478,544],[818,92,186,93,276,344,411,477,544],[817,92,189,93,275,344,411,477,543],[816,87,190,102,276,345,411,477,543]];
 const RX_SIMPLE_COUNT=20,RX_SIMPLE_W=1060,RX_SIMPLE_H=1484,RX_SIMPLE_INK='#14203f';
@@ -4699,7 +4701,7 @@ function moodEndingHtml(reason){
  return `<section class="content ending-credits"><figure class="ending-pic"><img src="${assetUrl(family?'assets/endings/familia-primero.webp':'assets/endings/cierre-voluntario.webp')}" alt="${family?'La familia reunida en la mesa: Charlitos muestra un dibujo de los tres y las llaves de la farmacia quedan sobre el mantel':'La farmacia con la cortina metálica baja y un cartel que dice Cerrado hasta nuevo aviso, mientras el químico se aleja por la calle al atardecer'}"></figure><div class="paper center"><h2>${title}</h2>${text.map(x=>`<p>${escapeText(x)}</p>`).join('')}<p>${lesson}</p><p><b>FIN DE LA PARTIDA</b></p>${endingStats()}${family?'':`<p class="mini">${HELPLINE_TEXT}</p>`}<p class="mini">Situación ficticia con fines narrativos.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`;
 }
 function gameOverHtml(){if(game.gameOverReason==='day-seven-false-prescription')return daySevenEndingHtml();if(game.gameOverReason==='tragedia')return tragedyEndingHtml();if(game.gameOverReason==='clausura-stock')return stockClosureHtml();if(game.gameOverReason==='quiebra')return bankruptcyHtml();if(game.gameOverReason==='animo-carlitos'||game.gameOverReason==='animo-qf')return moodEndingHtml(game.gameOverReason);return `${stage('inspection','FIN DE LA PARTIDA · LA ÚLTIMA DISPENSACIÓN','Final secreto')}<section class="content"><div class="paper center"><h2>INVESTIGACIÓN Y CONDENA</h2><p>El cliente encubierto se identificó como fiscalizador tras la dispensación clandestina.</p><p>La investigación posterior termina en una condena de prisión para el protagonista.</p><p><b>FIN</b></p><p class="mini">La situación es un recurso narrativo ficticio; no representa un resultado judicial automático en Chile.</p></div></section>${actionbar([['NUEVA PARTIDA','new','green'],['MENÚ PRINCIPAL','menu','dark']])}`}
-// ===== Manual práctico (1.9.208) =====
+// ===== Manual práctico (1.9.209) =====
 const MANUAL_TABS=['INICIO','RECETAS','CÉDULAS','DECISIONES','MEDICAMENTOS','INVENTARIO','SEREMI','SIS','ECONOMÍA','CONTROLES','SOBRE LOS DATOS'];
 // Botón de muestra: se ve igual que el del juego pero no hace nada.
 function mb(label,cls='dark'){return `<span class="btn ${cls} mbtn" aria-hidden="true">${label}</span>`}
@@ -5176,7 +5178,7 @@ function inspectionHtml(){
  const title=finished?'FISCALIZACIÓN FINALIZADA':'ACTA DE INSPECCIÓN';
  return `${stage('inspection','FISCALIZACIÓN · SEREMI','Revisión de registros y antecedentes')}<section class="content"><div class="content-grid"><div class="paper"><h2>${title}</h2><p>${escapeText(issue.text||'Revisión de inventario y recetas.')}</p><p class="small">${relevant}</p>${btn('▤ CONSULTAR RESPALDO','proof','cream')}</div><div class="dark-card"><h2>${finished?'RESULTADO REGISTRADO':'DECISIÓN'}</h2>${finished?`<p><b>${result.action==='rectify'?'Rectificación registrada.':issue.type==='clean'?'Fiscalización sin observaciones.':'Observación aceptada.'}</b></p><p>${result.fine?'Multa aplicada una sola vez: '+pesos(result.fine):'Sin multa en esta fiscalización.'}</p><p class="small">El acta ya está cerrada; no se pueden volver a aplicar faltas por el mismo expediente.</p>${btn('CONTINUAR AL CIERRE →','inspection-continue','green')}`:`${issue.type==='clean'?'':`<label class="inspection-consent" for="inspectionConsent"><input id="inspectionConsent" type="checkbox" ${consent?'checked':''}><span>Estoy de acuerdo con la fiscalización, asumo mi responsabilidad y me comprometo a que no se vuelva a repetir.</span></label>`}${btn('REGISTRAR RECTIFICACIÓN Y CERRAR','inspect-rectify','green',issue.proof?'':'disabled')}${btn(issue.type==='clean'?'CERRAR FISCALIZACIÓN':'ACEPTAR OBSERVACIÓN Y CERRAR','inspect-acknowledge','amber',issue.type==='clean'||consent?'':'disabled')}`}</div></div></section>`;
 }
-// 1.9.208 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
+// 1.9.209 · Precarga en segundo plano de los sprites de los próximos pacientes (cuerpo + carnet).
 const PRELOADED=new Set();
 function preloadUpcomingPortraits(ahead=4){
  if(typeof Image==='undefined'||!game||!Array.isArray(game.patients))return;
@@ -5690,7 +5692,7 @@ function handleAction(action,target){if(action==='new'){startNew();return}
  if(action==='use-school-cloth'){resolveSchoolCloth(false);return}
  if(action==='book-warn-go'){ui.modal=null;handleAction('book',{dataset:{}});return}
  if(action==='book-warn-close'){ui.modal=null;closeDayGoHome();return}
- if(action==='go-home'){if(game.scene==='close'&&game.deliveryDone&&(!game.inspectionIssue||game.inspectionDone)){if(bookBirdDue()){if(game.day>=5)game.birdDead=true;ui.modal='book-warning';render();return}closeDayGoHome()}return}
+ if(action==='go-home'){if(game.scene==='close'&&game.deliveryDone&&(!game.inspectionIssue||game.inspectionDone)){if(bookBirdDue()){if(game.day>=5)game.birdDead=true;if(game.day===2)game.birdMet=true;ui.modal='book-warning';render();return}closeDayGoHome()}return}
  if(action==='repay-debt'){repayDebt();return}
  if(action==='pay-expenses'){homePay(false);return}
  if(action==='defer-expenses'){homePay(true);return}
@@ -5801,15 +5803,15 @@ if(typeof document!=='undefined')document.addEventListener('visibilitychange',()
  if(document.hidden){stopMusic()} else if(ui.musicEnabled){playMusic()}
 });
 
-// ===== Iconos en pixel art en lugar de emojis (1.9.208) =====
+// ===== Iconos en pixel art en lugar de emojis (1.9.209) =====
 // Los textos del juego conservan su símbolo (para tests y accesibilidad); se dibuja el sprite encima.
-const ICON_MAP={'⚠':'alerta','☎':'telefono','⚖':'balanza','☂':'paraguas','📦':'caja','🔧':'llave','❄':'nieve','🛒':'carrito','⛔':'prohibido','✔':'check','♥':'corazon','▶':'play','💧':'gota','💼':'maletin','🔒':'candado','💵':'efectivo','🌅':'amanecer','🔎':'lupa','🌇':'atardecer','🌙':'luna','🪙':'moneda','⚕':'cruz','✈':'avion','⌛':'reloj','🍞':'pan','☠':'calavera','🏆':'trofeo'};
-const ICON_RE=/(?:⚠|☎|⚖|☂|📦|🔧|❄|🛒|⛔|✔|♥|▶|💧|💼|🔒|💵|🌅|🔎|🌇|🌙|🪙|⚕|✈|⌛|🍞|☠|🏆)\uFE0F?/gu;
+const ICON_MAP={'⚠':'alerta','☎':'telefono','⚖':'balanza','☂':'paraguas','📦':'caja','🔧':'llave','❄':'nieve','🛒':'carrito','⛔':'prohibido','✔':'check','♥':'corazon','▶':'play','💧':'gota','💼':'maletin','🔒':'candado','💵':'efectivo','🌅':'amanecer','🔎':'lupa','🌇':'atardecer','🌙':'luna','🪙':'moneda','⚕':'cruz','✈':'avion','⌛':'reloj','🍞':'pan','☠':'calavera','🏆':'trofeo','✓':'check','⌕':'lupa'};
+const ICON_RE=/(?:✓|⌕|⚠|☎|⚖|☂|📦|🔧|❄|🛒|⛔|✔|♥|▶|💧|💼|🔒|💵|🌅|🔎|🌇|🌙|🪙|⚕|✈|⌛|🍞|☠|🏆)\uFE0F?/gu;
 function iconizeNode(root){
  if(!root||typeof document==='undefined')return;
  const base=root.nodeType===3?root.parentNode:root;if(!base||!base.closest)return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{
-  if(!n.nodeValue||!/[⚠☎⚖☂📦🔧❄🛒⛔✔♥▶💧💼🔒💵🌅🔎🌇🌙🪙⚕✈⌛🍞☠🏆]/u.test(n.nodeValue))return NodeFilter.FILTER_REJECT;
+  if(!n.nodeValue||!/[✓⌕⚠☎⚖☂📦🔧❄🛒⛔✔♥▶💧💼🔒💵🌅🔎🌇🌙🪙⚕✈⌛🍞☠🏆]/u.test(n.nodeValue))return NodeFilter.FILTER_REJECT;
   const el=n.parentNode;if(!el||el.closest('.ico,script,style,textarea,option,title'))return NodeFilter.FILTER_REJECT;
   return NodeFilter.FILTER_ACCEPT}});
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);

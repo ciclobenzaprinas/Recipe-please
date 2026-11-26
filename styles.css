@@ -1143,3 +1143,14 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 .mini-mood .mood-face{width:18px;height:18px}
 .hud-stat .ico,.smallbtn .ico{width:1.25em;height:1.25em}
 .strike-icon .ico{width:1.4em;height:1.4em}
+
+/* Logros: marco por nivel (1.9.208) */
+.ach-icon{flex:0 0 54px;height:54px;border-width:4px;border-style:solid;box-sizing:border-box;position:relative}
+.ach-icon .ico{width:34px;height:34px;text-indent:-9999px}
+.ach.done.t-bronce .ach-icon{background:#3b2a1b;border-color:#c98a4b;box-shadow:inset 0 0 0 2px #7a4b22,0 0 0 2px #2b1a0a,inset 0 -6px 0 rgba(0,0,0,.25)}
+.ach.done.t-plata .ach-icon{background:#2a3138;border-color:#d7dee4;box-shadow:inset 0 0 0 2px #8b97a1,0 0 0 2px #1a2127,inset 0 -6px 0 rgba(0,0,0,.25)}
+.ach.done.t-oro .ach-icon{background:#3a2d0f;border-color:#f3cf63;box-shadow:inset 0 0 0 2px #b88a1c,0 0 0 2px #2a1d03,0 0 10px rgba(243,207,99,.45),inset 0 -6px 0 rgba(0,0,0,.25)}
+.ach.done.t-especial .ach-icon{background:#2d1a38;border-color:#e6a6f5;box-shadow:inset 0 0 0 2px #9b4cc0,0 0 0 2px #1d0f26,0 0 10px rgba(230,166,245,.45),inset 0 -6px 0 rgba(0,0,0,.25)}
+.ach.done .ach-icon::after{content:"";position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;border:2px solid #1a1f1b}
+.ach.done.t-bronce .ach-icon::after{background:#c98a4b}.ach.done.t-plata .ach-icon::after{background:#d7dee4}.ach.done.t-oro .ach-icon::after{background:#f3cf63}.ach.done.t-especial .ach-icon::after{background:#e6a6f5}
+.ach.done .ach-icon{color:#f6e8c0}
