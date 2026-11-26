@@ -1137,3 +1137,9 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 @media(max-width:650px){.game-top .mood-track.mini-mood{width:calc(50% - 4px);min-width:0;flex:1 1 130px}}
 
 .event-img{display:block;width:100%;max-width:420px;margin:10px 0;border:3px solid #3a2a1a;image-rendering:pixelated}
+
+.ico{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;overflow:hidden;text-indent:-9999px;white-space:nowrap;line-height:1}
+.mood-face{width:22px;height:22px;image-rendering:pixelated;vertical-align:middle;margin-right:2px}
+.mini-mood .mood-face{width:18px;height:18px}
+.hud-stat .ico,.smallbtn .ico{width:1.25em;height:1.25em}
+.strike-icon .ico{width:1.4em;height:1.4em}
