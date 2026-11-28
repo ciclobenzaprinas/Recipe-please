@@ -1158,3 +1158,7 @@ button.sticker:hover,button.sticker:focus-visible{transform:translateY(-3px) rot
 
 .ach.locked:not(.secret) .ach-icon .ico{filter:grayscale(1) brightness(.55);opacity:.8}
 .ach.locked .ach-icon{color:transparent}
+
+.ds-dot{cursor:pointer;padding:0;font-family:inherit}.ds-dot.sel{outline:3px solid #ffcf79;outline-offset:2px}.ds-detail{margin:10px 0;padding:10px 12px;background:#1b2a21;border:2px solid #69735e;color:#ece6cb}.ds-detail.bad{border-color:#d9776a}.ds-detail.ok{border-color:#7fc48a}.run-summary .paper{margin-top:12px}
+
+.mood-siren{animation:sirenbg 1s steps(2) infinite}.mood-siren .siren{font-size:54px;text-align:center;animation:sirenpulse .6s ease-in-out infinite alternate}@keyframes sirenbg{0%{background:#3a0a0ada}100%{background:#090f0bda}}@keyframes sirenpulse{from{transform:scale(1);filter:drop-shadow(0 0 4px #f33)}to{transform:scale(1.2);filter:drop-shadow(0 0 16px #f33)}}@media(prefers-reduced-motion:reduce){.mood-siren,.mood-siren .siren{animation:none}}
