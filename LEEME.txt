@@ -1,4 +1,4 @@
-RECETA, POR FAVOR · Exportación móvil 1.9.214
+RECETA, POR FAVOR · Exportación móvil 1.9.215
 
 Para usar el paquete web, extrae el ZIP y publica juntos index.html,
 styles.css, game.js y la carpeta assets en un alojamiento estático HTTPS.
